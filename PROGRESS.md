@@ -4,6 +4,115 @@ Running log of where things stand between sessions. Newest entry first.
 
 ---
 
+## 2026-09-04 (later) — Live on Vercel; Razorpay webhook registered and verified against production
+
+**OrangeLink is live**: https://orangelink-six.vercel.app (Vercel project
+`naveens138/orangelink`). Deployed via the Vercel CLI directly (`vercel
+--prod`), not yet via GitHub integration — `git ls-remote origin` still
+returns nothing as of this entry, so the manual `git push` from the
+previous entry still hasn't happened. This deploy will NOT auto-update on
+future commits until either that push happens and `vercel git connect` is
+run, or someone runs `vercel --prod` again by hand.
+
+### What got set up
+
+- Installed the Vercel CLI (`npm install --global vercel@latest`) and
+  authenticated via device-code OAuth
+  (`vercel.com/oauth/device?user_code=...`) — the user approved it in
+  their own browser; no credentials touched this session at any point.
+- Linked/created the Vercel project with an explicit lowercase name
+  (`vercel link --project orangelink`) — the default derived from the
+  directory name (`OrangeLink`) was rejected for containing uppercase
+  letters.
+- Set all 9 required production env vars via `vercel env add ... --value
+  "..." --yes` (config type for public values, `secret` type for
+  `SUPABASE_SERVICE_ROLE_KEY`/`RAZORPAY_KEY_SECRET`/
+  `RAZORPAY_WEBHOOK_SECRET` — note the CLI's flag is `--type secret`, not
+  `--type sensitive` as one might guess or as older docs suggest).
+- Deployed, then had to fix `NEXT_PUBLIC_SITE_URL` (initially set to a
+  guessed `orangelink.vercel.app`, which wasn't the real assigned domain —
+  the actual stable alias turned out to be `orangelink-six.vercel.app`,
+  visible in the first deploy's own output) and redeployed.
+- **Verified the live deployment for real**, not just "build succeeded":
+  curled the real Supabase-backed `/jane` page and found real content
+  ("Jane Rivera"), confirmed `/dashboard` and `/admin/payouts` both
+  correctly redirect unauthenticated visitors to `/login`, and confirmed
+  `/pricing` genuinely 404s in production. (A Browser-pane screenshot
+  initially looked broken — unstyled, no CSS — but that traced to this
+  sandboxed browser's own content blocker rejecting Vercel's CDN asset
+  paths with `ERR_BLOCKED_BY_CLIENT`; a plain `curl` on the same CSS URL
+  returned 200 fine. Real users in a real browser are unaffected — this
+  was purely a limitation of verifying from inside this sandboxed browser,
+  not a deployment problem. Lesson: when the Browser pane shows something
+  broken that a service's own real-world behavior wouldn't produce, check
+  with curl before concluding the deployment itself is broken.)
+
+### Razorpay webhook registered — and a real API-shape surprise
+
+Registered via a raw POST to `/v1/webhooks` (not the Node SDK, after the
+SDK produced confusing errors that turned out to be about the same root
+cause) — webhook id `TXsejV0SPg9oGJ`, pointed at
+`https://orangelink-six.vercel.app/api/webhooks/razorpay`, events
+`payment.captured` + `payment.failed`, secret matching
+`RAZORPAY_WEBHOOK_SECRET`.
+
+**The `events` field must be an object of `{eventName: true}`, not an
+array of event name strings.** Multiple real, current-looking web sources
+(blog posts, even one search-engine-summarized "example" that looked
+authoritative) show `"events": ["payment.captured", "payment.failed"]` —
+this is wrong for creating a webhook via `POST /v1/webhooks` and produces
+misleading errors that don't point at the actual problem:
+- An array with 2+ items → `"Invalid event name/names: 1"` (reads like a
+  bad event *name*, not a bad event *shape*).
+- An array with exactly 1 item → `"the json request could not be
+  decoded"` (reads like malformed JSON, when the JSON was perfectly
+  valid).
+
+Diagnosed by testing systematically — ruled out shell quoting (wrote the
+body to a file), ruled out the SDK (reproduced identically via raw curl),
+confirmed every event name individually against Razorpay's real docs
+(all valid), and only then tried the object shape as a last hypothesis,
+which worked immediately. **If this resurfaces**: `events` is
+`{"payment.captured": true, ...}`, confirmed against the real, live API
+response (which echoes back the full event object with every other event
+type defaulted to `false`) — not assumed from any single doc source.
+
+**Verified against the live, deployed route** (not just "the registration
+call succeeded"): created a real Razorpay test order via the API
+(`order_TXsfe9lGkEwDPn`, with real `orangelink_*` notes), built a
+`payment.captured` webhook payload referencing it, signed it for real
+(`HMAC-SHA256(raw_body, RAZORPAY_WEBHOOK_SECRET)`, matching
+`razorpay/dist/utils/razorpay-utils.js`'s own `validateWebhookSignature`),
+and POSTed it to the real production URL. Confirmed a real `orders` row
+appeared in the production database — `paid`, `payment_provider:
+razorpay`, and **`platform_fee_cents: 120`** on a $24.00 order, correctly
+computed as 5% (`creators.platform_fee_bps` default), proving the
+Milestone-payouts fee fix from the entry below also works correctly in
+production. Test order, its order_item, and the test customer row were
+all deleted afterward — production data is clean again.
+
+### Known gaps
+
+- GitHub still doesn't have the code (`git ls-remote origin` empty) — the
+  live deployment is CLI-only for now, no continuous deployment from
+  pushes yet.
+- `NEXT_PUBLIC_PADDLE_ENV` etc. were never set on Vercel (deliberate —
+  `/pricing` is hidden, see the entry below), so if `_pricing/` is ever
+  restored without also setting those, it'll hard-error in production
+  exactly as designed.
+- Preview/Development Vercel environments have none of these env vars set
+  yet — only Production. Only matters once there's a git connection
+  producing preview deployments.
+
+### Next concrete steps
+
+1. Confirm the user's `git push -u origin main` (still pending as of this
+   entry) and run `vercel git connect` for continuous deployment.
+2. Meta for Developers app setup for Milestone 7 — separate, not started
+   in this entry.
+
+---
+
 ## 2026-09-04 — Git init, first commit, Vercel deploy prep, `/pricing` hidden
 
 - **Repo now under git.** Was never initialized before this. First commit
