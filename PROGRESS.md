@@ -4,6 +4,31 @@ Running log of where things stand between sessions. Newest entry first.
 
 ---
 
+## 2026-09-04 (later still) — Google OAuth on production: Supabase Site URL gotcha
+
+User tried "Continue with Google" on the live site and landed on
+`localhost:3000/?code=...` — a real failure, not a false alarm. Root cause
+wasn't the app code (`GoogleButton`/`auth/callback` both correctly derive
+the redirect from `window.location.origin`/forwarded headers, confirmed by
+reading them again) — it was Supabase's own Auth **Site URL**, still set
+to `http://localhost:3000` from local dev. When the actual redirect
+target isn't in Supabase's allowed list, it silently falls back to Site
+URL instead of erroring, which is what produced the exact symptom.
+
+**Fix (user did this, dashboard-only, I don't have Supabase
+management-API access):** Authentication → URL Configuration → set
+**Site URL** to `https://orangelink-six.vercel.app`, add
+`https://orangelink-six.vercel.app/**` to **Redirect URLs** alongside the
+existing `http://localhost:3000/**`. Confirmed fixed — user reported
+Google sign-in working on production afterward.
+
+**If this resurfaces on a future domain change** (custom domain, etc.):
+update both Site URL and Redirect URLs in Supabase again — this is a
+per-environment dashboard setting, nothing in the repo tracks or enforces
+it, and there's no code-level fallback for it.
+
+---
+
 ## 2026-09-04 (later) — Live on Vercel; Razorpay webhook registered and verified against production
 
 **OrangeLink is live**: https://orangelink-six.vercel.app (Vercel project
