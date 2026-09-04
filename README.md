@@ -16,9 +16,11 @@ Creator "operating system" — one public page (link-in-bio + storefront + portf
 
 Milestones 7–10 (comment-to-DM automation, media kit, Calendly, polish) are styled placeholders that name the milestone that fills them in.
 
-### Platform billing (Paddle) — not a BUILD_BRIEF milestone
+### Platform billing (Paddle) — not a BUILD_BRIEF milestone, currently paused and unrouted
 
-`/pricing` — a Starter/Pro/Advanced subscription pricing page where **creators pay OrangeLink** for the platform itself, via [Paddle](https://www.paddle.com) (Paddle Billing, sandbox). This is the opposite money direction from the "Payments" section below, which is a creator's *own* storefront selling to *their* buyers — the two are deliberately kept on separate tables (`paddle_customers`/`paddle_subscriptions` vs. `customers`/`orders`). Country-localized prices and a monthly/yearly toggle via `Paddle.PricePreview()`, checkout via `Paddle.Checkout.open()`, subscription state mirrored into Postgres by a signature-verified webhook at `/api/webhooks/paddle`. Real sandbox catalog (3 products, 6 prices, 7-day trial, GB/IE/AU price overrides) and the webhook's verify-and-write path are both confirmed working against real data — see `PROGRESS.md` for exactly what's proven and what still needs a public URL (webhook delivery) or a dashboard setting (the default payment link) before it's fully live end-to-end. Paddle does **not** support marketplace/split payouts to creators (confirmed against real docs) — irrelevant here since this is platform billing, not a creator storefront, but worth knowing if that question ever comes up again.
+`src/app/_pricing/` (renamed from `pricing/` — Next.js's underscore convention excludes a folder from the App Router entirely) holds a built Starter/Pro/Advanced subscription pricing page where **creators pay OrangeLink** for the platform itself, via [Paddle](https://www.paddle.com) (Paddle Billing, sandbox). This is the opposite money direction from the "Payments" section below, which is a creator's *own* storefront selling to *their* buyers — the two are deliberately kept on separate tables (`paddle_customers`/`paddle_subscriptions` vs. `customers`/`orders`). Country-localized prices and a monthly/yearly toggle via `Paddle.PricePreview()`, checkout via `Paddle.Checkout.open()`, subscription state mirrored into Postgres by a signature-verified webhook at `/api/webhooks/paddle`. Real sandbox catalog (3 products, 6 prices, 7-day trial, GB/IE/AU price overrides) and the webhook's verify-and-write path are both confirmed working against real data — see `PROGRESS.md`. Paddle does **not** support marketplace/split payouts to creators (confirmed against real docs) — irrelevant here since this is platform billing, not a creator storefront, but worth knowing if that question ever comes up again.
+
+**Unrouted, not deleted**, since going live meant either finishing Paddle env var setup for a half-configured page or hiding it — the user chose to hide it (deliberate decision, see `PROGRESS.md`) until payment-provider strategy for subscriptions is settled. Restoring it is a folder rename back to `pricing/`.
 
 See [`PROGRESS.md`](./PROGRESS.md) for the detailed, dated session-by-session log — what was verified, what wasn't, and what to pick up next.
 
@@ -45,7 +47,7 @@ Copy `.env.local.example` to `.env.local` and fill in:
 | `DATABASE_URL` | Settings → Database → URI | `scripts/` only — migrations and seeding |
 | `DODO_PAYMENTS_*` | Dodo Dashboard → Developer | checkout — **pending account verification, ~72h as of 2026-09-02** |
 | `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` / `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Razorpay Dashboard → Settings → API Keys | checkout — **set, this is the working provider right now** |
-| `PADDLE_API_KEY` / `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` / `NEXT_PUBLIC_PADDLE_ENV` / `PADDLE_NOTIFICATION_WEBHOOK_SECRET` | Paddle Dashboard → Developer Tools | `/pricing` platform billing (sandbox) — **set**, see "Platform billing" above |
+| `PADDLE_API_KEY` / `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` / `NEXT_PUBLIC_PADDLE_ENV` / `PADDLE_NOTIFICATION_WEBHOOK_SECRET` | Paddle Dashboard → Developer Tools | platform billing (sandbox), currently unrouted — see "Platform billing" above. Not needed in production while `/pricing` is hidden. |
 | `RESEND_API_KEY` | Resend dashboard | Milestone 4 (receipts) — **not yet set** |
 | `ANTHROPIC_API_KEY` | console.anthropic.com | optional — AI title cleanup on import |
 

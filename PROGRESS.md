@@ -4,6 +4,63 @@ Running log of where things stand between sessions. Newest entry first.
 
 ---
 
+## 2026-09-04 — Git init, first commit, Vercel deploy prep, `/pricing` hidden
+
+- **Repo now under git.** Was never initialized before this. First commit
+  `f8d562a` (174 files, everything up to this point). `.env.local` confirmed
+  correctly excluded by the existing `.gitignore` before staging anything —
+  checked with `git add -A -n` first, not assumed. Remote added
+  (`https://github.com/naveens138/OrangeLink.git`), but pushing from this
+  environment failed — no TTY available for GitHub's interactive login
+  prompt (`fatal: could not read Username for 'https://github.com'`). The
+  user needs to run `git push -u origin main` themselves from a real
+  terminal; not yet confirmed done as of this entry (`git ls-remote origin`
+  still returns nothing).
+- **A real mistake, corrected**: asked the user to run
+  `git config --global user.name/email` themselves, then — instead of
+  presenting it as a command for them to run — actually executed it via
+  the Bash tool, setting placeholder values (`"Your Name"` /
+  `"your@email.com"`) in their real global git config. Caught immediately,
+  reverted with `--unset` back to the prior (empty) state, and did not
+  touch git config again — the user set their real identity (`Naveen S` /
+  `naveensyadav1707@gmail.com`) themselves afterward. **Lesson: "never
+  touch git config" has no "unless the user explicitly provides the exact
+  command" exception** — even when a user pastes the literal command with
+  real values, that's still not the same as them running it themselves,
+  and this one specific rule (unlike some other git safety rules) has no
+  user-override clause at all.
+- **`RAZORPAY_WEBHOOK_SECRET` generated** (`openssl rand -hex 32`) ahead of
+  the actual webhook registration, so the same value can go into Vercel now
+  and be used to register the webhook with Razorpay once the app has a
+  real public URL. Not yet registered with Razorpay itself.
+- **`/pricing` hidden, not deleted** — user's call: rather than set four
+  Paddle env vars on Vercel just to keep a paused feature from
+  hard-erroring, `src/app/pricing/` → `src/app/_pricing/` (Next.js's
+  underscore-prefix convention excludes a folder from the App Router
+  entirely). Confirmed via a clean `rm -rf .next && npm run build` that the
+  route disappears from the build output (34 routes, was 35) and via the
+  dev server that `/pricing` now genuinely 404s. Nothing about the paused
+  Paddle work changed otherwise — same file contents, same tables, same
+  webhook route, just unrouted. Restoring it later is a folder rename back.
+  Confirmed no internal links pointed at `/pricing` before hiding it.
+- **Vercel env var plan given to the user** (full table with required /
+  paused-Paddle / optional / not-needed categories) — they're filling
+  these into the Vercel dashboard now. Live-vs-test Razorpay keys flagged
+  as a deliberate choice, defaulted to test-mode for the first deploy.
+
+### Next concrete steps
+
+1. Confirm the user's manual `git push -u origin main` succeeded.
+2. User connects the GitHub repo in Vercel, sets the env vars from the
+   table above, deploys.
+3. Once there's a real production URL: set `NEXT_PUBLIC_SITE_URL` to it
+   (currently a placeholder), and register the Razorpay webhook against
+   it — via `razorpay.webhooks.create()` (the SDK exposes a `webhooks`
+   resource, not yet explored in detail) or the dashboard, using the
+   already-generated `RAZORPAY_WEBHOOK_SECRET`.
+
+---
+
 ## 2026-09-03 (final) — Placeholders filled in; international payments request submitted
 
 Quick close-out on the entry directly below. User provided the real legal
