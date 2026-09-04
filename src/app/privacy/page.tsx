@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PolicyPage, PolicySection, PolicyList } from "@/components/marketing/policy-page";
 
 export const metadata = { title: "Privacy Policy — OrangeLink" };
@@ -111,7 +112,12 @@ export default function PrivacyPage() {
             privacy@orangelink.co
           </a>
           . Creators can also manage and delete their own account data directly
-          from their dashboard settings.
+          from their dashboard settings. If you connected a Facebook Page or
+          Instagram account for comment-to-DM automation, see{" "}
+          <Link href="/data-deletion" className="text-accent underline">
+            Data Deletion Instructions
+          </Link>{" "}
+          for what that specifically covers.
         </p>
       </PolicySection>
 
