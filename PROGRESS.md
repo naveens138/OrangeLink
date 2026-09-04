@@ -104,12 +104,29 @@ all deleted afterward — production data is clean again.
   yet — only Production. Only matters once there's a git connection
   producing preview deployments.
 
+### Update, same day: GitHub connected for continuous deployment
+
+`git push -u origin main` succeeded (`git ls-remote origin` now shows
+`ca1e473` on `main`). `vercel git connect` initially failed with the same
+"Failed to connect... Make sure there aren't any typos and that you have
+access" error even against the now-non-empty repo — turned out Vercel's
+GitHub App had never been authorized against the `naveens138` GitHub
+account at all (a one-time OAuth authorization only the user could grant,
+via Vercel dashboard → Settings → Git). Once the user did that, `vercel
+git connect` succeeded — confirmed by a Preview deployment appearing
+automatically (Vercel's own post-connect verification build), not just by
+trusting the CLI's exit message. **Pushing to `main` now deploys to
+production automatically** — manual `vercel --prod` is no longer the only
+way to ship a change, though it still works if needed.
+
+Not yet done: Preview/Development Vercel environments have no env vars
+set (only Production) — only matters once there's a PR or non-main branch
+triggering an actual Preview build that needs them.
+
 ### Next concrete steps
 
-1. Confirm the user's `git push -u origin main` (still pending as of this
-   entry) and run `vercel git connect` for continuous deployment.
-2. Meta for Developers app setup for Milestone 7 — separate, not started
-   in this entry.
+Meta for Developers app setup for Milestone 7 — separate, not started
+in this entry.
 
 ---
 
