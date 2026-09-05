@@ -4,6 +4,75 @@ Running log of where things stand between sessions. Newest entry first.
 
 ---
 
+## 2026-09-05 — Block editor: tabbed Links/Shop view, rich link cards, follow-to-unlock blocks
+
+Three additions on top of the Milestone 2 block editor, inspired by the
+Linktr.ee/mojobike pattern of a tabbed link-in-bio page (not their branding
+or exact layout — see `DESIGN_SYSTEM.md` §0 on adapting vs. copying).
+
+**1. Tabbed public page (`Links`/`Shop`).** New `pages.theme.tabbed_view`
+boolean, toggled from a checkbox in the block editor's "Page theme" modal
+(`src/components/editor/block-editor.tsx`). `src/components/public/public-page-view.tsx`
+splits visible blocks into product blocks ("Shop", rendered as a 2-column
+grid) and everything else ("Links", single column) — the pill tab switcher
+only renders when the creator has both `tabbed_view` on *and* at least one
+block of each kind; a single-section page always falls back to one
+continuous scroll, no dead/disabled tab ever shown. Documented as a
+reusable pattern in `DESIGN_SYSTEM.md` §8b.
+
+**2. Rich link cards with auto-fetched metadata.** Pasting a URL into a
+link block's URL field (or clicking "Fetch title, image & description" in
+`block-inspector.tsx`) calls the new `fetchLinkPreview` action
+(`src/app/(dashboard)/dashboard/links/actions.ts`), which wraps
+`src/lib/import/link-metadata.ts` — this reuses Milestone 3's existing
+`safeFetchPage`/`extractProfile` SSRF-guarded fetch-and-extract pipeline
+rather than a second implementation. Only non-empty fetched fields
+overwrite the form, so a creator's manual edits or an already-set badge
+survive a re-fetch. `link-block.tsx` renders an image+title+description
+card when `config.image` is present, with an optional short `badge` text
+overlay (e.g. a discount code), falling back to the original plain pill
+otherwise. `product-block.tsx` was redesigned from a horizontal row to a
+vertical card so it also works in the new 2-column Shop grid.
+
+**3. Follow-to-unlock gated blocks.** New `config.unlock_condition` on any
+block (`{ type: 'follow_instagram' | 'follow_tiktok', url, label? }`, set
+via a new "Unlock condition" section in `block-inspector.tsx`). No
+platform exposes an API to verify an actual follow, so
+`src/components/blocks/follow-unlock-gate.tsx` is an explicit honor-system
+gate — clicking the CTA opens the creator's profile in a new tab and
+unlocks the block immediately, client-side only (session/render-only
+state, no persistence across reloads). A `follow_unlock_clicked` analytics
+event still fires on click so the creator can see engagement despite no
+real verification. Nested inside the existing `PasswordGate` in
+`block-renderer.tsx` (password gate outermost, follow-unlock innermost) so
+a block can require both. New locked-block visual pattern documented in
+`DESIGN_SYSTEM.md` §8b, matching `PasswordGate`'s bordered-pill-with-icon
+language.
+
+**Schema:** `migrations/0010_link_cards_and_gating.sql` widens the
+`analytics_events.event_type` CHECK constraint to allow
+`follow_unlock_clicked`; both new config shapes live in existing `jsonb`
+columns (`pages.theme`, `blocks.config`), no new columns or tables.
+`schema.sql` comments updated to match (note: `schema.sql` had already
+drifted from migrations 0007–0009 before this session — only this
+session's own additions were kept in sync, the pre-existing drift is
+unaddressed).
+
+**Verified in the browser**, not just `tsc`/`eslint`/`build`: logged into
+the seeded demo creator (`jane@example.com`, see `scripts/seed.mjs`),
+exercised all three features live against `/jane` — metadata fetch pulled
+YouTube's real og:title/description/image, the tab switcher and 2-column
+Shop grid rendered, the follow-unlock CTA unlocked client-side and the
+`follow_unlock_clicked` row landed in `analytics_events` with the correct
+`creator_id`/`block_id`. Demo account's blocks/theme were reset back to
+their original `scripts/seed.mjs` values afterward (direct admin-client
+update — `scripts/seed.mjs` itself couldn't re-run cleanly because later
+milestones added FK references to the demo creator that block its
+delete-and-reinsert step; that's pre-existing, not something this session
+introduced).
+
+---
+
 ## 2026-09-04 (later still) — Google OAuth on production: Supabase Site URL gotcha
 
 User tried "Continue with Google" on the live site and landed on

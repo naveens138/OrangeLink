@@ -1,4 +1,4 @@
-import type { Block, Product } from "@/lib/types";
+import type { Block, Product, UnlockCondition } from "@/lib/types";
 import { LinkBlock } from "./link-block";
 import { ProductBlock } from "./product-block";
 import { EmailCaptureBlock } from "./email-capture-block";
@@ -9,6 +9,7 @@ import { ImageBlock } from "./image-block";
 import { EmbedBlock } from "./embed-block";
 import { BookingBlock } from "./booking-block";
 import { PasswordGate } from "./password-gate";
+import { FollowUnlockGate } from "./follow-unlock-gate";
 
 function isWithinSchedule(block: Block, now: Date): boolean {
   if (block.visible_from && now < new Date(block.visible_from)) return false;
@@ -59,9 +60,19 @@ export function BlockRenderer({
   const content = renderContent(block, username, products);
   if (!content) return null;
 
+  const unlockCondition = (block.config as { unlock_condition?: UnlockCondition })
+    .unlock_condition;
+  const gated = unlockCondition ? (
+    <FollowUnlockGate condition={unlockCondition} blockId={block.id} username={username}>
+      {content}
+    </FollowUnlockGate>
+  ) : (
+    content
+  );
+
   if (block.is_password_protected) {
-    return <PasswordGate blockId={block.id}>{content}</PasswordGate>;
+    return <PasswordGate blockId={block.id}>{gated}</PasswordGate>;
   }
 
-  return content;
+  return gated;
 }

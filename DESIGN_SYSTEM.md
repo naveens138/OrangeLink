@@ -164,6 +164,13 @@ Adapt these — never copy Outpace/Rare branding, copy, or exact layouts (see §
 
 ---
 
+## 8b. Block Editor States
+
+- **Pill tab switcher.** Two-option toggle (e.g. "Links" / "Shop") in a `rounded-pill border border-current/15 p-1` container; the active option gets a filled `surface`/`accent` pill background, the inactive option is transparent text-only. Used for the public page's Links/Shop split (`src/components/public/public-page-view.tsx`) — only render the switcher when there are genuinely two populated sections to switch between; a single-section page skips it entirely rather than showing a disabled or empty tab.
+- **Locked block state.** A block that isn't accessible yet (password-protected, follow-to-unlock) renders as a `rounded-pill border border-current/15` CTA the same height as a normal link block, with a small `Lock` icon and a short instruction label ("Follow on Instagram to unlock") in place of its real content — never a greyed-out disabled-looking version of the block itself. Once unlocked, the CTA is replaced by the actual block content, not layered over it. Established by `PasswordGate`, reused by `FollowUnlockGate` (`src/components/blocks/follow-unlock-gate.tsx`) for the honor-system follow-to-unlock pattern.
+
+---
+
 ## 9. MVP Screen Map
 
 | # | Screen | Desktop | Mobile | Core Goal |

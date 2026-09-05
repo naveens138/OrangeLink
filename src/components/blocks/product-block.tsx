@@ -20,14 +20,14 @@ export function ProductBlock({
     <Link
       href={`/${username}/p/${product.id}`}
       onClick={() => track({ username, eventType: "block_click", blockId: block.id, productId: product.id })}
-      className="flex items-center gap-4 rounded-lg border border-current/15 p-3 transition-transform duration-[170ms] hover:-translate-y-0.5 active:scale-[0.98]"
+      className="flex flex-col gap-2 rounded-lg border border-current/15 p-3 transition-transform duration-[170ms] hover:-translate-y-0.5 active:scale-[0.98]"
     >
-      <div className="h-16 w-16 shrink-0 rounded-md bg-current/10" />
-      <div className="min-w-0 flex-1">
+      <div className="aspect-square w-full rounded-md bg-current/10" />
+      <div className="min-w-0">
         <p className="truncate text-body font-medium">{product.name}</p>
         <p className="truncate text-small opacity-60">{product.description}</p>
       </div>
-      <p className="shrink-0 font-mono text-body">
+      <p className="font-mono text-body">
         {formatPrice(product.price_cents, product.currency)}
       </p>
     </Link>

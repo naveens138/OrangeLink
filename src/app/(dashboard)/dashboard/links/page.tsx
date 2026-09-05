@@ -10,6 +10,7 @@ export default async function LinksPage() {
       username={creator.username}
       initialBlocks={page.blocks}
       initialPreset={page.theme.preset ?? "minimal"}
+      initialTabbedView={page.theme.tabbed_view ?? false}
       products={products}
     />
   );

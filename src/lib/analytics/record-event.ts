@@ -6,7 +6,8 @@ export type AnalyticsEventType =
   | "block_click"
   | "product_view"
   | "checkout_start"
-  | "checkout_complete";
+  | "checkout_complete"
+  | "follow_unlock_clicked";
 
 export interface UtmParams {
   utm_source?: string | null;

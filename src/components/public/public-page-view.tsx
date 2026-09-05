@@ -1,11 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useTheme } from "@/components/theme/theme-provider";
 import { BlockRenderer } from "@/components/blocks/block-renderer";
 import { PageTracker } from "@/components/analytics/page-tracker";
+import { cn } from "@/lib/utils";
 import { themePresets, type ThemePreset } from "@/lib/theme-presets";
-import type { Creator, Page, Product } from "@/lib/types";
+import type { Block, Creator, Page, Product } from "@/lib/types";
+
+type Tab = "links" | "shop";
 
 export function PublicPageView({
   creator,
@@ -19,10 +23,31 @@ export function PublicPageView({
   const { resolvedTheme } = useTheme();
   const preset: ThemePreset = page.theme.preset ?? "minimal";
   const colors = themePresets[preset][resolvedTheme];
+  const [activeTab, setActiveTab] = useState<Tab>("links");
 
   const visibleBlocks = page.blocks
     .filter((b) => b.type !== "header")
     .sort((a, b) => a.position - b.position);
+
+  const productBlocks = visibleBlocks.filter((b) => b.type === "product");
+  // "Shop" is specifically the product grid; every other block type (links,
+  // text, email capture, embeds, ...) reads naturally as one combined
+  // "Links" tab rather than inventing a third bucket the creator never asked
+  // for — same split linktr.ee/mojobike use.
+  const linkBlocks = visibleBlocks.filter((b) => b.type !== "product");
+
+  const canTab = page.theme.tabbed_view && productBlocks.length > 0 && linkBlocks.length > 0;
+
+  function renderBlockList(blocks: Block[]) {
+    return blocks.map((block) => (
+      <BlockRenderer
+        key={block.id}
+        block={block}
+        username={creator.username}
+        products={products}
+      />
+    ));
+  }
 
   return (
     <div
@@ -41,16 +66,35 @@ export function PublicPageView({
           )}
         </div>
 
-        <div className="flex w-full flex-col gap-3">
-          {visibleBlocks.map((block) => (
-            <BlockRenderer
-              key={block.id}
-              block={block}
-              username={creator.username}
-              products={products}
-            />
-          ))}
-        </div>
+        {canTab ? (
+          <>
+            <div className="flex items-center gap-1 rounded-pill border border-current/15 p-1">
+              {(["links", "shop"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  className={cn(
+                    "rounded-pill px-5 py-2 text-small font-medium capitalize transition-colors duration-[170ms]",
+                    activeTab === tab
+                      ? "bg-current/10 text-current"
+                      : "opacity-60 hover:opacity-100",
+                  )}
+                >
+                  {tab === "links" ? "Links" : "Shop"}
+                </button>
+              ))}
+            </div>
+
+            {activeTab === "links" ? (
+              <div className="flex w-full flex-col gap-3">{renderBlockList(linkBlocks)}</div>
+            ) : (
+              <div className="grid w-full grid-cols-2 gap-3">{renderBlockList(productBlocks)}</div>
+            )}
+          </>
+        ) : (
+          <div className="flex w-full flex-col gap-3">{renderBlockList(visibleBlocks)}</div>
+        )}
 
         <Link
           href="/"

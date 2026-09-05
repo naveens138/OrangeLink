@@ -41,16 +41,19 @@ export function BlockEditor({
   username,
   initialBlocks,
   initialPreset,
+  initialTabbedView,
   products,
 }: {
   pageId: string;
   username: string;
   initialBlocks: Block[];
   initialPreset: ThemePreset;
+  initialTabbedView: boolean;
   products: Product[];
 }) {
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [themePreset, setThemePreset] = useState<ThemePreset>(initialPreset);
+  const [tabbedView, setTabbedView] = useState<boolean>(initialTabbedView);
   const [selectedId, setSelectedId] = useState<string | null>(
     initialBlocks[0]?.id ?? null,
   );
@@ -165,8 +168,16 @@ export function BlockEditor({
   function changeTheme(preset: ThemePreset) {
     const previous = themePreset;
     setThemePreset(preset);
-    persist(() => updatePageTheme(pageId, preset), {
+    persist(() => updatePageTheme(pageId, preset, tabbedView), {
       revert: () => setThemePreset(previous),
+    });
+  }
+
+  function changeTabbedView(next: boolean) {
+    const previous = tabbedView;
+    setTabbedView(next);
+    persist(() => updatePageTheme(pageId, themePreset, next), {
+      revert: () => setTabbedView(previous),
     });
   }
 
@@ -308,7 +319,25 @@ export function BlockEditor({
         onClose={() => setThemeOpen(false)}
         title="Page theme"
       >
-        <ThemePresetPicker value={themePreset} onChange={changeTheme} />
+        <div className="flex flex-col gap-5">
+          <ThemePresetPicker value={themePreset} onChange={changeTheme} />
+
+          <label className="flex items-start gap-2.5 border-t border-border pt-4 text-body text-text-primary">
+            <input
+              type="checkbox"
+              checked={tabbedView}
+              onChange={(e) => changeTabbedView(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-accent"
+            />
+            <span>
+              Links / Shop tabs
+              <span className="mt-0.5 block text-small text-text-muted">
+                Splits your page into two tabs instead of one scroll. Only
+                shown if your page has both link and product blocks.
+              </span>
+            </span>
+          </label>
+        </div>
       </Modal>
 
       {selectedBlock && (

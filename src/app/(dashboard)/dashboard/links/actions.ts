@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { fetchLinkMetadata, type LinkMetadata } from "@/lib/import/link-metadata";
 import type { Block, BlockType } from "@/lib/types";
 import type { ThemePreset } from "@/lib/theme-presets";
 
@@ -120,14 +121,28 @@ export async function reorderBlocks(
 export async function updatePageTheme(
   pageId: string,
   preset: ThemePreset,
+  tabbedView?: boolean,
 ): Promise<ActionResult> {
   const supabase = await createClient();
   const { error } = await supabase
     .from("pages")
-    .update({ theme: { preset } })
+    .update({ theme: { preset, tabbed_view: tabbedView } })
     .eq("id", pageId);
 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/dashboard/links");
   return { ok: true, data: undefined };
+}
+
+/**
+ * Fetches title/description/image for a link block from the pasted URL —
+ * same SSRF-guarded fetch + og-tag/embedded-JSON extraction as Milestone 3's
+ * page import (src/lib/import/link-metadata.ts). Doesn't touch the block
+ * itself; the inspector applies the result so the creator can still edit
+ * any field before it's saved.
+ */
+export async function fetchLinkPreview(url: string): Promise<ActionResult<LinkMetadata>> {
+  const result = await fetchLinkMetadata(url);
+  if (!result.ok) return { ok: false, error: result.error };
+  return { ok: true, data: result.metadata };
 }

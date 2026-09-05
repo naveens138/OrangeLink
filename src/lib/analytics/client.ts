@@ -24,7 +24,12 @@ export function getVisitorId(): string {
 
 export interface TrackInput {
   username: string;
-  eventType: "page_view" | "block_click" | "product_view" | "checkout_start";
+  eventType:
+    | "page_view"
+    | "block_click"
+    | "product_view"
+    | "checkout_start"
+    | "follow_unlock_clicked";
   pageId?: string;
   blockId?: string;
   productId?: string;

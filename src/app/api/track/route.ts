@@ -11,6 +11,7 @@ const CLIENT_EVENT_TYPES: AnalyticsEventType[] = [
   "block_click",
   "product_view",
   "checkout_start",
+  "follow_unlock_clicked",
 ];
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

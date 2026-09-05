@@ -69,6 +69,7 @@ create table public.pages (
   seo_description text,
   og_image_url text,
   theme jsonb not null default '{}'::jsonb,    -- colors, font, spacing, layout tokens (block-based editor output)
+                                                --   + tabbed_view: boolean (Links/Shop tabs vs one scroll, migrations/0010)
   published boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -92,11 +93,17 @@ create table public.blocks (
   is_password_protected boolean not null default false,
   password_hash text,
   config jsonb not null default '{}'::jsonb,   -- type-specific data:
-                                                --   link: { url, label, icon }
+                                                --   link: { url, label, icon, image?, description?, badge? }
+                                                --     (image/description auto-fetched via the Milestone 3 import
+                                                --     extractor when a creator pastes a URL, or set by hand;
+                                                --     badge is a short overlay string, e.g. a discount code)
                                                 --   product: { product_id }
                                                 --   embed: { platform, embed_url }
                                                 --   email_capture: { headline, cta_text }
                                                 --   booking: { provider: 'calendly', url }
+                                                --   any block type: unlock_condition?: { type:
+                                                --     'follow_instagram' | 'follow_tiktok', url, label? } —
+                                                --     honor-system gate, see migrations/0010 and FollowUnlockGate
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -274,7 +281,8 @@ create table public.visitors (
 create index idx_visitors_creator on public.visitors(creator_id);
 
 -- Generic event stream: page_view, block_click, product_view, checkout_start,
--- checkout_complete. This is the source of truth for funnel construction.
+-- checkout_complete, follow_unlock_clicked (honor-system gate click, see
+-- migrations/0010). This is the source of truth for funnel construction.
 create table public.analytics_events (
   id bigint generated always as identity primary key,
   creator_id uuid not null references public.creators(id) on delete cascade,
@@ -285,7 +293,7 @@ create table public.analytics_events (
   order_id uuid references public.orders(id),
   event_type text not null check (event_type in (
     'page_view', 'block_click', 'product_view', 'checkout_start',
-    'checkout_complete', 'email_capture'
+    'checkout_complete', 'email_capture', 'follow_unlock_clicked'
   )),
   metadata jsonb default '{}'::jsonb,
   occurred_at timestamptz not null default now()
