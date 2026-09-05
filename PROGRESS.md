@@ -4,6 +4,58 @@ Running log of where things stand between sessions. Newest entry first.
 
 ---
 
+## 2026-09-05 (later) — Razorpay switched to live mode; international payments now accepted for real
+
+Razorpay approved the international payments application (user confirmed
+directly, submitted outside this session). Since Razorpay is now the sole
+payment provider going forward (Paddle/Dodo remain paused, unrouted, no
+production env vars), the one remaining payments task was making
+production actually charge real cards instead of running in test mode.
+
+**What changed:**
+- Registered a **live-mode** Razorpay webhook (id `TYPplPKed31qUF`,
+  `service: "api-live"`) via a direct POST to `/v1/webhooks` using the live
+  key_id/secret — webhooks are scoped per mode, so the existing test-mode
+  webhook (`TXsejV0SPg9oGJ`) doesn't cover live traffic and a separate one
+  was required. Subscribed to the same two events as before:
+  `payment.captured`, `payment.failed`.
+- User rotated Vercel's production env vars themselves (`vercel env rm`/
+  `add` for `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`,
+  `NEXT_PUBLIC_RAZORPAY_KEY_ID`, `RAZORPAY_WEBHOOK_SECRET`) from the
+  test-mode values to the live ones already sitting in `.env.local`
+  (`RAZORPAY_LIVE_KEY_ID`/`RAZORPAY_LIVE_KEY_SECRET`), then redeployed —
+  this session's own attempts at both `vercel env rm/add` and
+  `vercel env pull` against production were blocked by the auto-mode
+  safety classifier (rotating live payment credentials), so the commands
+  were handed to the user to run instead rather than working around the
+  block.
+- No app code changes needed — `src/lib/razorpay/client.ts` and every
+  Razorpay route already read `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET`/
+  `RAZORPAY_WEBHOOK_SECRET` generically; swapping the underlying secret
+  values was sufficient.
+
+**Verified for real, without spending any money:** created a genuine
+order via the live production endpoint
+(`POST /api/razorpay/create-order` against `orangelink-six.vercel.app`,
+real published USD product) and confirmed it via the live Razorpay API
+(`orders.fetch`) — `order_TYQgjzaEnze2lx`, `status: "created"`,
+`amount_paid: 0`, visible only under the live key, not the test one. This
+proves both that production is genuinely authenticating with live
+credentials (a stale/wrong secret would 401) and that international/
+multi-currency acceptance (USD, not just INR) actually works end-to-end,
+not just that the application was approved.
+
+**Not done / left as-is:** no real end-to-end payment (browser checkout →
+card capture → webhook fulfillment) has been run in live mode — Razorpay's
+checkout iframe is PCI-isolated the same way it was in test mode (see the
+Milestone 4/6 entries below), and actually spending real money isn't
+something this session will do. The user should run one small real
+purchase themselves to confirm the full live flow before treating this as
+fully proven. Razorpay Route, Paddle, and Dodo are all still exactly where
+prior entries left them — nothing about this change reopens any of those.
+
+---
+
 ## 2026-09-05 — Block editor: tabbed Links/Shop view, rich link cards, follow-to-unlock blocks
 
 Three additions on top of the Milestone 2 block editor, inspired by the
