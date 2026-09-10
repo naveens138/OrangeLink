@@ -66,7 +66,7 @@ const { data: page, error: pageErr } = await admin
     slug: "jane",
     is_primary: true,
     title: "Jane Rivera",
-    theme: { preset: "warm" },
+    theme: { preset: "warm", tabbed_view: true },
     published: true,
   })
   .select()

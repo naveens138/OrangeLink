@@ -27,14 +27,15 @@ export function ProductFormModal({
   open,
   onClose,
   product,
-  dodoConfigured,
+  paymentsConnected,
   onSaved,
 }: {
   open: boolean;
   onClose: () => void;
   /** undefined = creating a new product */
   product?: Product;
-  dodoConfigured: boolean;
+  /** Whether this creator has connected their own Razorpay account. */
+  paymentsConnected: boolean;
   onSaved: (product: Product) => void;
 }) {
   const [error, setError] = useState<string | null>(null);
@@ -182,12 +183,12 @@ export function ProductFormModal({
           <p className="text-small text-danger">{uploadState.message}</p>
         )}
 
-        {!dodoConfigured && (
+        {!paymentsConnected && (
           <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-small text-warning">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
-              Payments aren&apos;t connected. This product will save, but
-              won&apos;t be purchasable until Dodo Payments keys are added.
+              This product will save, but buyers can&apos;t pay for it until you
+              connect Razorpay in Payments.
             </span>
           </div>
         )}

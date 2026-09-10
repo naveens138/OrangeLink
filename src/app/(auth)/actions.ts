@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
+import { DEFAULT_PRESET } from "@/lib/theme-presets";
 
 export type AuthState = { error: string } | null;
 
@@ -143,7 +144,7 @@ export async function claimUsername(
     slug: username,
     is_primary: true,
     title: username,
-    theme: { preset: "minimal" },
+    theme: { preset: DEFAULT_PRESET, tabbed_view: true },
     published: true,
   });
   if (pageError) return { error: pageError.message };

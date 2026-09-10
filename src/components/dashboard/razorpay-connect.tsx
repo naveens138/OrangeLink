@@ -42,9 +42,7 @@ export function RazorpayConnect({
         <div className="rounded-md border border-border bg-surface-1 p-4">
           <p className="text-h3">
             Connected{" "}
-            <span className="text-body font-normal text-text-secondary">
-             , {keyId}
-            </span>
+            <span className="font-mono text-small font-normal text-text-secondary">· {keyId}</span>
           </p>
           {!isLive && (
             <p className="mt-1 text-body text-warning">
@@ -64,7 +62,7 @@ export function RazorpayConnect({
       <form action={formAction} className="flex max-w-xl flex-col gap-4">
         <Field
           label="Key ID"
-          hint="From Razorpay Dashboard → Account & Settings → API Keys. Starts with rzp_live_."
+          hint="Starts with rzp_live_. See the steps above for where to find it."
         >
           {(p) => (
             <Input
@@ -120,10 +118,8 @@ export function RazorpayConnect({
       <div className="max-w-xl rounded-md border border-border bg-surface-1 p-4">
         <p className="text-h3">Your webhook URL</p>
         <p className="mt-1 text-body text-text-secondary">
-          In Razorpay, add this under Account &amp; Settings → Webhooks, with
-          the events <code>payment.captured</code> and{" "}
-          <code>payment.failed</code>. Use any secret you like and paste the
-          same one above.
+          Paste this into Razorpay under Account &amp; Settings → Webhooks,
+          with the <code>payment.captured</code> event (steps 05 to 07 above).
         </p>
         <div className="mt-3 flex items-center gap-2">
           <code className="flex-1 truncate rounded border border-border bg-background px-3 py-2 text-small">

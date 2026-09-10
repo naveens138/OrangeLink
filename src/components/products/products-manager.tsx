@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { AlertCircle, Package, Plus, Pencil, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,10 +12,11 @@ import type { Product } from "@/lib/types";
 
 export function ProductsManager({
   initialProducts,
-  dodoConfigured,
+  paymentsConnected,
 }: {
   initialProducts: Product[];
-  dodoConfigured: boolean;
+  /** Whether this creator has connected their own Razorpay account. */
+  paymentsConnected: boolean;
 }) {
   const [products, setProducts] = useState(initialProducts);
   const [formOpen, setFormOpen] = useState(false);
@@ -61,12 +63,15 @@ export function ProductsManager({
         </Button>
       </div>
 
-      {!dodoConfigured && (
+      {!paymentsConnected && (
         <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-small text-warning">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            Payments aren&apos;t connected yet. Products save normally, but
-            checkout won&apos;t work until Dodo Payments keys are added.
+            Connect your Razorpay account so buyers can pay you. Products save
+            normally until then.{" "}
+            <Link href="/dashboard/payments" className="font-medium underline underline-offset-2">
+              Set up payments
+            </Link>
           </span>
         </div>
       )}
@@ -94,12 +99,6 @@ export function ProductsManager({
                   {formatPrice(product.price_cents, product.currency)}
                 </p>
                 <div className="flex items-center gap-1">
-                  {!product.dodo_product_id && (
-                    <span
-                      title="Not yet synced to payments"
-                      className="h-1.5 w-1.5 rounded-full bg-warning"
-                    />
-                  )}
                   <button
                     type="button"
                     onClick={() => openEdit(product)}
@@ -128,7 +127,7 @@ export function ProductsManager({
         open={formOpen}
         onClose={() => setFormOpen(false)}
         product={editing}
-        dodoConfigured={dodoConfigured}
+        paymentsConnected={paymentsConnected}
         onSaved={onSaved}
       />
     </div>

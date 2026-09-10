@@ -9,6 +9,7 @@ import { SocialIconsBlock } from "@/components/blocks/social-icons-block";
 import { PageTracker } from "@/components/analytics/page-tracker";
 import { ShareButton } from "@/components/public/share-button";
 import { Modal } from "@/components/ui/modal";
+import { DEFAULT_PRESET, isThemePreset, themePresets } from "@/lib/theme-presets";
 import { cn } from "@/lib/utils";
 import type { Block, Creator, Page, Product } from "@/lib/types";
 
@@ -55,8 +56,13 @@ export function PublicPageView({
   const productBlocks = body.filter((b) => b.type === "product");
   const linkBlocks = body.filter((b) => b.type !== "product");
   const hasShop = productBlocks.length > 0;
-  const canTab = hasShop && linkBlocks.length > 0;
-  const showShop = (canTab && activeTab === "shop") || (!canTab && hasShop);
+  const hasLinks = linkBlocks.length > 0;
+  // The creator's choices from the dashboard's Page theme popup. Tabs are on
+  // unless turned off, and only mean anything when there are both links
+  // and products; otherwise the page is one scroll either way.
+  const tabbed = page.theme?.tabbed_view ?? true;
+  const canTab = tabbed && hasShop && hasLinks;
+  const preset = isThemePreset(page.theme?.preset) ? page.theme.preset : DEFAULT_PRESET;
 
   const shopProducts = productBlocks
     .map((b) => products.find((p) => p.id === (b.config as { product_id?: string }).product_id))
@@ -76,12 +82,66 @@ export function PublicPageView({
     ));
   }
 
+  const shopGrid = (
+    <div className="grid grid-cols-2 gap-3">
+      {productBlocks.map((block, i) =>
+        // An odd last product takes the full row, as in the reference,
+        // instead of leaving a hole beside it.
+        productBlocks.length % 2 === 1 && i === productBlocks.length - 1 ? (
+          <div key={block.id} data-wide className="col-span-2">
+            {render([block])}
+          </div>
+        ) : (
+          <div key={block.id}>{render([block])}</div>
+        ),
+      )}
+    </div>
+  );
+
+  // withDoorway: the "See Full Shop" card leading into the Shop tab. Only
+  // in tabbed mode; in one scroll the shop is simply further down.
+  function linkList(withDoorway: boolean) {
+    return (
+      <div className="flex flex-col gap-3">
+        {withDoorway && (
+          <button
+            type="button"
+            onClick={() => setActiveTab("shop")}
+            className="storefront-pill w-full overflow-hidden rounded-[32px] p-3 pb-4"
+          >
+            {/* Fixed-width tiles rather than flex-1, so the third runs off
+                the edge the way the reference's does and the strip reads as
+                "there's more in here". The strip's own grey shows through the
+                gaps as hairline dividers. */}
+            <div className="flex gap-[3px] overflow-hidden rounded-[24px] bg-[#e9e7e3]">
+              {shopProducts.slice(0, 3).map((p) => (
+                <div
+                  key={p.id}
+                  className="aspect-[3/5] w-[38%] shrink-0 bg-white bg-cover bg-center"
+                  style={p.cover_image_url ? { backgroundImage: `url(${p.cover_image_url})` } : undefined}
+                />
+              ))}
+            </div>
+            <p className="mt-3 text-[14px] font-semibold">See Full Shop</p>
+            <p className="text-[13px] text-text-secondary">
+              {shopProducts.length} product{shopProducts.length === 1 ? "" : "s"}
+            </p>
+          </button>
+        )}
+        {render(linkBlocks)}
+      </div>
+    );
+  }
+
   // Frosted, like the card: the ground shows through.
   const glassButton =
     "flex h-10 items-center justify-center rounded-full bg-white/70 text-text-primary shadow-[0_0_0_1px_rgba(0,0,0,0.06)] backdrop-blur-md transition-[background-color,transform] duration-200 hover:scale-[1.04] hover:bg-white";
 
   return (
-    <div className="theme-storefront storefront-ground min-h-screen text-text-primary sm:px-6 sm:pt-12">
+    <div
+      className="theme-storefront storefront-ground min-h-screen text-text-primary sm:px-6 sm:pt-12"
+      style={{ "--storefront-gradient": themePresets[preset].gradient } as React.CSSProperties}
+    >
       <PageTracker username={creator.username} pageId={page.id} />
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-[720px] flex-col px-5 pb-10 pt-5 sm:min-h-[calc(100vh-3rem)] sm:rounded-t-[36px] sm:bg-[var(--card)] sm:px-9 sm:pt-9 sm:shadow-[0_0_0_1px_rgba(255,255,255,0.7)] sm:backdrop-blur-2xl">
@@ -158,53 +218,18 @@ export function PublicPageView({
         )}
 
         <div className="mt-7 flex-1">
-          {showShop ? (
-            <div className="grid grid-cols-2 gap-3">
-              {productBlocks.map((block, i) =>
-                // An odd last product takes the full row, as in the
-                // reference, instead of leaving a hole beside it.
-                productBlocks.length % 2 === 1 && i === productBlocks.length - 1 ? (
-                  <div key={block.id} data-wide className="col-span-2">
-                    {render([block])}
-                  </div>
-                ) : (
-                  <div key={block.id}>{render([block])}</div>
-                ),
-              )}
-            </div>
+          {canTab ? (
+            activeTab === "shop" ? shopGrid : linkList(true)
           ) : (
-            <div className="flex flex-col gap-3">
-              {/* The doorway from the links into the shop. */}
-              {canTab && (
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("shop")}
-                  className="storefront-pill w-full overflow-hidden rounded-[32px] p-3 pb-4"
-                >
-                  {/* Fixed-width tiles rather than flex-1, so the third runs
-                      off the edge the way the reference's does and the strip
-                      reads as "there's more in here". The strip's own grey
-                      shows through the gaps as hairline dividers. */}
-                  <div className="flex gap-[3px] overflow-hidden rounded-[24px] bg-[#e9e7e3]">
-                    {shopProducts.slice(0, 3).map((p) => (
-                      <div
-                        key={p.id}
-                        className="aspect-[3/5] w-[38%] shrink-0 bg-white bg-cover bg-center"
-                        style={
-                          p.cover_image_url
-                            ? { backgroundImage: `url(${p.cover_image_url})` }
-                            : undefined
-                        }
-                      />
-                    ))}
-                  </div>
-                  <p className="mt-3 text-[14px] font-semibold">See Full Shop</p>
-                  <p className="text-[13px] text-text-secondary">
-                    {shopProducts.length} product{shopProducts.length === 1 ? "" : "s"}
-                  </p>
-                </button>
+            // One scroll: links first, then the shop under its own heading.
+            <div className="flex flex-col gap-10">
+              {hasLinks && linkList(false)}
+              {hasShop && (
+                <section>
+                  {hasLinks && <p className="mb-4 text-center text-[14px] font-semibold">Shop</p>}
+                  {shopGrid}
+                </section>
               )}
-              {render(linkBlocks)}
             </div>
           )}
         </div>

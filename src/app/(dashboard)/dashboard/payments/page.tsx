@@ -1,6 +1,7 @@
 import { requireCreator } from "@/lib/queries/dashboard";
 import { createClient } from "@/lib/supabase/server";
 import { RazorpayConnect } from "@/components/dashboard/razorpay-connect";
+import { RazorpayGuide } from "@/components/dashboard/razorpay-guide";
 
 export default async function PaymentsPage() {
   const { creator } = await requireCreator();
@@ -27,6 +28,8 @@ export default async function PaymentsPage() {
           bill you for the platform separately.
         </p>
       </div>
+
+      <RazorpayGuide connected={Boolean(account)} />
 
       <RazorpayConnect
         connected={Boolean(account)}

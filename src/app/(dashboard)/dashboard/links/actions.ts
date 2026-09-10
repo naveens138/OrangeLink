@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { fetchLinkMetadata, type LinkMetadata } from "@/lib/import/link-metadata";
 import type { Block, BlockType } from "@/lib/types";
-import type { ThemePreset } from "@/lib/theme-presets";
+import { isThemePreset, type ThemePreset } from "@/lib/theme-presets";
 
 // Every write here goes through the cookie-bound client, so the RLS policy on
 // `blocks` ("creators manage own blocks", joined through pages.creator_id) is
@@ -123,14 +123,17 @@ export async function updatePageTheme(
   preset: ThemePreset,
   tabbedView?: boolean,
 ): Promise<ActionResult> {
+  if (!isThemePreset(preset)) return { ok: false, error: "Unknown theme." };
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("pages")
-    .update({ theme: { preset, tabbed_view: tabbedView } })
+    .update({ theme: { preset, tabbed_view: tabbedView ?? true } })
     .eq("id", pageId);
 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/dashboard/links");
+  revalidatePath("/[username]", "page");
   return { ok: true, data: undefined };
 }
 
