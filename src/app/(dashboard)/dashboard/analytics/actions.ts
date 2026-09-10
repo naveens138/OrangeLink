@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { TrackingPixel, TrackingPixelProvider } from "@/lib/types";
 
@@ -51,6 +52,10 @@ export async function addPixel(formData: FormData): Promise<AddPixelResult> {
   if (error || !data) {
     return { ok: false, error: "Couldn't save this pixel. Try again." };
   }
+  // Clears the cached analytics page (next.config staleTimes) and the public
+  // page, which injects the pixel.
+  revalidatePath("/dashboard/analytics");
+  revalidatePath("/[username]", "page");
   return { ok: true, pixel: data as TrackingPixel };
 }
 
@@ -58,5 +63,7 @@ export async function removePixel(id: string): Promise<{ ok: boolean; error?: st
   const supabase = await createClient();
   const { error } = await supabase.from("tracking_pixels").delete().eq("id", id);
   if (error) return { ok: false, error: "Couldn't remove this pixel." };
+  revalidatePath("/dashboard/analytics");
+  revalidatePath("/[username]", "page");
   return { ok: true };
 }

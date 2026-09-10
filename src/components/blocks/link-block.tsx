@@ -26,19 +26,19 @@ export function LinkBlock({ block, username }: { block: Block; username: string 
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
         onClick={() => track({ username, eventType: "block_click", blockId: block.id })}
-        className="storefront-pill flex min-h-[76px] w-full items-center rounded-full p-2"
+        className="storefront-pill flex min-h-[64px] w-full items-center rounded-full p-2"
       >
-        <span className="h-[60px] w-[60px] shrink-0 overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]">
+        <span className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]">
           {config.image && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={config.image} alt="" loading="lazy" className="h-full w-full object-cover" />
           )}
         </span>
-        <span className="min-w-0 flex-1 px-3 text-center text-[16px] font-medium leading-snug text-text-primary sm:text-[17px]">
+        <span className="min-w-0 flex-1 px-3 text-center text-[14px] font-medium leading-snug text-text-primary">
           {label}
         </span>
         {/* Keeps the title centred against the thumbnail on the other side. */}
-        <span className="h-[60px] w-[60px] shrink-0" aria-hidden />
+        <span className="h-12 w-12 shrink-0" aria-hidden />
       </a>
 
       <ShareButton

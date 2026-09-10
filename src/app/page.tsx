@@ -4,6 +4,7 @@ import { SaleTimeline } from "@/components/marketing/sale-timeline";
 import { DeviceMockup } from "@/components/marketing/device-mockup";
 import { ValueStack } from "@/components/marketing/value-stack";
 import { Faq, type FaqItem } from "@/components/marketing/faq";
+import { BrandLockup } from "@/components/brand/brand";
 
 // Structure and rhythm follow runner.now: one narrow centred column, small
 // dense type, hairline-boxed cards, numbered section eyebrows, and a single
@@ -266,7 +267,7 @@ export default function Home() {
 
         <footer className="flex flex-col gap-4 border-t border-border py-8">
           <div>
-            <p className="t-heading">OrangeLink</p>
+            <BrandLockup />
             <p className="t-small mt-1 text-text-secondary">
               One page for your links, your products and your checkout.
             </p>

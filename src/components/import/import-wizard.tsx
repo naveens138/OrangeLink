@@ -268,7 +268,7 @@ export function ImportWizard({ supportedPlatforms }: { supportedPlatforms: strin
             </p>
           </div>
           {outcome.aiApplied && (
-            <span className="flex items-center gap-1.5 rounded-pill bg-accent-soft px-3 py-1 text-label text-accent">
+            <span className="flex items-center gap-1.5 rounded-pill bg-accent-soft px-3 py-1 text-small font-medium text-accent">
               <Sparkles className="h-3 w-3" />
               Titles tidied
             </span>
@@ -337,7 +337,7 @@ export function ImportWizard({ supportedPlatforms }: { supportedPlatforms: strin
                   </p>
                 ))}
               </div>
-              <span className="shrink-0 text-label uppercase tracking-wide text-text-muted">
+              <span className="shrink-0 font-mono text-label uppercase tracking-[0.1em] text-text-muted">
                 {block.type.replace("_", " ")}
               </span>
             </label>

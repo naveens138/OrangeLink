@@ -61,7 +61,7 @@ export default async function DashboardOverviewPage() {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.label} className="p-5">
-            <p className="text-label uppercase tracking-wide text-text-muted">
+            <p className="font-mono text-label uppercase tracking-[0.1em] text-text-muted">
               {stat.label}
             </p>
             <p className="mt-2 font-mono text-h3 text-text-primary">

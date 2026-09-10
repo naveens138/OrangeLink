@@ -78,7 +78,7 @@ export function PublicPageView({
 
   // Frosted, like the card: the ground shows through.
   const glassButton =
-    "flex h-11 items-center justify-center rounded-full bg-white/70 text-text-primary shadow-[0_0_0_1px_rgba(0,0,0,0.06)] backdrop-blur-md transition-[background-color,transform] duration-200 hover:scale-[1.04] hover:bg-white";
+    "flex h-10 items-center justify-center rounded-full bg-white/70 text-text-primary shadow-[0_0_0_1px_rgba(0,0,0,0.06)] backdrop-blur-md transition-[background-color,transform] duration-200 hover:scale-[1.04] hover:bg-white";
 
   return (
     <div className="theme-storefront storefront-ground min-h-screen text-text-primary sm:px-6 sm:pt-12">
@@ -87,15 +87,15 @@ export function PublicPageView({
       <div className="relative mx-auto flex min-h-screen w-full max-w-[720px] flex-col px-5 pb-10 pt-5 sm:min-h-[calc(100vh-3rem)] sm:rounded-t-[36px] sm:bg-[var(--card)] sm:px-9 sm:pt-9 sm:shadow-[0_0_0_1px_rgba(255,255,255,0.7)] sm:backdrop-blur-2xl">
         {/* Top bar */}
         <div className="flex items-center justify-between">
-          <Link href="/" aria-label="OrangeLink" className={cn(glassButton, "w-11")}>
-            <Image src="/logo.png" alt="" width={22} height={22} className="h-[22px] w-[22px] object-contain" />
+          <Link href="/" aria-label="OrangeLink" className={cn(glassButton, "w-10")}>
+            <Image src="/logo-orange.png" alt="" width={22} height={22} className="h-[22px] w-[22px] object-contain" />
           </Link>
           <div className="flex items-center gap-2">
             {emailBlock && (
               <button
                 type="button"
                 onClick={() => setSubscribeOpen(true)}
-                className={cn(glassButton, "px-5 text-[15px] font-semibold")}
+                className={cn(glassButton, "px-4 text-[14px] font-semibold")}
               >
                 Subscribe
               </button>
@@ -104,7 +104,7 @@ export function PublicPageView({
               url={`/${creator.username}`}
               title={displayName}
               label="Share this page"
-              className={cn(glassButton, "w-11")}
+              className={cn(glassButton, "w-10")}
             >
               <Share className="h-[18px] w-[18px]" />
             </ShareButton>
@@ -144,7 +144,7 @@ export function PublicPageView({
                   type="button"
                   onClick={() => setActiveTab(tab)}
                   className={cn(
-                    "rounded-full px-8 py-2.5 text-[16px] font-semibold transition-colors duration-200",
+                    "rounded-full px-6 py-2 text-[14px] font-semibold transition-colors duration-200",
                     activeTab === tab
                       ? "bg-text-primary text-white"
                       : "text-text-primary hover:text-text-secondary",
@@ -159,7 +159,7 @@ export function PublicPageView({
 
         <div className="mt-7 flex-1">
           {showShop ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {productBlocks.map((block, i) =>
                 // An odd last product takes the full row, as in the
                 // reference, instead of leaving a hole beside it.
@@ -173,13 +173,13 @@ export function PublicPageView({
               )}
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {/* The doorway from the links into the shop. */}
               {canTab && (
                 <button
                   type="button"
                   onClick={() => setActiveTab("shop")}
-                  className="storefront-pill w-full overflow-hidden rounded-[36px] p-4 pb-5"
+                  className="storefront-pill w-full overflow-hidden rounded-[32px] p-3 pb-4"
                 >
                   {/* Fixed-width tiles rather than flex-1, so the third runs
                       off the edge the way the reference's does and the strip
@@ -198,8 +198,8 @@ export function PublicPageView({
                       />
                     ))}
                   </div>
-                  <p className="mt-4 text-[18px] font-medium">See Full Shop</p>
-                  <p className="text-[14px] text-text-secondary">
+                  <p className="mt-3 text-[14px] font-semibold">See Full Shop</p>
+                  <p className="text-[13px] text-text-secondary">
                     {shopProducts.length} product{shopProducts.length === 1 ? "" : "s"}
                   </p>
                 </button>
@@ -213,11 +213,11 @@ export function PublicPageView({
         <div className="mt-16 flex flex-col items-center gap-6">
           <Link
             href="/signup"
-            className="rounded-full bg-text-primary px-6 py-3.5 text-[17px] font-semibold text-white shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-transform duration-200 hover:scale-[1.03]"
+            className="rounded-full bg-text-primary px-5 py-3 text-[14px] font-semibold text-white shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-transform duration-200 hover:scale-[1.03]"
           >
             Get your own OrangeLink
           </Link>
-          <nav className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[14px] font-medium text-text-primary/75">
+          <nav className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[13px] font-medium text-text-primary/75">
             <Link href="/privacy" className="hover:text-text-primary">Privacy</Link>
             <span aria-hidden>·</span>
             <Link href="/terms" className="hover:text-text-primary">Terms</Link>

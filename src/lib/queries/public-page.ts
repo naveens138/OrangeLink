@@ -35,36 +35,36 @@ export async function getPublicPage(
 
   if (!creator) return null;
 
-  const { data: page } = await supabase
-    .from("pages")
-    .select("id, creator_id, slug, title, theme, published")
-    .eq("creator_id", creator.id)
-    .eq("is_primary", true)
-    .eq("published", true)
-    .maybeSingle();
+  // Everything else only needs the creator's id, so it goes in one parallel
+  // batch, with blocks embedded in the page row. This used to be five
+  // queries in a row, each a round trip to the database.
+  const [{ data: page }, { data: products }, { data: pixels }] = await Promise.all([
+    supabase
+      .from("pages")
+      .select(`id, creator_id, slug, title, theme, published, blocks(${BLOCK_COLUMNS})`)
+      .eq("creator_id", creator.id)
+      .eq("is_primary", true)
+      .eq("published", true)
+      .order("position", { referencedTable: "blocks", ascending: true })
+      .maybeSingle(),
+    supabase
+      .from("products")
+      .select(PRODUCT_COLUMNS)
+      .eq("creator_id", creator.id)
+      .eq("is_published", true),
+    supabase
+      .from("tracking_pixels")
+      .select("id, provider, pixel_id, created_at")
+      .eq("creator_id", creator.id),
+  ]);
 
   if (!page) return null;
 
-  const { data: blocks } = await supabase
-    .from("blocks")
-    .select(BLOCK_COLUMNS)
-    .eq("page_id", page.id)
-    .order("position", { ascending: true });
-
-  const { data: products } = await supabase
-    .from("products")
-    .select(PRODUCT_COLUMNS)
-    .eq("creator_id", creator.id)
-    .eq("is_published", true);
-
-  const { data: pixels } = await supabase
-    .from("tracking_pixels")
-    .select("id, provider, pixel_id, created_at")
-    .eq("creator_id", creator.id);
+  const { blocks, ...pageRow } = page as Omit<Page, "blocks"> & { blocks: Block[] | null };
 
   return {
     creator: creator as Creator,
-    page: { ...(page as Omit<Page, "blocks">), blocks: (blocks ?? []) as Block[] },
+    page: { ...pageRow, blocks: blocks ?? [] },
     products: (products ?? []) as Product[],
     pixels: (pixels ?? []) as TrackingPixel[],
   };

@@ -75,11 +75,11 @@ export function EmailManager({
 
       <div className="grid grid-cols-2 gap-4 sm:max-w-md">
         <Card>
-          <p className="text-label uppercase tracking-wide text-text-muted">Subscribers</p>
+          <p className="font-mono text-label uppercase tracking-[0.1em] text-text-muted">Subscribers</p>
           <p className="mt-2 font-mono text-h3">{activeSubscribers.length}</p>
         </Card>
         <Card>
-          <p className="text-label uppercase tracking-wide text-text-muted">Connected</p>
+          <p className="font-mono text-label uppercase tracking-[0.1em] text-text-muted">Connected</p>
           <p className="mt-2 font-mono text-h3">{integrations.length}</p>
         </Card>
       </div>
@@ -154,7 +154,7 @@ export function EmailManager({
           <Card className="overflow-x-auto p-0">
             <table className="w-full text-left text-body">
               <thead>
-                <tr className="border-b border-border text-label uppercase tracking-wide text-text-muted">
+                <tr className="border-b border-border font-mono text-label uppercase tracking-[0.1em] text-text-muted">
                   <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Source</th>
                   <th className="px-4 py-3 font-medium">Subscribed</th>

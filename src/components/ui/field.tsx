@@ -25,7 +25,7 @@ export function Field({
     <div className={cn("flex flex-col gap-1.5", className)}>
       <label
         htmlFor={id}
-        className="text-label font-medium uppercase tracking-wide text-text-muted"
+        className="font-mono text-label font-medium uppercase tracking-[0.1em] text-text-muted"
       >
         {label}
       </label>

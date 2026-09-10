@@ -74,7 +74,7 @@ export function SortableBlockItem({
           <p className="truncate text-small text-text-primary">
             {blockSummary(block)}
           </p>
-          <p className="flex items-center gap-1.5 text-label uppercase tracking-wide text-text-muted">
+          <p className="flex items-center gap-1.5 font-mono text-label uppercase tracking-[0.1em] text-text-muted">
             {meta.label}
             {block.is_password_protected && (
               <Lock className="h-3 w-3" aria-label="Password protected" />

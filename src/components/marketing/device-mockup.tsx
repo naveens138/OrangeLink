@@ -45,7 +45,7 @@ const links = [
 const socials = { config: { platforms: ["youtube", "instagram", "tiktok"] } } as unknown as Block;
 
 const glassButton =
-  "flex h-11 items-center justify-center rounded-full bg-white/70 text-text-primary shadow-[0_0_0_1px_rgba(0,0,0,0.06)]";
+  "flex h-10 items-center justify-center rounded-full bg-white/70 text-text-primary shadow-[0_0_0_1px_rgba(0,0,0,0.06)]";
 
 export function DeviceMockup() {
   const [tab, setTab] = useState<"links" | "shop">("links");
@@ -91,12 +91,12 @@ export function DeviceMockup() {
             <div style={{ width: PHONE_WIDTH, zoom }} className="px-5 pb-10 pt-[76px] text-text-primary">
               {/* Top bar */}
               <div className="flex items-center justify-between">
-                <span className={cn(glassButton, "w-11")}>
-                  <Image src="/logo.png" alt="" width={22} height={22} className="h-[22px] w-[22px] object-contain" />
+                <span className={cn(glassButton, "w-10")}>
+                  <Image src="/logo-orange.png" alt="" width={22} height={22} className="h-[22px] w-[22px] object-contain" />
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className={cn(glassButton, "px-5 text-[15px] font-semibold")}>Subscribe</span>
-                  <span className={cn(glassButton, "w-11")}>
+                  <span className={cn(glassButton, "px-4 text-[14px] font-semibold")}>Subscribe</span>
+                  <span className={cn(glassButton, "w-10")}>
                     <Share className="h-[18px] w-[18px]" />
                   </span>
                 </div>
@@ -126,7 +126,7 @@ export function DeviceMockup() {
                       type="button"
                       onClick={() => setTab(t)}
                       className={cn(
-                        "rounded-full px-8 py-2.5 text-[16px] font-semibold transition-colors duration-200",
+                        "rounded-full px-6 py-2 text-[14px] font-semibold transition-colors duration-200",
                         tab === t ? "bg-text-primary text-white" : "text-text-primary hover:text-text-secondary",
                       )}
                     >
@@ -138,11 +138,11 @@ export function DeviceMockup() {
 
               <div className="mt-7">
                 {tab === "links" ? (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3">
                     <button
                       type="button"
                       onClick={() => setTab("shop")}
-                      className="storefront-pill w-full overflow-hidden rounded-[36px] p-4 pb-5"
+                      className="storefront-pill w-full overflow-hidden rounded-[32px] p-3 pb-4"
                     >
                       <div className="flex gap-[3px] overflow-hidden rounded-[24px] bg-[#e9e7e3]">
                         {products.map((p) => (
@@ -153,27 +153,27 @@ export function DeviceMockup() {
                           />
                         ))}
                       </div>
-                      <p className="mt-4 text-[18px] font-medium">See Full Shop</p>
-                      <p className="text-[14px] text-text-secondary">3 products</p>
+                      <p className="mt-3 text-[14px] font-semibold">See Full Shop</p>
+                      <p className="text-[13px] text-text-secondary">3 products</p>
                     </button>
 
                     {links.map((l) => (
-                      <div key={l.label} className="storefront-pill flex min-h-[76px] items-center rounded-full p-2">
-                        <span className="h-[60px] w-[60px] shrink-0 overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]">
+                      <div key={l.label} className="storefront-pill flex min-h-[64px] items-center rounded-full p-2">
+                        <span className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={l.image} alt="" className="h-full w-full object-cover" />
                         </span>
-                        <span className="min-w-0 flex-1 px-3 text-center text-[16px] font-medium leading-snug">
+                        <span className="min-w-0 flex-1 px-3 text-center text-[14px] font-medium leading-snug">
                           {l.label}
                         </span>
-                        <span className="flex h-[60px] w-[60px] shrink-0 items-center justify-center text-text-secondary">
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center text-text-secondary">
                           <MoreVertical className="h-4 w-4" />
                         </span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     {products.map((p, i) => {
                       const wide = i === products.length - 1;
                       return (
@@ -186,7 +186,7 @@ export function DeviceMockup() {
                               />
                             </div>
                             <div className="flex-1 px-4 pb-4 pr-11 pt-3 in-data-wide:px-11 in-data-wide:text-center">
-                              <p className="line-clamp-2 text-[15px] font-medium leading-snug">{p.name}</p>
+                              <p className="line-clamp-2 text-[14px] font-medium leading-snug">{p.name}</p>
                               <p className="mt-0.5 text-[13px] text-text-secondary">{p.price}</p>
                             </div>
                             <MoreVertical className="absolute bottom-5 right-4 h-4 w-4 text-text-secondary" />
@@ -199,7 +199,7 @@ export function DeviceMockup() {
               </div>
 
               <div className="mt-12 flex justify-center">
-                <span className="rounded-full bg-text-primary px-6 py-3.5 text-[17px] font-semibold text-white shadow-[0_6px_20px_rgba(0,0,0,0.15)]">
+                <span className="rounded-full bg-text-primary px-5 py-3 text-[14px] font-semibold text-white shadow-[0_6px_20px_rgba(0,0,0,0.15)]">
                   Get your own OrangeLink
                 </span>
               </div>

@@ -5,7 +5,8 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-border bg-surface-1 p-5 md:p-6",
+        // The landing page's feature card: hairline edge on off-white.
+        "rounded-md border border-border bg-surface-1 p-5 md:p-6",
         className,
       )}
       {...props}

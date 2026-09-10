@@ -28,11 +28,13 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // getUser() revalidates the token with Supabase; getSession() would trust
-  // whatever the cookie claims, so it must not be used for a gate.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() verifies the token's signature against Supabase's published
+  // keys (cached), so the gate is as trustworthy as getUser() without a
+  // round trip to the Auth server on every request. It also refreshes an
+  // expired session, which is this function's other job. getSession() would
+  // trust whatever the cookie claims, so it must not be used for a gate.
+  const { data: auth } = await supabase.auth.getClaims();
+  const user = auth?.claims.sub ? { id: auth.claims.sub } : null;
 
   const { pathname } = request.nextUrl;
 

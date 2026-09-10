@@ -66,7 +66,7 @@ export function PayoutManager({
           <Card className="overflow-x-auto p-0">
             <table className="w-full text-left text-body">
               <thead>
-                <tr className="border-b border-border text-label uppercase tracking-wide text-text-muted">
+                <tr className="border-b border-border font-mono text-label uppercase tracking-[0.1em] text-text-muted">
                   <th className="px-4 py-3 font-medium">Creator</th>
                   <th className="px-4 py-3 font-medium">Net owed</th>
                   <th className="px-4 py-3 font-medium">Paid out</th>
@@ -119,7 +119,7 @@ export function PayoutManager({
           <Card className="overflow-x-auto p-0">
             <table className="w-full text-left text-body">
               <thead>
-                <tr className="border-b border-border text-label uppercase tracking-wide text-text-muted">
+                <tr className="border-b border-border font-mono text-label uppercase tracking-[0.1em] text-text-muted">
                   <th className="px-4 py-3 font-medium">Date</th>
                   <th className="px-4 py-3 font-medium">Amount</th>
                   <th className="px-4 py-3 font-medium">Method</th>

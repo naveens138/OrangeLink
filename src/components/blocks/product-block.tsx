@@ -55,8 +55,8 @@ export function ProductBlock({
           />
         </div>
         <div className="flex-1 px-4 pb-4 pr-11 pt-3 in-data-wide:px-11 in-data-wide:text-center">
-          <p className="line-clamp-2 text-[15px] font-medium leading-snug text-text-primary sm:text-[17px]">{product.name}</p>
-          <p className="mt-0.5 text-[13px] text-text-secondary sm:text-[14px]">
+          <p className="line-clamp-2 text-[14px] font-medium leading-snug text-text-primary">{product.name}</p>
+          <p className="mt-0.5 text-[13px] text-text-secondary">
             {formatPrice(product.price_cents, product.currency)}
           </p>
         </div>

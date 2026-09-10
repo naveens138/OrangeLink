@@ -75,7 +75,7 @@ export function BlockInspector({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-label uppercase tracking-wide text-text-muted">
+      <p className="font-mono text-label uppercase tracking-[0.1em] text-text-muted">
         {blockTypeMeta[block.type].label}
       </p>
 
@@ -309,7 +309,7 @@ export function BlockInspector({
       )}
 
       <div className="mt-2 flex flex-col gap-4 border-t border-border pt-4">
-        <p className="text-label uppercase tracking-wide text-text-muted">
+        <p className="font-mono text-label uppercase tracking-[0.1em] text-text-muted">
           Unlock condition
         </p>
         <p className="text-small text-text-muted">
@@ -371,7 +371,7 @@ export function BlockInspector({
       </div>
 
       <div className="mt-2 flex flex-col gap-4 border-t border-border pt-4">
-        <p className="text-label uppercase tracking-wide text-text-muted">
+        <p className="font-mono text-label uppercase tracking-[0.1em] text-text-muted">
           Visibility
         </p>
 

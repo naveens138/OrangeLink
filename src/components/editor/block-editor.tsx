@@ -219,7 +219,7 @@ export function BlockEditor({
       <div className="flex gap-6">
         {/* Block library — desktop only */}
         <div className="hidden w-[240px] shrink-0 lg:block">
-          <p className="mb-3 text-label uppercase tracking-wide text-text-muted">
+          <p className="mb-3 font-mono text-label uppercase tracking-[0.1em] text-text-muted">
             Add a block
           </p>
           <BlockLibrary onAdd={addBlock} />
@@ -277,7 +277,7 @@ export function BlockEditor({
 
         {/* Inspector — desktop only */}
         <div className="hidden w-[320px] shrink-0 xl:block">
-          <p className="mb-3 text-label uppercase tracking-wide text-text-muted">
+          <p className="mb-3 font-mono text-label uppercase tracking-[0.1em] text-text-muted">
             Block settings
           </p>
           {selectedBlock ? (

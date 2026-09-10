@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { BrandLockup } from "@/components/brand/brand";
 
 const LAST_UPDATED = "September 3, 2026";
 
@@ -13,8 +14,8 @@ export function PolicyPage({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex items-center justify-between px-6 py-5 md:px-10">
-        <Link href="/" className="text-body font-semibold tracking-tight text-text-primary">
-          Orange<span className="text-accent">Link</span>
+        <Link href="/" className="inline-flex">
+          <BrandLockup />
         </Link>
         <Link href="/" className="text-small text-text-secondary hover:text-text-primary">
           Back to home

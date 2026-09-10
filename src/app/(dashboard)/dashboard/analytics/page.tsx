@@ -52,7 +52,7 @@ export default async function AnalyticsPage() {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.label} className="p-5">
-            <p className="text-label uppercase tracking-wide text-text-muted">
+            <p className="font-mono text-label uppercase tracking-[0.1em] text-text-muted">
               {stat.label}
             </p>
             <p className="mt-2 font-mono text-h3 text-text-primary">{stat.value}</p>
@@ -72,7 +72,7 @@ export default async function AnalyticsPage() {
           <Card className="overflow-x-auto p-0">
             <table className="w-full text-left text-body">
               <thead>
-                <tr className="border-b border-border text-label uppercase tracking-wide text-text-muted">
+                <tr className="border-b border-border font-mono text-label uppercase tracking-[0.1em] text-text-muted">
                   <th className="px-4 py-3 font-medium">Source</th>
                   <th className="px-4 py-3 font-medium">Visitors</th>
                   <th className="px-4 py-3 font-medium">Checkouts</th>

@@ -12,7 +12,7 @@ export function ComingSoon({
   milestone: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-20 text-center">
+    <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-border-strong px-6 py-20 text-center">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent">
         <Icon className="h-5 w-5" />
       </div>
@@ -20,7 +20,7 @@ export function ComingSoon({
       <p className="mt-2 max-w-sm text-body text-text-secondary">
         {description}
       </p>
-      <p className="mt-4 text-label uppercase tracking-wide text-text-muted">
+      <p className="mt-4 font-mono text-label uppercase tracking-[0.1em] text-text-muted">
         {milestone}
       </p>
     </div>

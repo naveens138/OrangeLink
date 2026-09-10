@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { BrandLockup } from "@/components/brand/brand";
 
 const links = [
   { href: "#how", label: "How it works" },
@@ -41,18 +41,8 @@ export function SiteNav() {
       }`}
     >
       <div className="mx-auto flex h-14 w-full max-w-[560px] items-center justify-between gap-5 px-5">
-        <Link href="/" className="flex items-center gap-1.5">
-          <Image
-            src="/logo.png"
-            alt=""
-            width={20}
-            height={20}
-            priority
-            className="h-5 w-5 object-contain"
-          />
-          <span className="t-small font-semibold tracking-[-0.02em] text-text-primary">
-            OrangeLink
-          </span>
+        <Link href="/" className="inline-flex">
+          <BrandLockup />
         </Link>
 
         <nav className="flex items-center gap-4">

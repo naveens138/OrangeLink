@@ -57,7 +57,7 @@ export function EmailCaptureBlock({
         </motion.div>
       ) : (
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
-          <p className="text-center text-[17px] font-semibold tracking-[-0.01em]">
+          <p className="text-center text-[14px] font-semibold tracking-[-0.006em]">
             {config.headline ?? "Join the list"}
           </p>
           {/* One pill holding the field and the button, the way the
