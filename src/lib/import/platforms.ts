@@ -107,7 +107,7 @@ function parseStan(html: string, url: string): ExtractionResult {
             ...block,
             warnings: [
               ...(block.warnings ?? []),
-              `Looks like a paid product (${price.trim()}) — rebuild it as a product to sell it here.`,
+              `Looks like a paid product (${price.trim()}). Rebuild it as a product to sell it here.`,
             ],
           }
         : block;
@@ -121,7 +121,7 @@ function parseStan(html: string, url: string): ExtractionResult {
     platform: "stan",
     warnings: [
       ...generic.warnings,
-      "We recognised this as a Stan Store but couldn't read its data directly. Products won't carry prices across — rebuild those manually.",
+      "We recognised this as a Stan Store but couldn't read its data directly. Products won't carry prices across. Rebuild those manually.",
     ],
   };
 }

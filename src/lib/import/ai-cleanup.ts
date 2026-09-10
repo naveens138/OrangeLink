@@ -117,9 +117,9 @@ function describeAiFailure(error: unknown): string {
 }
 
 const ISSUE_TEXT: Record<string, string> = {
-  empty_or_generic_label: "Title looks generic — worth renaming",
+  empty_or_generic_label: "Title looks generic, worth renaming",
   duplicate: "Looks like a duplicate of another link",
-  tracking_only: "URL is only tracking parameters — may not go anywhere useful",
+  tracking_only: "URL is only tracking parameters, may not go anywhere useful",
   broken_or_placeholder: "URL looks unfinished or broken",
 };
 

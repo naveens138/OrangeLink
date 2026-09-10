@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PolicyPage, PolicySection } from "@/components/marketing/policy-page";
 
-export const metadata = { title: "Contact Us — OrangeLink" };
+export const metadata = { title: "Contact Us | OrangeLink" };
 
 export default function ContactPage() {
   return (
@@ -20,7 +20,7 @@ export default function ContactPage() {
       <PolicySection heading="Billing and payments">
         <p>
           For a question about a specific charge, include the order or payment
-          ID from your confirmation email — it helps us look it up faster. Email{" "}
+          ID from your confirmation email. It helps us look it up faster. Email{" "}
           <a href="mailto:billing@orangelink.co" className="text-accent underline">
             billing@orangelink.co
           </a>

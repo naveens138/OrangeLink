@@ -136,9 +136,9 @@ export function PayoutManager({
                     <td className="px-4 py-3 font-mono text-text-primary">
                       {formatPrice(p.amountCents, p.currency)}
                     </td>
-                    <td className="px-4 py-3 text-text-secondary">{p.method ?? "—"}</td>
-                    <td className="px-4 py-3 text-text-secondary">{p.reference ?? "—"}</td>
-                    <td className="px-4 py-3 text-text-secondary">{p.notes ?? "—"}</td>
+                    <td className="px-4 py-3 text-text-secondary">{p.method ?? "-"}</td>
+                    <td className="px-4 py-3 text-text-secondary">{p.reference ?? "-"}</td>
+                    <td className="px-4 py-3 text-text-secondary">{p.notes ?? "-"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -150,7 +150,7 @@ export function PayoutManager({
       <Modal
         open={target !== null}
         onClose={() => setTarget(null)}
-        title={target ? `Record payout — ${target.displayName ?? target.username}` : undefined}
+        title={target ? `Record payout: ${target.displayName ?? target.username}` : undefined}
       >
         {target && (
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
@@ -168,7 +168,7 @@ export function PayoutManager({
               )}
             </Field>
 
-            <Field label="Method" hint="Free text — e.g. bank_transfer, wise, other">
+            <Field label="Method" hint="Free text, e.g. bank_transfer, wise, other">
               {(p) => <Input {...p} name="method" placeholder="bank_transfer" />}
             </Field>
 
@@ -188,7 +188,7 @@ export function PayoutManager({
             )}
 
             <p className="text-small text-text-muted">
-              This only records that the payout happened — it doesn&apos;t send any money.
+              This only records that the payout happened. It doesn&apos;t send any money.
             </p>
 
             <Button type="submit" disabled={saving} className="mt-1 w-full">

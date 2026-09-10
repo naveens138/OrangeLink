@@ -1,26 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
-import { createRazorpayClient } from "@/lib/razorpay/client";
-import { isRazorpayConfigured } from "@/lib/env";
+import {
+  createRazorpayClientFor,
+  getCreatorPaymentCredentials,
+} from "@/lib/razorpay/client";
 import type { INormalizeError } from "razorpay/dist/types/api";
 
 /**
- * Creates a Razorpay order for a public storefront purchase.
+ * Creates a Razorpay order for a public storefront purchase, on the
+ * creator's own Razorpay account.
  *
- * Runs with the service role because the buyer is never authenticated — the
- * same pattern as the Dodo equivalent (checkout-actions.ts's startCheckout).
- * This is a route handler rather than a server action because the frontend
- * calls it directly via fetch() from inside the Razorpay checkout.js flow,
- * not from a form submission.
+ * Runs with the service role because the buyer is never authenticated. The
+ * creator's key_id comes back in the response because Razorpay's
+ * checkout.js needs it in the browser — the secret never leaves the server.
  */
 export async function POST(request: NextRequest) {
-  if (!isRazorpayConfigured()) {
-    return NextResponse.json(
-      { error: "Payments aren't connected yet for this creator." },
-      { status: 501 },
-    );
-  }
-
   let body: { productId?: string; email?: string; name?: string; visitorId?: string };
   try {
     body = await request.json();
@@ -47,6 +41,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "This product isn't available." }, { status: 404 });
   }
 
+  // Each creator sells through their own account, so a creator who hasn't
+  // connected one yet simply cannot take payments — there is no platform
+  // account to fall back to, by design.
+  const credentials = await getCreatorPaymentCredentials(product.creator_id);
+  if (!credentials) {
+    return NextResponse.json(
+      { error: "This creator hasn't set up payments yet." },
+      { status: 501 },
+    );
+  }
+
   // Razorpay's stated minimum is 100 in the currency's smallest unit (₹1 for
   // INR); enforced here so a misconfigured ₹0.50 product fails with a clear
   // message instead of a cryptic Razorpay API error.
@@ -58,15 +63,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const razorpay = createRazorpayClient();
+    const razorpay = createRazorpayClientFor(credentials);
     const order = await razorpay.orders.create({
       amount: product.price_cents,
       currency: product.currency,
       // Razorpay caps receipt at 40 characters and requires uniqueness.
       receipt: `ol_${productId.slice(0, 8)}_${Date.now()}`,
       // Canonical record of what was actually purchased and by whom — read
-      // back by /api/razorpay/verify-payment via razorpay.orders.fetch()
-      // rather than trusted from the client at verification time.
+      // back at verification time via razorpay.orders.fetch() rather than
+      // trusted from the client.
       notes: {
         orangelink_product_id: product.id,
         orangelink_creator_id: product.creator_id,
@@ -81,12 +86,15 @@ export async function POST(request: NextRequest) {
       amount: order.amount,
       currency: order.currency,
       product_name: product.name,
+      // The creator's publishable key — checkout.js is opened against their
+      // account, not ours.
+      key_id: credentials.keyId,
     });
   } catch (error) {
     const rzpError = error as Partial<INormalizeError>;
     if (rzpError?.statusCode === 401) {
       return NextResponse.json(
-        { error: "Payment provider rejected our credentials." },
+        { error: "This creator's payment credentials were rejected." },
         { status: 401 },
       );
     }

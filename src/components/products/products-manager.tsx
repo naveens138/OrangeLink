@@ -65,7 +65,7 @@ export function ProductsManager({
         <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-small text-warning">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            Payments aren&apos;t connected yet — products save normally, but
+            Payments aren&apos;t connected yet. Products save normally, but
             checkout won&apos;t work until Dodo Payments keys are added.
           </span>
         </div>
@@ -75,7 +75,7 @@ export function ProductsManager({
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-16 text-center">
           <Package className="h-6 w-6 text-text-muted" />
           <p className="mt-3 text-body text-text-secondary">
-            No products yet — create one to start selling.
+            No products yet. Create one to start selling.
           </p>
         </div>
       ) : (

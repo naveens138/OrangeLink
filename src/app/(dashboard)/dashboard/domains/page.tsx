@@ -14,7 +14,7 @@ export default function DomainsPage() {
         icon={Globe}
         title="Custom domain setup"
         description="CNAME verification and SSL provisioning via the Vercel domains API."
-        milestone="Milestone 1 — Foundation"
+        milestone="Milestone 1: Foundation"
       />
     </div>
   );

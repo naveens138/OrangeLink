@@ -7,7 +7,7 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
-import { dodoCheckoutMode, razorpayKeyId } from "@/lib/env-client";
+import { dodoCheckoutMode } from "@/lib/env-client";
 import { getOrderStatus, startCheckout } from "@/app/(public)/[username]/p/[productId]/checkout-actions";
 import { loadRazorpayCheckoutScript } from "@/lib/razorpay/load-checkout-script";
 import { getVisitorId, track } from "@/lib/analytics/client";
@@ -103,7 +103,13 @@ export function CheckoutModal({
     // requires. Both are real, working providers — this is a same-page
     // choice of which one actually has credentials right now, not a
     // fallback-on-failure.
-    if (razorpayKeyId()) {
+    // Payments are per-creator Razorpay now (migrations/0011): whether
+    // checkout works is a property of the creator's own connected account,
+    // not of a platform env var, and create-order answers that honestly.
+    // The Dodo path below predates that and was never per-creator, so it is
+    // no longer routed to — kept intact because Dodo is paused, not dropped.
+    const useRazorpay: boolean = true;
+    if (useRazorpay) {
       await onSubmitRazorpay();
     } else {
       await onSubmitDodo();
@@ -145,7 +151,9 @@ export function CheckoutModal({
     }
 
     const rzp = new window.Razorpay({
-      key: razorpayKeyId()!,
+      // The creator's own publishable key, returned by create-order — the
+      // payment is taken on their Razorpay account, not the platform's.
+      key: data.key_id,
       amount: data.amount,
       currency: data.currency,
       name: "OrangeLink",
@@ -162,7 +170,9 @@ export function CheckoutModal({
           const verifyRes = await fetch("/api/razorpay/verify-payment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response),
+            // productId tells the server which creator's account to verify
+            // the signature against; it grants nothing on its own.
+            body: JSON.stringify({ ...response, productId: product.id }),
           });
           const verifyData = await verifyRes.json();
           if (verifyRes.ok && verifyData.ok) {
@@ -268,7 +278,7 @@ export function CheckoutModal({
             </>
           ) : (
             <p className="text-body text-text-secondary">
-              Payment received — {product.name} is on its way.
+              Payment received. {product.name} is on its way.
             </p>
           )}
         </div>
@@ -278,7 +288,7 @@ export function CheckoutModal({
           <p className="text-h3">Still confirming</p>
           <p className="text-body text-text-secondary">
             Your payment is being processed. If it went through, it&apos;ll
-            finish shortly — check back on this page.
+            finish shortly. Check back on this page.
           </p>
         </div>
       ) : stage.name === "confirming" ? (

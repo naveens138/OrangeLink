@@ -136,7 +136,7 @@ export function ImportWizard({ supportedPlatforms }: { supportedPlatforms: strin
 
           <p className="mt-4 text-small text-text-muted">
             Works with {supportedPlatforms.slice(0, -1).join(", ")}, and{" "}
-            {supportedPlatforms.at(-1)} — plus most other link-in-bio tools.
+            {supportedPlatforms.at(-1)}, plus most other link-in-bio tools.
           </p>
         </Card>
 
@@ -185,7 +185,7 @@ export function ImportWizard({ supportedPlatforms }: { supportedPlatforms: strin
           value={pasted}
           onChange={(e) => setPasted(e.target.value)}
           rows={10}
-          placeholder={"My YouTube channel — https://youtube.com/@me\nShop my presets https://gumroad.com/l/presets"}
+          placeholder={"My YouTube channel https://youtube.com/@me\nShop my presets https://gumroad.com/l/presets"}
           className="mt-4 w-full rounded-md border border-border bg-surface-1 px-4 py-3 font-mono text-small text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-soft"
         />
         <Button onClick={onManual} disabled={!pasted.trim()} className="mt-4">

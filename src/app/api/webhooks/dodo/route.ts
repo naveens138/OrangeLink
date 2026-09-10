@@ -35,7 +35,7 @@ async function onPaymentSucceeded(payload: PaymentSucceededPayload) {
     // a test webhook fired from the Dodo dashboard) — nothing to fulfill,
     // and retrying won't change that.
     console.warn(
-      `[dodo webhook] payment.succeeded ${payment.payment_id} has no orangelink metadata — skipping`,
+      `[dodo webhook] payment.succeeded ${payment.payment_id} has no orangelink metadata, skipping`,
     );
     return;
   }

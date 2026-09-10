@@ -1,6 +1,6 @@
 import { PolicyPage, PolicySection, PolicyList } from "@/components/marketing/policy-page";
 
-export const metadata = { title: "Refund & Cancellation Policy — OrangeLink" };
+export const metadata = { title: "Refund & Cancellation Policy | OrangeLink" };
 
 export default function RefundPolicyPage() {
   return (
@@ -14,7 +14,7 @@ export default function RefundPolicyPage() {
           <a href="mailto:support@orangelink.co" className="text-accent underline">
             support@orangelink.co
           </a>{" "}
-          within 7 days of purchase and we&apos;ll review it — we&apos;ll issue a
+          within 7 days of purchase and we&apos;ll review it. We&apos;ll issue a
           full refund if the file wasn&apos;t downloaded, or if it genuinely
           doesn&apos;t work as described.
         </p>
@@ -24,7 +24,7 @@ export default function RefundPolicyPage() {
         <PolicyList
           items={[
             "Cancelling more than 24 hours before a scheduled call: full refund.",
-            "Cancelling within 24 hours, or a no-show: the creator sets their own policy for this, shown at booking — contact them directly, or reach support if you need help.",
+            "Cancelling within 24 hours, or a no-show: the creator sets their own policy for this, shown at booking. Contact them directly, or reach support if you need help.",
             "If the creator cancels or doesn't show up: full refund, no exceptions.",
           ]}
         />
@@ -45,7 +45,7 @@ export default function RefundPolicyPage() {
           <a href="mailto:billing@orangelink.co" className="text-accent underline">
             billing@orangelink.co
           </a>{" "}
-          before filing a chargeback with your bank — most issues can be
+          before filing a chargeback with your bank. Most issues can be
           resolved faster this way, and it&apos;s the only way we can help correct
           a genuine error.
         </p>

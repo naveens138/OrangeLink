@@ -1,58 +1,54 @@
+import { MoreVertical } from "lucide-react";
 import { track } from "@/lib/analytics/client";
+import { ShareButton } from "@/components/public/share-button";
 import type { Block, LinkBlockConfig } from "@/lib/types";
 
+/**
+ * A link as a Linktree-style pill: circular thumbnail on the left, title
+ * centred across the full width, a ⋮ on the right that shares the link.
+ *
+ * The whole pill is one anchor, and the ⋮ is layered above it rather than
+ * nested inside it — a <button> inside an <a> is invalid HTML, and browsers
+ * resolve the click unpredictably.
+ */
 export function LinkBlock({ block, username }: { block: Block; username: string }) {
   const config = block.config as LinkBlockConfig;
-
-  function onClick() {
-    track({ username, eventType: "block_click", blockId: block.id });
-  }
-
-  // Rich card once a preview image exists (auto-fetched or set by hand) —
-  // plain pill button otherwise, so an ordinary link doesn't suddenly grow
-  // an empty thumbnail slot.
-  if (config.image) {
-    return (
-      <a
-        href={config.url ?? "#"}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={onClick}
-        className="relative flex w-full items-center gap-4 rounded-lg border border-current/15 p-3 transition-transform duration-[170ms] hover:-translate-y-0.5 active:scale-[0.98]"
-      >
-        <div
-          className="h-16 w-16 shrink-0 rounded-md bg-current/10 bg-cover bg-center"
-          style={{ backgroundImage: `url(${config.image})` }}
-        />
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-body font-medium">{config.label ?? "Untitled link"}</p>
-          {config.description && (
-            <p className="truncate text-small opacity-60">{config.description}</p>
-          )}
-        </div>
-        {config.badge && (
-          <span className="absolute -top-2 right-3 rounded-pill bg-accent px-2.5 py-0.5 text-label font-medium uppercase tracking-wide text-white">
-            {config.badge}
-          </span>
-        )}
-      </a>
-    );
-  }
+  const label = config.label ?? "Untitled link";
+  const url = config.url ?? "#";
+  // A link to somewhere on OrangeLink (the creator's own product, say) stays
+  // in the tab; only outside links open a new one.
+  const external = !url.startsWith("/");
 
   return (
-    <a
-      href={config.url ?? "#"}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={onClick}
-      className="relative flex h-14 w-full items-center justify-center rounded-pill border border-current/15 px-6 text-body font-medium transition-transform duration-[170ms] hover:-translate-y-0.5 active:scale-[0.98]"
-    >
-      {config.label ?? "Untitled link"}
-      {config.badge && (
-        <span className="absolute -top-2 right-3 rounded-pill bg-accent px-2.5 py-0.5 text-label font-medium uppercase tracking-wide text-white">
-          {config.badge}
+    <div className="group relative">
+      <a
+        href={url}
+        target={external ? "_blank" : undefined}
+        rel={external ? "noopener noreferrer" : undefined}
+        onClick={() => track({ username, eventType: "block_click", blockId: block.id })}
+        className="storefront-pill flex min-h-[76px] w-full items-center rounded-full p-2"
+      >
+        <span className="h-[60px] w-[60px] shrink-0 overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]">
+          {config.image && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={config.image} alt="" loading="lazy" className="h-full w-full object-cover" />
+          )}
         </span>
-      )}
-    </a>
+        <span className="min-w-0 flex-1 px-3 text-center text-[16px] font-medium leading-snug text-text-primary sm:text-[17px]">
+          {label}
+        </span>
+        {/* Keeps the title centred against the thumbnail on the other side. */}
+        <span className="h-[60px] w-[60px] shrink-0" aria-hidden />
+      </a>
+
+      <ShareButton
+        url={url}
+        title={label}
+        label={`Share ${label}`}
+        className="absolute right-4 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-white hover:text-text-primary"
+      >
+        <MoreVertical className="h-4 w-4" />
+      </ShareButton>
+    </div>
   );
 }

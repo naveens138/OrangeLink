@@ -34,12 +34,12 @@ export function EmailCaptureBlock({
   }
 
   return (
-    <div className="rounded-lg border border-current/15 p-5">
+    <div className="rounded-[28px] bg-surface-2 p-5">
       {/* No AnimatePresence/exit animation here on purpose — same root cause
           as components/ui/modal.tsx. An exit animation's completion callback
           can simply never fire in this dev environment (Next 16 Turbopack +
           React 19 Strict Mode), leaving the outgoing element stuck in the DOM
-          forever instead of unmounting — reproduced here as the form staying
+          forever instead of unmounting, reproduced here as the form staying
           rendered on top of the success message after a real, successful
           submit. Plain conditional rendering has only an enter animation, so
           swapping views is a synchronous state flip with nothing to get
@@ -56,21 +56,25 @@ export function EmailCaptureBlock({
           <p className="text-body">You&apos;re on the list.</p>
         </motion.div>
       ) : (
-        <form onSubmit={onSubmit} className="flex flex-col gap-3">
-          <p className="text-h3">{config.headline ?? "Join the list"}</p>
-          <div className="flex flex-col gap-2 sm:flex-row">
+        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+          <p className="text-center text-[17px] font-semibold tracking-[-0.01em]">
+            {config.headline ?? "Join the list"}
+          </p>
+          {/* One pill holding the field and the button, the way the
+              reference does it, rather than two separate controls. */}
+          <div className="flex items-center gap-2 rounded-full bg-white p-1.5 pl-5 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]">
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="h-12 flex-1 rounded-md border border-current/15 bg-transparent px-4 text-body placeholder:opacity-50 focus:outline-none focus:border-current/40"
+              placeholder="name@email.com"
+              className="h-9 min-w-0 flex-1 bg-transparent text-[14px] text-text-primary placeholder:text-text-muted focus:outline-none"
             />
             <button
               type="submit"
               disabled={status === "submitting"}
-              className="h-12 rounded-pill bg-accent px-6 text-body font-medium text-white transition-transform active:scale-[0.97] disabled:opacity-60"
+              className="h-9 shrink-0 rounded-full bg-text-primary px-5 text-[14px] font-medium text-white transition-opacity hover:opacity-90 active:scale-[0.97] disabled:opacity-60"
             >
               {status === "submitting" ? "…" : (config.cta_text ?? "Subscribe")}
             </button>

@@ -45,7 +45,7 @@ export async function startCheckout(
   if (!product.dodo_product_id) {
     return {
       ok: false,
-      error: "This product hasn't finished syncing to payments yet — try again shortly.",
+      error: "This product hasn't finished syncing to payments yet. Try again shortly.",
     };
   }
 

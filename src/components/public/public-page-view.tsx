@@ -1,44 +1,71 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "@/components/theme/theme-provider";
+import { Share } from "lucide-react";
 import { BlockRenderer } from "@/components/blocks/block-renderer";
+import { SocialIconsBlock } from "@/components/blocks/social-icons-block";
 import { PageTracker } from "@/components/analytics/page-tracker";
+import { ShareButton } from "@/components/public/share-button";
+import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/utils";
-import { themePresets, type ThemePreset } from "@/lib/theme-presets";
 import type { Block, Creator, Page, Product } from "@/lib/types";
 
 type Tab = "links" | "shop";
 
+/**
+ * The public creator page, in the shape of a Linktree profile: a frosted
+ * card over a grainy gradient with the logo, Subscribe and Share across the
+ * top, then photo, name, bio and social icons, a Links / Shop switch, and
+ * links first with a large "See Full Shop" card leading into the products.
+ *
+ * On phones the card is the whole screen, as Linktree does it; from `sm` up
+ * it floats with its top corners rounded and runs to the bottom of the page.
+ *
+ * Social icons and the email capture are lifted out of the block order
+ * because they're page furniture rather than content: the icons sit under
+ * the bio and the email capture opens from the Subscribe button. Everything
+ * else keeps the creator's order.
+ */
 export function PublicPageView({
   creator,
   page,
   products,
+  initialTab = "links",
 }: {
   creator: Creator;
   page: Page;
   products: Product[];
+  initialTab?: Tab;
 }) {
-  const { resolvedTheme } = useTheme();
-  const preset: ThemePreset = page.theme.preset ?? "minimal";
-  const colors = themePresets[preset][resolvedTheme];
-  const [activeTab, setActiveTab] = useState<Tab>("links");
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
+  const [subscribeOpen, setSubscribeOpen] = useState(false);
 
   const visibleBlocks = page.blocks
     .filter((b) => b.type !== "header")
     .sort((a, b) => a.position - b.position);
 
-  const productBlocks = visibleBlocks.filter((b) => b.type === "product");
-  // "Shop" is specifically the product grid; every other block type (links,
-  // text, email capture, embeds, ...) reads naturally as one combined
-  // "Links" tab rather than inventing a third bucket the creator never asked
-  // for — same split linktr.ee/mojobike use.
-  const linkBlocks = visibleBlocks.filter((b) => b.type !== "product");
+  const socialBlock = visibleBlocks.find((b) => b.type === "social_icons");
+  const emailBlock = visibleBlocks.find((b) => b.type === "email_capture");
+  const body = visibleBlocks.filter(
+    (b) => b.type !== "social_icons" && b.type !== "email_capture",
+  );
 
-  const canTab = page.theme.tabbed_view && productBlocks.length > 0 && linkBlocks.length > 0;
+  const productBlocks = body.filter((b) => b.type === "product");
+  const linkBlocks = body.filter((b) => b.type !== "product");
+  const hasShop = productBlocks.length > 0;
+  const canTab = hasShop && linkBlocks.length > 0;
+  const showShop = (canTab && activeTab === "shop") || (!canTab && hasShop);
 
-  function renderBlockList(blocks: Block[]) {
+  const shopProducts = productBlocks
+    .map((b) => products.find((p) => p.id === (b.config as { product_id?: string }).product_id))
+    .filter((p): p is Product => Boolean(p));
+
+  const displayName = creator.display_name ?? creator.username;
+  const initial = displayName.charAt(0).toUpperCase();
+
+  function render(blocks: Block[]) {
     return blocks.map((block) => (
       <BlockRenderer
         key={block.id}
@@ -49,60 +76,173 @@ export function PublicPageView({
     ));
   }
 
+  // Frosted, like the card: the ground shows through.
+  const glassButton =
+    "flex h-11 items-center justify-center rounded-full bg-white/70 text-text-primary shadow-[0_0_0_1px_rgba(0,0,0,0.06)] backdrop-blur-md transition-[background-color,transform] duration-200 hover:scale-[1.04] hover:bg-white";
+
   return (
-    <div
-      className="flex min-h-screen justify-center px-4 py-16 md:px-6"
-      style={{ background: colors.bg, color: colors.fg }}
-    >
+    <div className="theme-storefront storefront-ground min-h-screen text-text-primary sm:px-6 sm:pt-12">
       <PageTracker username={creator.username} pageId={page.id} />
-      <div className="flex w-full max-w-[680px] flex-col items-center gap-8">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-current/10 text-h3 font-semibold">
-            {creator.display_name?.[0] ?? creator.username[0]}
+
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[720px] flex-col px-5 pb-10 pt-5 sm:min-h-[calc(100vh-3rem)] sm:rounded-t-[36px] sm:bg-[var(--card)] sm:px-9 sm:pt-9 sm:shadow-[0_0_0_1px_rgba(255,255,255,0.7)] sm:backdrop-blur-2xl">
+        {/* Top bar */}
+        <div className="flex items-center justify-between">
+          <Link href="/" aria-label="OrangeLink" className={cn(glassButton, "w-11")}>
+            <Image src="/logo.png" alt="" width={22} height={22} className="h-[22px] w-[22px] object-contain" />
+          </Link>
+          <div className="flex items-center gap-2">
+            {emailBlock && (
+              <button
+                type="button"
+                onClick={() => setSubscribeOpen(true)}
+                className={cn(glassButton, "px-5 text-[15px] font-semibold")}
+              >
+                Subscribe
+              </button>
+            )}
+            <ShareButton
+              url={`/${creator.username}`}
+              title={displayName}
+              label="Share this page"
+              className={cn(glassButton, "w-11")}
+            >
+              <Share className="h-[18px] w-[18px]" />
+            </ShareButton>
           </div>
-          <h1 className="text-h2">{creator.display_name ?? creator.username}</h1>
+        </div>
+
+        {/* Profile */}
+        <div className="mt-7 flex flex-col items-center text-center">
+          <div className="flex h-[120px] w-[120px] items-center justify-center overflow-hidden rounded-full bg-surface-3 text-[36px] font-semibold shadow-[0_0_0_4px_rgba(255,255,255,0.8)]">
+            {creator.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={creator.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              initial
+            )}
+          </div>
+          <h1 className="mt-4 text-[28px] font-bold leading-tight tracking-[-0.01em]">{displayName}</h1>
           {creator.bio && (
-            <p className="max-w-md text-body opacity-70">{creator.bio}</p>
+            <p className="mt-1 max-w-[40ch] text-[16px] font-semibold leading-snug text-text-primary/80">
+              {creator.bio}
+            </p>
+          )}
+          {socialBlock && (
+            <div className="mt-5">
+              <SocialIconsBlock block={socialBlock} />
+            </div>
           )}
         </div>
 
-        {canTab ? (
-          <>
-            <div className="flex items-center gap-1 rounded-pill border border-current/15 p-1">
+        {/* Links / Shop */}
+        {canTab && (
+          <div className="mt-6 flex justify-center">
+            <div className="flex items-center rounded-full bg-black/[0.05] p-1">
               {(["links", "shop"] as const).map((tab) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
                   className={cn(
-                    "rounded-pill px-5 py-2 text-small font-medium capitalize transition-colors duration-[170ms]",
+                    "rounded-full px-8 py-2.5 text-[16px] font-semibold transition-colors duration-200",
                     activeTab === tab
-                      ? "bg-current/10 text-current"
-                      : "opacity-60 hover:opacity-100",
+                      ? "bg-text-primary text-white"
+                      : "text-text-primary hover:text-text-secondary",
                   )}
                 >
                   {tab === "links" ? "Links" : "Shop"}
                 </button>
               ))}
             </div>
-
-            {activeTab === "links" ? (
-              <div className="flex w-full flex-col gap-3">{renderBlockList(linkBlocks)}</div>
-            ) : (
-              <div className="grid w-full grid-cols-2 gap-3">{renderBlockList(productBlocks)}</div>
-            )}
-          </>
-        ) : (
-          <div className="flex w-full flex-col gap-3">{renderBlockList(visibleBlocks)}</div>
+          </div>
         )}
 
-        <Link
-          href="/"
-          className="mt-6 text-small opacity-40 transition-opacity hover:opacity-70"
-        >
-          Powered by OrangeLink
-        </Link>
+        <div className="mt-7 flex-1">
+          {showShop ? (
+            <div className="grid grid-cols-2 gap-4">
+              {productBlocks.map((block, i) =>
+                // An odd last product takes the full row, as in the
+                // reference, instead of leaving a hole beside it.
+                productBlocks.length % 2 === 1 && i === productBlocks.length - 1 ? (
+                  <div key={block.id} data-wide className="col-span-2">
+                    {render([block])}
+                  </div>
+                ) : (
+                  <div key={block.id}>{render([block])}</div>
+                ),
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {/* The doorway from the links into the shop. */}
+              {canTab && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("shop")}
+                  className="storefront-pill w-full overflow-hidden rounded-[36px] p-4 pb-5"
+                >
+                  {/* Fixed-width tiles rather than flex-1, so the third runs
+                      off the edge the way the reference's does and the strip
+                      reads as "there's more in here". The strip's own grey
+                      shows through the gaps as hairline dividers. */}
+                  <div className="flex gap-[3px] overflow-hidden rounded-[24px] bg-[#e9e7e3]">
+                    {shopProducts.slice(0, 3).map((p) => (
+                      <div
+                        key={p.id}
+                        className="aspect-[3/5] w-[38%] shrink-0 bg-white bg-cover bg-center"
+                        style={
+                          p.cover_image_url
+                            ? { backgroundImage: `url(${p.cover_image_url})` }
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </div>
+                  <p className="mt-4 text-[18px] font-medium">See Full Shop</p>
+                  <p className="text-[14px] text-text-secondary">
+                    {shopProducts.length} product{shopProducts.length === 1 ? "" : "s"}
+                  </p>
+                </button>
+              )}
+              {render(linkBlocks)}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-16 flex flex-col items-center gap-6">
+          <Link
+            href="/signup"
+            className="rounded-full bg-text-primary px-6 py-3.5 text-[17px] font-semibold text-white shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-transform duration-200 hover:scale-[1.03]"
+          >
+            Get your own OrangeLink
+          </Link>
+          <nav className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[14px] font-medium text-text-primary/75">
+            <Link href="/privacy" className="hover:text-text-primary">Privacy</Link>
+            <span aria-hidden>·</span>
+            <Link href="/terms" className="hover:text-text-primary">Terms</Link>
+            <span aria-hidden>·</span>
+            <Link href="/contact" className="hover:text-text-primary">Report</Link>
+            <span aria-hidden>·</span>
+            <Link href="/" className="hover:text-text-primary">More from OrangeLink</Link>
+          </nav>
+        </div>
       </div>
+
+      {emailBlock && (
+        <Modal
+          open={subscribeOpen}
+          onClose={() => setSubscribeOpen(false)}
+          title={`Subscribe to ${displayName}`}
+          maxWidthClassName="max-w-[440px]"
+        >
+          {/* The modal portals to <body>, outside this page's theme scope,
+              so the theme is re-applied around its contents. */}
+          <div className="theme-storefront">
+            <BlockRenderer block={emailBlock} username={creator.username} products={products} />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -45,6 +45,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
+        {/* TEMPORARY — Figma html-to-design capture. Dev-only so it can
+            never reach production; remove once the design is in Figma. */}
+        {process.env.NODE_ENV === "development" && (
+          <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async />
+        )}
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

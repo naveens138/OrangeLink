@@ -45,7 +45,7 @@ export async function recordPayout(formData: FormData): Promise<RecordPayoutResu
     .single();
 
   if (error || !data) {
-    return { ok: false, error: "Couldn't record this payout — try again." };
+    return { ok: false, error: "Couldn't record this payout. Try again." };
   }
 
   return {

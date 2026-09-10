@@ -14,19 +14,19 @@ const PROVIDER_OPTIONS: { value: EspProviderName; label: string; listLabel: stri
     value: "convertkit",
     label: "Kit (ConvertKit)",
     listLabel: "List ID",
-    listHint: "Optional — leave blank to just add subscribers without tagging a specific list.",
+    listHint: "Optional, leave blank to just add subscribers without tagging a specific list.",
   },
   {
     value: "beehiiv",
     label: "Beehiiv",
     listLabel: "Publication ID",
-    listHint: "Required — found in Beehiiv under Settings > Publication.",
+    listHint: "Required, found in Beehiiv under Settings > Publication.",
   },
   {
     value: "mailerlite",
     label: "MailerLite",
     listLabel: "Group ID",
-    listHint: "Optional — leave blank to add subscribers without a group.",
+    listHint: "Optional, leave blank to add subscribers without a group.",
   },
 ];
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PolicyPage, PolicySection } from "@/components/marketing/policy-page";
 
-export const metadata = { title: "About Us — OrangeLink" };
+export const metadata = { title: "About Us | OrangeLink" };
 
 export default function AboutPage() {
   return (
@@ -11,7 +11,7 @@ export default function AboutPage() {
           OrangeLink is a creator operating system: one public page that combines a
           link-in-bio, a storefront, and a portfolio, backed by a dashboard where
           creators manage their links, products, email list, and sales in one
-          place — instead of stitching together a link-in-bio tool, a checkout
+          place, instead of stitching together a link-in-bio tool, a checkout
           provider, and an email platform separately.
         </p>
       </PolicySection>
@@ -22,7 +22,7 @@ export default function AboutPage() {
           sell digital products (presets, guides, templates, bookable calls, and
           similar) directly from that page, capture email subscribers, and see
           how visitors move from a link click to a sale. Checkout happens
-          in-page — buyers never leave the creator&apos;s page to complete a
+          in-page: buyers never leave the creator&apos;s page to complete a
           purchase.
         </p>
       </PolicySection>

@@ -40,7 +40,7 @@ export async function captureEmail(
     { onConflict: "creator_id,email" },
   );
   if (error) {
-    return { ok: false, error: "Couldn't save your email — try again." };
+    return { ok: false, error: "Couldn't save your email. Try again." };
   }
 
   await syncToConnectedEsp(supabase, creator.id, email);

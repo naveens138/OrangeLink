@@ -183,6 +183,22 @@ create table public.customers (
 
 create index idx_customers_creator_ltv on public.customers(creator_id, lifetime_value_cents desc);
 
+-- Each creator sells through their OWN payment account: the buyer pays them
+-- directly and OrangeLink never holds the funds or takes a per-sale cut.
+-- Secrets live in Supabase Vault; this table stores only references, and the
+-- plaintext is reachable exclusively via get_creator_payment_credentials(),
+-- which is granted to service_role alone (migrations/0011, 0013).
+create table public.creator_payment_accounts (
+  creator_id uuid primary key references public.creators(id) on delete cascade,
+  provider text not null default 'razorpay' check (provider in ('razorpay')),
+  key_id text not null,              -- publishable; checkout.js needs it in the browser
+  key_secret_id uuid not null,       -- vault reference
+  webhook_secret_id uuid,            -- vault reference, set once the webhook is registered
+  is_live boolean not null default false,
+  connected_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table public.orders (
   id uuid primary key default gen_random_uuid(),
   creator_id uuid not null references public.creators(id) on delete cascade,

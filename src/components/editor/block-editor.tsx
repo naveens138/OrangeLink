@@ -256,7 +256,7 @@ export function BlockEditor({
                   <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-16 text-center">
                     <Layers className="h-6 w-6 text-text-muted" />
                     <p className="mt-3 text-body text-text-secondary">
-                      No blocks yet — add one to get started.
+                      No blocks yet. Add one to get started.
                     </p>
                   </div>
                 )}

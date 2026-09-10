@@ -26,7 +26,7 @@ export default function SignupPage() {
             <span className="block text-text-primary">Everything you sell.</span>
           </h1>
           <p className="mt-6 text-body-lg text-text-secondary">
-            Create your account and start free — no credit card required.
+            Create your account and start free. No credit card required.
           </p>
         </div>
 

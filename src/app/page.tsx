@@ -1,179 +1,292 @@
-import { Link2, ShoppingBag, Upload } from "lucide-react";
 import Link from "next/link";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { Button } from "@/components/ui/button";
-import { FloatingNav } from "@/components/marketing/floating-nav";
-import { PagePreviewCard } from "@/components/marketing/page-preview-card";
-import { TestimonialCard } from "@/components/marketing/testimonial-card";
-import { IconSquare } from "@/components/marketing/icon-square";
+import { SiteNav } from "@/components/marketing/site-nav";
+import { SaleTimeline } from "@/components/marketing/sale-timeline";
+import { DeviceMockup } from "@/components/marketing/device-mockup";
+import { ValueStack } from "@/components/marketing/value-stack";
+import { Faq, type FaqItem } from "@/components/marketing/faq";
 
-const features = [
+// Structure and rhythm follow runner.now: one narrow centred column, small
+// dense type, hairline-boxed cards, numbered section eyebrows, and a single
+// animated card (SaleTimeline) carrying the page rather than motion
+// sprinkled everywhere.
+//
+// Claims stay limited to what actually ships. Custom domains, comment-to-DM
+// and the media kit are placeholders in the dashboard, so they appear only
+// in the FAQ under what isn't built.
+
+const features: {
+  title: string;
+  body: string;
+  soon?: boolean;
+  /** Spans both columns, so the remaining six sit as three even rows. */
+  wide?: boolean;
+  /** Fills the extra width on the wide card without adding more prose. */
+  example?: { from: string; to: string };
+}[] = [
   {
-    icon: Link2,
-    title: "One link, everything you sell.",
-    body: "Links, products, and checkout live on one page that looks like you built it — not a template.",
+    title: "OrangeLink Does the Work",
+    body: "Paste a link and the title, image and description fetch themselves. No typing the same details in twice.",
+    example: {
+      from: "youtube.com/watch?v=…",
+      to: "Title · Image · Description",
+    },
+    wide: true,
   },
   {
-    icon: ShoppingBag,
-    title: "Checkout that never leaves your page.",
-    body: "In-page checkout with Apple Pay and Google Pay. No redirect to an unfamiliar payment portal.",
+    title: "One Page, Every Platform",
+    body: "Instagram, TikTok and YouTube all point at the same place, so there is one address to keep current.",
   },
   {
-    icon: Upload,
-    title: "Import your old page in one click.",
-    body: "Bring your Linktree or Stan page over, review what changed, then go live.",
+    title: "Sell Without Redirects",
+    body: "Checkout opens on your page. Nobody gets handed off to an external tab they don't recognise.",
+  },
+  {
+    title: "Import in One Click",
+    body: "Bring an existing Linktree or Stan page across automatically, then review it before anything goes live.",
+  },
+  {
+    title: "You Stay in Control",
+    body: "You approve every price, product and payout. Nothing moves without your say-so.",
+  },
+  {
+    title: "Real Funnel Analytics",
+    body: "Clicks, product views and checkouts broken down by traffic source, not just a raw tap count.",
+  },
+  {
+    title: "Your Own Domain",
+    // Flagged as coming rather than shipped: /dashboard/domains is still a
+    // placeholder, so claiming it works would be a promise we can't keep.
+    body: "Point your own domain at your page instead of using the OrangeLink address.",
+    soon: true,
   },
 ];
 
-const testimonials = [
+const faqItems: FaqItem[] = [
   {
-    quote:
-      "Switched over in an afternoon. My whole shop finally feels like one thing instead of five different tools.",
-    name: "Priya Nandan",
-    role: "Illustrator",
-    initial: "P",
+    q: "What is OrangeLink?",
+    a: "One page that holds your links, your digital products and your checkout together. You share a single address, and the people who find you can browse and buy without going anywhere else.",
   },
   {
-    quote:
-      "The checkout staying on my own page instead of bouncing people to Stripe is the whole reason I moved.",
-    name: "Marcus Webb",
-    role: "Course creator",
-    initial: "M",
+    q: "Do I need to know how to code?",
+    a: "No. You add blocks and drag them into the order you want. There is nothing to install, host or configure, and no template to edit by hand.",
   },
   {
-    quote:
-      "Import took ten minutes and it actually asked me to review before publishing. Nothing got clobbered.",
-    name: "Sofia Reyes",
-    role: "Podcaster",
-    initial: "S",
+    q: "Can I import my existing Linktree or Stan page?",
+    a: "Yes. Paste the address of your current page and OrangeLink reads it and rebuilds the links for you. You review the result and change anything you like before it publishes.",
   },
   {
-    quote:
-      "Dark mode that's actually dark, not just inverted. Small thing, but it's the first page tool that got it right.",
-    name: "Daniel Osei",
-    role: "Photographer",
-    initial: "D",
+    q: "How does checkout work for my customers?",
+    a: "The payment box opens on your own page rather than sending anyone to another site. Cards from any country work, and card details go straight to the payment provider, which means OrangeLink never sees or stores them. Digital files are delivered automatically the moment payment clears.",
+  },
+  {
+    q: "What does OrangeLink charge?",
+    a: "A flat subscription for the platform, and nothing on top of what you sell. Your buyers pay into your own Razorpay account, so your sales never pass through us and we take no cut of them. Payment processing fees are charged by Razorpay directly, as they would be anywhere. Monthly pricing is still being finalised, so the figure in the comparison above is a placeholder rather than a live price.",
+  },
+  {
+    q: "Can I use my own domain?",
+    a: "Not yet. Custom domains are on the roadmap but are not live, so pages currently sit at your OrangeLink address. We would rather say so here than let you find out after signing up.",
   },
 ];
+
+const footerLinks = [
+  ["/terms", "Terms"],
+  ["/privacy", "Privacy"],
+  ["/refund-policy", "Refund Policy"],
+  ["/contact", "Contact"],
+];
+
+const btnDark =
+  "t-small rounded-md bg-text-primary px-3.5 py-2 font-medium text-white transition-[opacity,transform] duration-100 ease-out hover:opacity-90 active:scale-[0.97]";
+const btnGhost =
+  "t-small rounded-md border border-border bg-surface-1 px-3.5 py-2 font-medium text-text-primary transition-[background-color,transform] duration-100 ease-out hover:bg-surface-2 active:scale-[0.97]";
+
+function SectionHeader({
+  index,
+  eyebrow,
+  title,
+  body,
+}: {
+  index: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="rise">
+      <p className="t-mono text-text-muted">
+        <span className="text-[var(--accent-strong)]">{index} / </span>
+        {eyebrow}
+      </p>
+      {/* max-width sits on the heading itself: `ch` resolves against the
+          element's own font-size, so on a wrapper it would measure the
+          16px body text and clamp the heading to a sliver. */}
+      <h2 className="t-title mt-3 max-w-[26ch] text-balance">{title}</h2>
+      <p className="t-body mt-2 max-w-[54ch] text-text-secondary">{body}</p>
+    </div>
+  );
+}
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="flex items-center justify-between px-6 py-5 md:px-10">
-        <span className="text-body font-semibold tracking-tight text-text-primary">
-          Orange<span className="text-accent">Link</span>
-        </span>
-        <ThemeToggle />
-      </header>
+    <div className="theme-marketing min-h-screen bg-background text-text-primary">
+      <SiteNav />
 
-      {/* Hero */}
-      <section className="flex flex-col items-center gap-12 px-6 pb-20 pt-10 md:flex-row md:items-center md:justify-between md:gap-8 md:px-16 md:pb-28 md:pt-16">
-        <div className="flex max-w-xl flex-col items-center text-center md:items-start md:text-left">
-          <p className="text-label uppercase tracking-widest text-text-muted">
-            For creators
-          </p>
-          <h1 className="mt-4 text-h1 md:text-display">
-            <span className="font-normal text-text-secondary">
-              One page for{" "}
-            </span>
-            <span className="font-bold text-text-primary">
-              everything you sell.
-            </span>
+      <main className="mx-auto w-full max-w-[560px] px-5">
+        {/* Hero */}
+        <section className="pb-16 pt-16">
+          <h1 className="t-display rise max-w-[24ch] text-balance">
+            Stop Managing Five Tools to Run One Simple Business.
           </h1>
-          <p className="mt-6 max-w-md text-body-lg text-text-secondary">
-            Links, products, checkout, and your audience — in one page that
-            looks like you, not a template.
+          <p className="t-body rise rise-1 mt-4 max-w-[52ch] text-text-secondary">
+            Links, digital products, and checkout. All on one page, live in
+            minutes.
           </p>
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <Link href="/signup">
-              <Button className="w-full sm:w-auto">Get started free</Button>
+          <div className="rise rise-2 mt-6 flex flex-wrap items-center gap-2">
+            <Link href="/signup" className={btnDark}>
+              Claim Your Page
             </Link>
-            <Link href="/jane">
-              <Button variant="secondary" className="w-full sm:w-auto">
-                View a demo page
-              </Button>
+            <Link href="/jane" className={btnGhost}>
+              See a live page
             </Link>
           </div>
-        </div>
+          <p className="t-small rise rise-3 mt-4 text-text-muted">
+            Free to start.
+          </p>
+        </section>
 
-        <PagePreviewCard />
-      </section>
+        {/* 01 — the animated centrepiece */}
+        <section id="how" className="scroll-mt-16 pb-16">
+          <SectionHeader
+            index="01"
+            eyebrow="how it works"
+            title="Watch the whole thing work, start to finish."
+            body="Four short walkthroughs: setting up, making a sale, moving your old page over, and growing your list."
+          />
+          <div className="rise rise-2 mt-7">
+            <SaleTimeline />
+          </div>
+        </section>
 
-      {/* Features */}
-      <section id="features" className="scroll-mt-24 px-6 py-24 md:px-16">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="max-w-md text-h2">
-            <span className="font-normal text-text-secondary">Focused. </span>
-            <span className="font-bold text-text-primary">
-              Built for conversion.
-            </span>
-          </h2>
-          <div className="mt-12 grid gap-10 md:grid-cols-3">
-            {features.map((feature) => (
-              <div key={feature.title} className="flex flex-col gap-4">
-                <IconSquare icon={feature.icon} />
-                <h3 className="text-h3">{feature.title}</h3>
-                <p className="text-body text-text-secondary">
+        {/* 02 — features */}
+        <section id="features" className="scroll-mt-16 pb-16">
+          <SectionHeader
+            index="02"
+            eyebrow="what goes on it"
+            title="Everything the page needs, already in it."
+            body="Drag the blocks into any order you like. Nothing here needs another subscription sitting behind it."
+          />
+          <div className="mt-9 grid gap-3 sm:grid-cols-2">
+            {features.map((feature, i) => (
+              <div
+                key={feature.title}
+                className={`lift rise rise-${Math.min(i + 1, 6)} flex flex-col rounded-md border border-border bg-surface-1 p-6 ${
+                  feature.wide ? "sm:col-span-2" : ""
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <p className="t-heading">{feature.title}</p>
+                  {feature.soon && (
+                    <span className="t-mono rounded border border-border px-1.5 py-0.5 text-text-muted">
+                      Soon
+                    </span>
+                  )}
+                </div>
+                <p
+                  className={`t-small mt-2 leading-relaxed text-text-secondary ${
+                    feature.wide ? "max-w-[58ch]" : ""
+                  }`}
+                >
                   {feature.body}
                 </p>
+
+                {feature.example && (
+                  <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border pt-4">
+                    <code className="t-mono rounded border border-border bg-background px-2 py-1.5 text-text-secondary">
+                      {feature.example.from}
+                    </code>
+                    <span aria-hidden className="t-mono text-[var(--accent-strong)]">
+                      &rarr;
+                    </span>
+                    <code className="t-mono rounded border border-border bg-background px-2 py-1.5 text-text-primary">
+                      {feature.example.to}
+                    </code>
+                  </div>
+                )}
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Testimonials */}
-      <section
-        id="testimonials"
-        className="scroll-mt-24 px-6 py-24 md:px-16"
-      >
-        <div className="mx-auto max-w-5xl">
-          <h2 className="max-w-md text-h2">
-            <span className="font-normal text-text-secondary">
-              Creators talk.{" "}
-            </span>
-            <span className="font-bold text-text-primary">
-              Here&apos;s what they&apos;re saying.
-            </span>
-          </h2>
-          <div className="mt-12 grid gap-4 sm:grid-cols-2">
-            {testimonials.map((t) => (
-              <TestimonialCard key={t.name} {...t} />
-            ))}
+        {/* 03 — the page itself */}
+        <section className="pb-16">
+          <SectionHeader
+            index="03"
+            eyebrow="your page"
+            title="It looks like your page, because it is."
+            body="Your name, your products, your checkout, at your own address. The only thing we add is one small line at the bottom."
+          />
+          <div className="rise rise-2 mt-7 rounded-md border border-border bg-surface-2 px-5 pb-6 pt-8">
+            <DeviceMockup />
+            {/* Not built yet, so it carries the same "Soon" tag as the
+                custom domain card rather than reading as a live feature. */}
+            <div className="mx-auto mt-7 flex max-w-[44ch] flex-col items-center gap-2 text-center">
+              <div className="flex items-center gap-2">
+                <p className="t-heading">Customize your page with AI</p>
+                <span className="t-mono rounded border border-border px-1.5 py-0.5 text-text-muted">
+                  Soon
+                </span>
+              </div>
+              <p className="t-small leading-relaxed text-text-secondary">
+                Describe the look you want and it restyles your page to match. Colours, fonts, layout, in one go.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border px-6 py-10 md:px-16">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-center md:flex-row md:items-center md:justify-between md:text-left">
-          <span className="text-small text-text-muted">
-            © {new Date().getFullYear()} OrangeLink
-          </span>
-          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-small text-text-secondary">
-            <Link href="/about" className="hover:text-text-primary">
-              About
-            </Link>
-            <Link href="/contact" className="hover:text-text-primary">
-              Contact
-            </Link>
-            <Link href="/shipping-policy" className="hover:text-text-primary">
-              Shipping Policy
-            </Link>
-            <Link href="/refund-policy" className="hover:text-text-primary">
-              Refund Policy
-            </Link>
-            <Link href="/terms" className="hover:text-text-primary">
-              Terms
-            </Link>
-            <Link href="/privacy" className="hover:text-text-primary">
-              Privacy
-            </Link>
+        {/* 04 — the comparison */}
+        <section id="compare" className="scroll-mt-16 pb-16">
+          <SectionHeader
+            index="04"
+            eyebrow="the usual way vs. this"
+            title="A Simpler Way to Run Your Business"
+            body="Stop paying for five different tools. A link page here, a checkout there, an email tool, a booking tool. Four logins and four bills, every month, whether you sell anything or not."
+          />
+          <div className="rise rise-2 mt-7">
+            <ValueStack />
+          </div>
+        </section>
+
+        {/* Questions */}
+        <section id="faq" className="scroll-mt-16 pb-16">
+          <h2 className="t-title rise">Questions</h2>
+          <div className="rise rise-1 mt-5">
+            <Faq items={faqItems} />
+          </div>
+        </section>
+
+        <footer className="flex flex-col gap-4 border-t border-border py-8">
+          <div>
+            <p className="t-heading">OrangeLink</p>
+            <p className="t-small mt-1 text-text-secondary">
+              One page for your links, your products and your checkout.
+            </p>
+          </div>
+          <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            {footerLinks.map(([href, label]) => (
+              <Link
+                key={href}
+                href={href}
+                className="link-underline t-small text-text-secondary hover:text-text-primary"
+              >
+                {label}
+              </Link>
+            ))}
           </nav>
-        </div>
-      </footer>
-
-      <FloatingNav />
+          <span className="t-small text-text-muted">
+            © {new Date().getFullYear()} OrangeLink. All rights reserved.
+          </span>
+        </footer>
+      </main>
     </div>
   );
 }

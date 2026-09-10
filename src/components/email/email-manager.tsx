@@ -97,7 +97,7 @@ export function EmailManager({
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-10 text-center">
             <Mail className="h-5 w-5 text-text-muted" />
             <p className="mt-2 text-small text-text-secondary">
-              Not connected — subscribers still save here either way.
+              Not connected. Subscribers still save here either way.
             </p>
           </div>
         ) : (
@@ -146,7 +146,7 @@ export function EmailManager({
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-16 text-center">
             <Users className="h-6 w-6 text-text-muted" />
             <p className="mt-3 text-body text-text-secondary">
-              No subscribers yet — they&apos;ll show up here as your email
+              No subscribers yet. They&apos;ll show up here as your email
               capture block collects them.
             </p>
           </div>
@@ -166,7 +166,7 @@ export function EmailManager({
                   <tr key={sub.id} className="border-b border-border last:border-0">
                     <td className="px-4 py-3 text-text-primary">{sub.email}</td>
                     <td className="px-4 py-3 text-text-secondary">
-                      {SOURCE_LABELS[sub.source ?? ""] ?? sub.source ?? "—"}
+                      {SOURCE_LABELS[sub.source ?? ""] ?? sub.source ?? "-"}
                     </td>
                     <td className="px-4 py-3 text-small text-text-muted">
                       {formatDate(sub.subscribed_at)}

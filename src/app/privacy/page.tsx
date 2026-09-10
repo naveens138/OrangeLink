@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { PolicyPage, PolicySection, PolicyList } from "@/components/marketing/policy-page";
 
-export const metadata = { title: "Privacy Policy — OrangeLink" };
+export const metadata = { title: "Privacy Policy | OrangeLink" };
 
 export default function PrivacyPage() {
   return (
     <PolicyPage title="Privacy Policy">
       <PolicySection heading="What this covers">
         <p>
-          This policy covers data collected by OrangeLink itself — the
+          This policy covers data collected by OrangeLink itself, the
           platform, creator dashboards, and public creator pages. It doesn&apos;t
           cover what a creator does with data outside OrangeLink (for example,
           their own mailing list once exported), or third-party services a
@@ -20,28 +20,28 @@ export default function PrivacyPage() {
         <PolicyList
           items={[
             <>
-              <strong className="text-text-primary">Account information</strong> —
+              <strong className="text-text-primary">Account information</strong>:
               email, username, and profile details when a creator signs up.
             </>,
             <>
-              <strong className="text-text-primary">Purchase information</strong> —
+              <strong className="text-text-primary">Purchase information</strong>:
               when you buy from a creator&apos;s page, we collect your email, name,
               and order details. Card details are handled directly by Razorpay,
-              our payment processor — we never see or store your full card
+              our payment processor. We never see or store your full card
               number.
             </>,
             <>
-              <strong className="text-text-primary">Page analytics</strong> — page
+              <strong className="text-text-primary">Page analytics</strong>, page
               views, link clicks, and product views on a creator&apos;s page are
               tied to a random, anonymous visitor id stored in your browser&apos;s
               local storage (not a cookie), so a creator can see aggregate
-              traffic and conversion — not who you are personally. This id
+              traffic and conversion, not who you are personally. This id
               isn&apos;t linked to your identity unless you also make a purchase or
               subscribe with your email, and it never leaves your browser except
               as part of that anonymous event data.
             </>,
             <>
-              <strong className="text-text-primary">Email subscribers</strong> — if
+              <strong className="text-text-primary">Email subscribers</strong>, if
               you subscribe to a creator&apos;s mailing list, we store your email
               and, if the creator has connected an email service (Kit, Beehiiv,
               or MailerLite), sync it there so the creator can send you updates.
@@ -52,12 +52,12 @@ export default function PrivacyPage() {
 
       <PolicySection heading="Cookies and tracking">
         <p>
-          OrangeLink&apos;s own analytics don&apos;t use cookies — the anonymous
+          OrangeLink&apos;s own analytics don&apos;t use cookies. The anonymous
           visitor id above lives in local storage, and there&apos;s nothing to
           consent to beyond using the page normally. If a creator connects a
           third-party tracking pixel (Meta Pixel, Google Analytics, or TikTok
           Pixel) to their page, that provider&apos;s own tracking and cookie
-          behavior applies in addition to ours — check their privacy policies
+          behavior applies in addition to ours. Check their privacy policies
           if you want details on that.
         </p>
       </PolicySection>
@@ -67,7 +67,7 @@ export default function PrivacyPage() {
           items={[
             "To operate the platform: hosting pages, processing purchases, delivering digital products.",
             "To show creators aggregate analytics about their own page.",
-            "To send transactional emails (purchase confirmations, account notices) — never marketing email from OrangeLink itself without opting in.",
+            "To send transactional emails (purchase confirmations, account notices), never marketing email from OrangeLink itself without opting in.",
             "To detect and prevent fraud or abuse.",
           ]}
         />

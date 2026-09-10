@@ -10,12 +10,10 @@ export function dodoCheckoutMode(): "test" | "live" | null {
   return null;
 }
 
-// The key id is not a secret (Razorpay's own checkout.js requires it
-// client-side to open the widget) — only RAZORPAY_KEY_SECRET must stay
-// server-only, and it never has a NEXT_PUBLIC_ counterpart.
-export function razorpayKeyId(): string | null {
-  return process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? null;
-}
+// There is no platform-wide Razorpay key id any more. The key id is still
+// not a secret — checkout.js needs it in the browser — but it now belongs to
+// the creator being bought from, and reaches the client in the
+// /api/razorpay/create-order response rather than from an env var.
 
 // Paddle's client-side token, like Razorpay's key id above, is meant to be
 // public — Paddle.js requires it in the browser to open checkout/preview

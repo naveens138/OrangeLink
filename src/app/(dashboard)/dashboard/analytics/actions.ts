@@ -49,7 +49,7 @@ export async function addPixel(formData: FormData): Promise<AddPixelResult> {
     .single();
 
   if (error || !data) {
-    return { ok: false, error: "Couldn't save this pixel — try again." };
+    return { ok: false, error: "Couldn't save this pixel. Try again." };
   }
   return { ok: true, pixel: data as TrackingPixel };
 }

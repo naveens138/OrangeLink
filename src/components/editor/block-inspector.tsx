@@ -9,7 +9,7 @@ import { blockTypeMeta } from "@/lib/block-defaults";
 import { fetchLinkPreview } from "@/app/(dashboard)/dashboard/links/actions";
 import type { Block, Product, UnlockCondition, UnlockConditionType } from "@/lib/types";
 
-const SOCIAL_PLATFORMS = ["instagram", "youtube", "tiktok"];
+const SOCIAL_PLATFORMS = ["x", "instagram", "tiktok", "youtube"];
 
 const UNLOCK_OPTIONS: { value: UnlockConditionType | ""; label: string }[] = [
   { value: "", label: "None" },
@@ -133,7 +133,7 @@ export function BlockInspector({
               />
             )}
           </Field>
-          <Field label="Badge" hint="Optional — e.g. a discount code, shown as a small overlay">
+          <Field label="Badge" hint="Optional, e.g. a discount code, shown as a small overlay">
             {(p) => (
               <Input
                 {...p}
@@ -161,7 +161,7 @@ export function BlockInspector({
       )}
 
       {block.type === "image" && (
-        <Field label="Image URL" hint="Paste a link — uploads land in a later milestone.">
+        <Field label="Image URL" hint="Paste a link. Uploads land in a later milestone.">
           {(p) => (
             <Input
               {...p}
@@ -251,6 +251,33 @@ export function BlockInspector({
         </Field>
       )}
 
+      {/* An icon with no URL renders as a plain mark rather than a dead
+          link, so these are optional but worth filling in. */}
+      {block.type === "social_icons" &&
+        ((config.platforms as string[]) ?? []).length > 0 && (
+          <div className="flex flex-col gap-3 border-t border-border pt-4">
+            {((config.platforms as string[]) ?? []).map((platform) => (
+              <Field key={platform} label={`${platform} link`}>
+                {(p) => (
+                  <Input
+                    {...p}
+                    value={
+                      ((config.links as Record<string, string>) ?? {})[platform] ?? ""
+                    }
+                    onChange={(e) =>
+                      set("links", {
+                        ...((config.links as Record<string, string>) ?? {}),
+                        [platform]: e.target.value,
+                      })
+                    }
+                    placeholder={`https://${platform === "x" ? "x.com" : platform + ".com"}/yourhandle`}
+                  />
+                )}
+              </Field>
+            ))}
+          </div>
+        )}
+
       {block.type === "embed" && (
         <Field label="Embed URL">
           {(p) => (
@@ -277,7 +304,7 @@ export function BlockInspector({
 
       {block.type === "divider" && (
         <p className="text-small text-text-muted">
-          A thin divider line — nothing to configure.
+          A thin divider line. Nothing to configure.
         </p>
       )}
 
@@ -287,7 +314,7 @@ export function BlockInspector({
         </p>
         <p className="text-small text-text-muted">
           Shows a &quot;Follow to unlock&quot; state instead of the real
-          content. Honor system — clicking the CTA opens the profile and
+          content. Honor system: clicking the CTA opens the profile and
           unlocks immediately, since no platform lets us verify a follow.
         </p>
 
@@ -328,7 +355,7 @@ export function BlockInspector({
                 />
               )}
             </Field>
-            <Field label="Button text" hint="Optional — defaults to “Follow to unlock”">
+            <Field label="Button text" hint="Optional, defaults to “Follow to unlock”">
               {(p) => (
                 <Input
                   {...p}

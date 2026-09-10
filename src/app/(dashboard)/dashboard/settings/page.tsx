@@ -31,7 +31,7 @@ export default async function SettingsPage() {
           </Field>
           <Field
             label="Username"
-            hint={`orangelink.co/${creator.username} — changing this breaks existing links.`}
+            hint={`orangelink.co/${creator.username}. Changing this breaks existing links.`}
           >
             {(p) => (
               <Input {...p} defaultValue={creator.username} disabled />

@@ -160,7 +160,7 @@ export function ProductFormModal({
           label="Digital file"
           hint={
             product?.file_url
-              ? "A file is already attached — choosing a new one replaces it."
+              ? "A file is already attached. Choosing a new one replaces it."
               : "Delivered as a short-lived download link only after payment succeeds."
           }
         >
@@ -186,7 +186,7 @@ export function ProductFormModal({
           <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-small text-warning">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
-              Payments aren&apos;t connected — this product will save, but
+              Payments aren&apos;t connected. This product will save, but
               won&apos;t be purchasable until Dodo Payments keys are added.
             </span>
           </div>

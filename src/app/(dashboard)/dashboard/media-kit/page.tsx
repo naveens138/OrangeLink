@@ -14,7 +14,7 @@ export default function MediaKitPage() {
         icon={IdCard}
         title="Auto-generated media kit"
         description="Connect Instagram/YouTube/TikTok to pull follower and engagement stats on a schedule, and publish a shareable media kit page with trends over time."
-        milestone="Milestone 8 — Media Kit"
+        milestone="Milestone 8: Media Kit"
       />
     </div>
   );

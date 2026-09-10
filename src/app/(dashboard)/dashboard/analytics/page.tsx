@@ -28,7 +28,7 @@ export default async function AnalyticsPage() {
   const conversionRate =
     funnel.pageViews > 0
       ? `${((funnel.checkoutsCompleted / funnel.pageViews) * 100).toFixed(1)}%`
-      : "—";
+      : "-";
 
   const stats = [
     { label: "Page views (30d)", value: funnel.pageViews.toLocaleString() },

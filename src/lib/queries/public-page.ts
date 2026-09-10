@@ -10,8 +10,10 @@ import type { Block, Creator, Page, Product, TrackingPixel } from "@/lib/types";
 const BLOCK_COLUMNS =
   "id, type, position, is_visible, visible_from, visible_until, is_password_protected, config";
 
+// `type` drives the small meta label on each storefront card ("Digital" vs
+// "Session"); without it every product read as a generic "Product".
 const PRODUCT_COLUMNS =
-  "id, name, description, price_cents, currency, cover_image_url";
+  "id, type, name, description, price_cents, currency, cover_image_url";
 
 export interface PublicPageData {
   creator: Creator;

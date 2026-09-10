@@ -1,13 +1,13 @@
 import { PolicyPage, PolicySection, PolicyList } from "@/components/marketing/policy-page";
 
-export const metadata = { title: "Shipping Policy — OrangeLink" };
+export const metadata = { title: "Shipping Policy | OrangeLink" };
 
 export default function ShippingPolicyPage() {
   return (
     <PolicyPage title="Shipping & Delivery Policy">
       <PolicySection heading="No physical shipping">
         <p>
-          OrangeLink and the products sold through it are digital — there is no
+          OrangeLink and the products sold through it are digital. There is no
           physical shipping. Everything a buyer purchases is delivered
           electronically, as described below.
         </p>
@@ -20,7 +20,7 @@ export default function ShippingPolicyPage() {
               <strong className="text-text-primary">Digital files</strong> (presets,
               templates, guides, and similar) are delivered as a secure,
               time-limited download link, available immediately after payment is
-              confirmed — typically within seconds, and shown directly on the
+              confirmed, typically within seconds, and shown directly on the
               checkout confirmation screen.
             </>,
             <>

@@ -14,7 +14,7 @@ export default function OrdersPage() {
         icon={ShoppingBag}
         title="Orders & customer LTV"
         description="Order list backed by the orders/order_items/customers tables, with denormalized lifetime value for fast CRM-lite segmentation."
-        milestone="Milestone 4 — Products & Checkout"
+        milestone="Milestone 4: Products & Checkout"
       />
     </div>
   );

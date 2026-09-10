@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PolicyPage, PolicySection, PolicyList } from "@/components/marketing/policy-page";
 
-export const metadata = { title: "Terms & Conditions — OrangeLink" };
+export const metadata = { title: "Terms & Conditions | OrangeLink" };
 
 export default function TermsPage() {
   return (
@@ -19,7 +19,7 @@ export default function TermsPage() {
           OrangeLink is a platform that lets creators publish a page combining
           links, a storefront, and a portfolio, and lets buyers purchase
           products directly from that page. OrangeLink is the platform provider
-          — the creator is the seller of their own products, and is responsible
+         , the creator is the seller of their own products, and is responsible
           for the products and services they list.
         </p>
       </PolicySection>
@@ -29,7 +29,7 @@ export default function TermsPage() {
           items={[
             "You must provide accurate information when creating an account and keep your login credentials secure.",
             "You're responsible for the content of your page, the accuracy of your product listings, and delivering what you sell.",
-            "You must have the legal right to sell anything you list — don't list stolen, counterfeit, or infringing content.",
+            "You must have the legal right to sell anything you list. Don't list stolen, counterfeit, or infringing content.",
             "We may suspend or remove a page or account that violates these terms, hosts illegal content, or is used for fraud.",
           ]}
         />

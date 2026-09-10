@@ -46,10 +46,12 @@ export async function fulfillOrder(
     return { ok: false, error: `Product ${input.productId} not found.` };
   }
 
-  // platform_fee_bps already existed on `creators` (schema.sql) but nothing
-  // ever read it — every order silently took a 0% platform fee regardless
-  // of plan. Computed here since it's what the manual payout ledger
-  // (migrations/0009, creator_payout_balances) actually pays out against.
+  // Retained for historical orders only. Since migrations/0011 creators sell
+  // through their own Razorpay account, so the money never reaches OrangeLink
+  // and there is nothing to deduct — platform_fee_bps is 0 for everyone
+  // (0012) and the platform is paid by subscription instead. Still read
+  // rather than hardcoded so old orders keep reporting what was actually
+  // taken at the time.
   const { data: creatorRow } = await supabase
     .from("creators")
     .select("platform_fee_bps")

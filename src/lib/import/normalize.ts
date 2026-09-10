@@ -119,7 +119,7 @@ export function normalizeLinks(
     let label = candidate.label?.trim();
     if (!label) {
       label = labelFromUrl(url);
-      warnings.push("No title found — generated one from the URL");
+      warnings.push("No title found, generated one from the URL");
     }
     if (candidate.hidden) {
       warnings.push("Hidden on the source page");

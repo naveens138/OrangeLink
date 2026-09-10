@@ -6,19 +6,22 @@
    prefers-color-scheme and under [data-theme="dark"] so a manual toggle wins.
    ========================================================================= */
 
+/* Light palette matches the marketing page (see .theme-marketing below), so
+   the dashboard and the landing page read as the same product. */
 :root {
-  --background: #fafaf8;
-  --surface-1: #ffffff;
-  --surface-2: #f6f6f3;
-  --surface-3: #eeeeea;
-  --text-primary: #111111;
-  --text-secondary: #5f5f5a;
-  --text-muted: #8a8a84;
-  --border: rgba(17, 17, 17, 0.1);
-  --border-strong: rgba(17, 17, 17, 0.17);
+  --background: #ffffff;
+  --surface-1: #fafaf9;
+  --surface-2: #f5f4f2;
+  --surface-3: #ebe9e6;
+  --text-primary: #141413;
+  --text-secondary: #5b5955;
+  --text-muted: #8a8781;
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.14);
   --accent: #ff4812;
   --accent-hover: #de3f10;
-  --accent-soft: rgba(255, 72, 18, 0.08);
+  --accent-soft: rgba(255, 72, 18, 0.07);
+  --accent-strong: #b23408;
   --success: #16803c;
   --warning: #a15c00;
   --danger: #c9362b;
@@ -81,14 +84,14 @@
    ------------------------------------------------------------------- */
 .theme-light-primary {
   --background: #ffffff;
-  --surface-1: #ffffff;
-  --surface-2: #f5f5f5;
-  --surface-3: #ececec;
-  --text-primary: #111111;
-  --text-secondary: #6b6b6b;
-  --text-muted: #9a9a9a;
-  --border: rgba(17, 17, 17, 0.08);
-  --border-strong: rgba(17, 17, 17, 0.16);
+  --surface-1: #fafaf9;
+  --surface-2: #f5f4f2;
+  --surface-3: #ebe9e6;
+  --text-primary: #141413;
+  --text-secondary: #5b5955;
+  --text-muted: #8a8781;
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.14);
   --accent: #ff4812;
   --accent-hover: #de3f10;
   --accent-soft: rgba(255, 72, 18, 0.08);
@@ -96,6 +99,234 @@
   --warning: #a15c00;
   --danger: #c9362b;
   --shadow-elevated: 0 12px 40px rgba(17, 17, 17, 0.08);
+}
+
+/* ----------------------------------------------------------------------
+   Public creator page (the storefront at /username).
+   ------------------------------------------------------------------- */
+/* Laid out like a Linktree profile (a profile card on the page, links
+   first, full-pill buttons with a thumbnail, a shop preview card) in the
+   marketing page's white palette.
+
+   The depth is the reference's, turned light. It has a grainy gradient
+   ground, a see-through card over it, and pills a clear step brighter than
+   the card. Here that is a white-to-warm gradient with grain, a frosted
+   card, and solid white pills with a hairline and a soft shadow, so they
+   sit on the card rather than being printed on it. Orange only as
+   punctuation. */
+.theme-storefront {
+  --background: #f4f3f0;
+  --card: rgba(255, 255, 255, 0.5);
+  --surface-1: #fafaf9;
+  --surface-2: #f4f3f1;
+  --surface-3: #ebe9e6;
+  --pill: #ffffff;
+  --pill-hover: #fdfcfb;
+  --pill-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.035);
+  --pill-shadow-hover: 0 0 0 1px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05),
+    0 10px 24px rgba(0, 0, 0, 0.06);
+  --text-primary: #141413;
+  --text-secondary: #5b5955;
+  --text-muted: #8a8781;
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --accent: #ff4812;
+  --accent-strong: #b23408;
+  --accent-soft: rgba(255, 72, 18, 0.08);
+
+  font-family: system-ui, -apple-system, "SF Pro Text", "Segoe UI", sans-serif;
+}
+
+.theme-storefront * {
+  border-color: var(--border);
+}
+
+/* The page ground: white at the top warming to a pale brand peach, with a
+   film grain over it. The grain is an SVG noise tile, so it costs one small
+   data URI and no image request.
+
+   .storefront-ground is the real page, with the grain fixed to the
+   viewport. .storefront-screen is the same ground contained in a box, for
+   the phone mockup on the landing page, where a fixed layer would cover
+   the whole landing page instead of the phone. */
+.theme-storefront {
+  --storefront-gradient: linear-gradient(180deg, #f6f5f2 0%, #f7f1ec 45%, #fde3d5 100%);
+  --storefront-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.storefront-ground {
+  background: var(--storefront-gradient) fixed;
+}
+.storefront-screen {
+  position: relative;
+  background: var(--storefront-gradient);
+}
+.storefront-ground::before,
+.storefront-screen::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background-image: var(--storefront-grain);
+}
+.storefront-screen::before {
+  position: absolute;
+}
+
+/* White pills that lift off the frosted card. */
+.storefront-pill {
+  background: var(--pill);
+  box-shadow: var(--pill-shadow);
+  transition:
+    box-shadow 200ms ease-out,
+    transform 200ms ease-out,
+    background-color 200ms ease-out;
+}
+.storefront-pill:hover {
+  background: var(--pill-hover);
+  box-shadow: var(--pill-shadow-hover);
+  transform: translateY(-1px) scale(1.01);
+}
+.storefront-pill:active {
+  transform: scale(0.99);
+}
+
+/* ----------------------------------------------------------------------
+   Marketing landing page. White ground, warm-neutral greys, brand orange
+   used sparingly. Type is small and dense rather than large and airy —
+   the precision is most of the feel. Scoped like .theme-light-primary
+   above so the app's own surfaces are untouched.
+   ------------------------------------------------------------------- */
+.theme-marketing {
+  --background: #ffffff;
+  --surface-1: #fafaf9;
+  --surface-2: #f5f4f2;
+  --surface-3: #ebe9e6;
+  --text-primary: #141413;
+  --text-secondary: #5b5955;
+  --text-muted: #8a8781;
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --accent: #ff4812;
+  --accent-hover: #de3f10;
+  --accent-soft: rgba(255, 72, 18, 0.07);
+  /* #ff4812 only clears ~4.0:1 on white, so text-sized accent uses a
+     darkened cousin; the bright brand orange stays for fills. */
+  --accent-strong: #b23408;
+  --strike: #a8635f;
+  --shadow-elevated: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  font-family: system-ui, -apple-system, "SF Pro Text", "Segoe UI", sans-serif;
+  font-size: 1rem;
+}
+
+/* The app-wide `* { border-color }` reset outranks the scoped token. */
+.theme-marketing * {
+  border-color: var(--border);
+}
+
+.theme-marketing .t-display {
+  font-size: clamp(1.75rem, 3.6vw, 2.25rem);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+}
+.theme-marketing .t-title {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.028em;
+  font-weight: 600;
+}
+.theme-marketing .t-heading {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  letter-spacing: -0.006em;
+  font-weight: 600;
+}
+.theme-marketing .t-body {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.theme-marketing .t-small {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.theme-marketing .t-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Entrance motion, in CSS and on load rather than tied to scroll. `both`
+   fill holds the first frame until it runs, and it finishes in half a
+   second — so nothing below the fold can sit at opacity 0 waiting for an
+   observer, which is what previously blanked the middle of the Figma
+   capture. */
+@keyframes ol-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.theme-marketing .rise {
+  animation: 0.55s cubic-bezier(0.22, 1, 0.36, 1) both ol-rise-in;
+}
+.theme-marketing .rise-1 { animation-delay: 0.04s; }
+.theme-marketing .rise-2 { animation-delay: 0.08s; }
+.theme-marketing .rise-3 { animation-delay: 0.12s; }
+.theme-marketing .rise-4 { animation-delay: 0.16s; }
+.theme-marketing .rise-5 { animation-delay: 0.2s; }
+.theme-marketing .rise-6 { animation-delay: 0.24s; }
+
+/* Cards lift a hair and firm up their edge on hover — the only hover
+   flourish on the page, so it still reads as a signal. */
+.theme-marketing .lift {
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms ease,
+    background-color 220ms ease;
+}
+@media (hover: hover) {
+  .theme-marketing .lift:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+  }
+}
+
+/* Underline that draws from the left rather than snapping on. */
+.theme-marketing .link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .theme-marketing .link-underline:hover {
+    background-size: 100% 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-marketing .rise {
+    animation: none;
+  }
+  .theme-marketing .lift,
+  .theme-marketing .link-underline {
+    transition: none;
+  }
+  .theme-marketing .lift:hover {
+    transform: none;
+  }
 }
 
 @theme inline {
@@ -129,31 +360,35 @@
   /* typography scale — DESIGN_SYSTEM.md §4 (desktop values; responsive
      overrides applied per-component with sm:/md: variants where a screen
      spec calls for a different mobile size) */
-  --text-display: 76px;
-  --text-display--line-height: 0.95;
-  --text-display--font-weight: 700;
-  --text-display--letter-spacing: -0.05em;
+  /* Retuned to the marketing page's density — small, tight, confident.
+     Tracking stays size-specific: hard negative on display sizes, ~0 on
+     body copy. */
+  --text-display: 44px;
+  --text-display--line-height: 1.05;
+  --text-display--font-weight: 600;
+  --text-display--letter-spacing: -0.04em;
 
-  --text-h1: 48px;
-  --text-h1--line-height: 1;
-  --text-h1--font-weight: 675;
-  --text-h1--letter-spacing: -0.045em;
+  --text-h1: 32px;
+  --text-h1--line-height: 1.1;
+  --text-h1--font-weight: 600;
+  --text-h1--letter-spacing: -0.035em;
 
-  --text-h2: 36px;
-  --text-h2--line-height: 1.05;
-  --text-h2--font-weight: 650;
-  --text-h2--letter-spacing: -0.03em;
+  --text-h2: 24px;
+  --text-h2--line-height: 1.2;
+  --text-h2--font-weight: 600;
+  --text-h2--letter-spacing: -0.028em;
 
-  --text-h3: 24px;
-  --text-h3--line-height: 1.15;
+  --text-h3: 17px;
+  --text-h3--line-height: 1.35;
   --text-h3--font-weight: 600;
+  --text-h3--letter-spacing: -0.01em;
 
-  --text-body-lg: 18px;
-  --text-body-lg--line-height: 1.55;
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 1.6;
   --text-body-lg--font-weight: 400;
 
-  --text-body: 15px;
-  --text-body--line-height: 1.5;
+  --text-body: 14px;
+  --text-body--line-height: 1.6;
   --text-body--font-weight: 400;
 
   --text-small: 13px;
@@ -168,6 +403,8 @@
 body {
   background: var(--color-background);
   color: var(--color-text-primary);
+  /* Same system-font stack the landing page uses, so the app matches it. */
+  font-family: system-ui, -apple-system, "SF Pro Text", "Segoe UI", sans-serif;
 }
 
 * {

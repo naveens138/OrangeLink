@@ -13,8 +13,8 @@ export default function AutomationsPage() {
       <ComingSoon
         icon={Zap}
         title="Comment-to-DM automation"
-        description="Keyword-triggered rules that DM a link on Instagram/Facebook via the Meta Graph API. TikTok/YouTube fall back to public replies — kept explicit, never unified."
-        milestone="Milestone 7 — Comment-to-DM Automation"
+        description="Keyword-triggered rules that DM a link on Instagram/Facebook via the Meta Graph API. TikTok/YouTube fall back to public replies, kept explicit, never unified."
+        milestone="Milestone 7: Comment-to-DM Automation"
       />
     </div>
   );

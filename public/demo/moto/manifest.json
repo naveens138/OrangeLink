@@ -1,0 +1,47 @@
+{
+  "avatar.jpg": {
+    "title": "Rider photo supplied by the site owner (found on Pinterest)",
+    "license": "unverified: confirm the original photographer and licence before shipping",
+    "author": "unknown",
+    "url": "",
+    "note": "cropped square"
+  },
+  "presets.jpg": {
+    "title": "File:Royal Enfield Classic 350 (2017 Model Year).jpg",
+    "license": "CC BY-SA 4.0",
+    "author": "Samihasib",
+    "url": "https://commons.wikimedia.org/wiki/File:Royal_Enfield_Classic_350_(2017_Model_Year).jpg"
+  },
+  "luts.jpg": {
+    "title": "File:Kawasaki Z900RS.jpg",
+    "license": "CC BY-SA 4.0",
+    "author": "Rikita",
+    "url": "https://commons.wikimedia.org/wiki/File:Kawasaki_Z900RS.jpg"
+  },
+  "call.jpg": {
+    "title": "File:Detailed view of a motorcycle dashboard and handlebar with a smartphone mount.jpg",
+    "license": "CC BY 2.0",
+    "author": "Shixart1985",
+    "url": "https://commons.wikimedia.org/wiki/File:Detailed_view_of_a_motorcycle_dashboard_and_handlebar_with_a_smartphone_mount.jpg"
+  },
+  "gloves.jpg": {
+    "title": "File:Peccary Driving Glove.jpg",
+    "license": "Public domain",
+    "author": "-oo0(GoldTrader)0oo-",
+    "url": "https://commons.wikimedia.org/wiki/File:Peccary_Driving_Glove.jpg",
+    "note": "trimmed and centred on white"
+  },
+  "jacket.jpg": {
+    "title": "File:Leather jacket golden era.jpg",
+    "license": "CC0",
+    "author": "kreativgarasch",
+    "url": "https://commons.wikimedia.org/wiki/File:Leather_jacket_golden_era.jpg",
+    "note": "trimmed and centred on white"
+  },
+  "boots.jpg": {
+    "title": "File:Alpinestars S-MX Motorcycle boots.jpg",
+    "license": "CC BY-SA 3.0",
+    "author": "Ocdp",
+    "url": "https://commons.wikimedia.org/wiki/File:Alpinestars_S-MX_Motorcycle_boots.jpg"
+  }
+}

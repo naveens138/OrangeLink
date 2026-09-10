@@ -100,7 +100,7 @@ export function extractGeneric(html: string, sourceUrl: string): ExtractionResul
       const hiddenCount = candidates.filter((c) => c.hidden).length;
       if (hiddenCount) {
         warnings.push(
-          `${hiddenCount} link${hiddenCount === 1 ? " was" : "s were"} hidden on the source page — included but marked.`,
+          `${hiddenCount} link${hiddenCount === 1 ? " was" : "s were"} hidden on the source page, included but marked.`,
         );
       }
       return {
@@ -158,7 +158,7 @@ export function extractGeneric(html: string, sourceUrl: string): ExtractionResul
   }
 
   warnings.push(
-    "Read from the page's visible links — double-check the titles and order.",
+    "Read from the page's visible links. Double-check the titles and order.",
   );
 
   return {

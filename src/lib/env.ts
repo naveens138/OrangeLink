@@ -9,6 +9,7 @@ export function isDodoConfigured() {
   return Boolean(process.env.DODO_PAYMENTS_API_KEY);
 }
 
-export function isRazorpayConfigured() {
-  return Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
-}
+// Razorpay is no longer configured at the platform level: each creator
+// connects their own account (migrations/0011), so "are payments set up" is
+// a per-creator question answered by getCreatorPaymentCredentials(), not by
+// an env var.

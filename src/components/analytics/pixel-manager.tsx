@@ -17,9 +17,9 @@ const PROVIDER_LABELS: Record<TrackingPixelProvider, string> = {
 };
 
 const PROVIDER_HINTS: Record<TrackingPixelProvider, string> = {
-  meta_pixel: "Events Manager > Data Sources > your pixel — a numeric id.",
-  ga4: "Admin > Data Streams > your stream — starts with G-.",
-  tiktok_pixel: "Events > Web Events > Manage — the Pixel Code id.",
+  meta_pixel: "Events Manager > Data Sources > your pixel, a numeric id.",
+  ga4: "Admin > Data Streams > your stream, starts with G-.",
+  tiktok_pixel: "Events > Web Events > Manage, the Pixel Code id.",
 };
 
 export function PixelManager({ initialPixels }: { initialPixels: TrackingPixel[] }) {
@@ -82,7 +82,7 @@ export function PixelManager({ initialPixels }: { initialPixels: TrackingPixel[]
       {pixels.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-10 text-center">
           <p className="text-small text-text-secondary">
-            No pixels connected — nothing extra is injected into your public page.
+            No pixels connected. Nothing extra is injected into your public page.
           </p>
         </div>
       ) : (
@@ -147,7 +147,7 @@ export function PixelManager({ initialPixels }: { initialPixels: TrackingPixel[]
           )}
 
           <p className="text-small text-text-muted">
-            Injected into your public page&apos;s standard install snippet — this id isn&apos;t secret, it&apos;s meant to live in the page source.
+            Injected into your public page&apos;s standard install snippet. This id isn&apos;t secret, it&apos;s meant to live in the page source.
           </p>
 
           <Button type="submit" disabled={saving} className="mt-1 w-full">

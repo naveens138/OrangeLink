@@ -1,29 +1,32 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createRazorpayClient, verifyRazorpayPaymentSignature } from "@/lib/razorpay/client";
+import {
+  createRazorpayClientFor,
+  getCreatorPaymentCredentials,
+  verifyRazorpayPaymentSignature,
+} from "@/lib/razorpay/client";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 import { fulfillOrder } from "@/lib/payments/fulfill-order";
-import { isRazorpayConfigured } from "@/lib/env";
 
 /**
  * Verifies a Razorpay Standard Checkout payment and fulfills the order.
  *
- * Unlike Dodo (which fulfills asynchronously from a server-to-server
- * webhook), Razorpay's signature is verifiable synchronously right here —
- * so this route both verifies AND fulfills in one round trip, and the
- * frontend gets the download link directly in the response instead of
- * polling.
+ * Razorpay's signature is verifiable synchronously, so this route both
+ * verifies AND fulfills in one round trip and the frontend gets the
+ * download link directly instead of polling.
+ *
+ * Since each creator sells on their own account, the signature has to be
+ * checked against *their* secret. The productId in the body is only a hint
+ * for finding which account to check against — it grants nothing on its
+ * own: a wrong or forged productId points at the wrong secret, the
+ * signature fails, and the order is never fulfilled. The authoritative
+ * details are still re-read from Razorpay afterwards.
  */
 export async function POST(request: NextRequest) {
-  if (!isRazorpayConfigured()) {
-    return NextResponse.json(
-      { error: "Payments aren't connected yet for this creator." },
-      { status: 501 },
-    );
-  }
-
   let body: {
     razorpay_order_id?: string;
     razorpay_payment_id?: string;
     razorpay_signature?: string;
+    productId?: string;
   };
   try {
     body = await request.json();
@@ -31,20 +34,39 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = body;
-  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, productId } = body;
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !productId) {
     return NextResponse.json({ error: "Missing payment fields." }, { status: 400 });
+  }
+
+  const supabase = createServiceRoleClient();
+  const { data: product } = await supabase
+    .from("products")
+    .select("id, creator_id")
+    .eq("id", productId)
+    .maybeSingle();
+
+  if (!product) {
+    return NextResponse.json({ error: "Unknown product." }, { status: 404 });
+  }
+
+  const credentials = await getCreatorPaymentCredentials(product.creator_id);
+  if (!credentials) {
+    return NextResponse.json(
+      { error: "This creator hasn't set up payments yet." },
+      { status: 501 },
+    );
   }
 
   const signatureValid = verifyRazorpayPaymentSignature({
     orderId: razorpay_order_id,
     paymentId: razorpay_payment_id,
     signature: razorpay_signature,
+    keySecret: credentials.keySecret,
   });
 
-  // A signature mismatch means this request did not genuinely come from
-  // Razorpay (or was tampered with in transit) — the order is never marked
-  // paid on this path, regardless of what the client claims happened.
+  // A mismatch means this did not genuinely come from Razorpay for this
+  // creator's account (or was tampered with) — never marked paid on this path.
   if (!signatureValid) {
     console.warn(
       `[razorpay verify] signature mismatch for order ${razorpay_order_id}`,
@@ -52,11 +74,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
   }
 
-  // The signature only proves payment_id/order_id are genuine, not what was
-  // actually purchased — re-fetch the order from Razorpay rather than
-  // trusting client-supplied product/creator ids, so a tampered request body
-  // can't redirect fulfillment to a different product than what was paid for.
-  let productId: string;
+  // The signature proves the ids are genuine, not what was purchased —
+  // re-fetch the order so a tampered body can't redirect fulfillment to a
+  // different product than what was actually paid for.
+  let notedProductId: string;
   let creatorId: string;
   let visitorId: string | null;
   let email: string;
@@ -65,11 +86,11 @@ export async function POST(request: NextRequest) {
   let currency: string;
 
   try {
-    const razorpay = createRazorpayClient();
+    const razorpay = createRazorpayClientFor(credentials);
     const order = await razorpay.orders.fetch(razorpay_order_id);
     const notes = order.notes as Record<string, string> | undefined;
 
-    productId = String(notes?.orangelink_product_id ?? "");
+    notedProductId = String(notes?.orangelink_product_id ?? "");
     creatorId = String(notes?.orangelink_creator_id ?? "");
     visitorId = notes?.orangelink_visitor_id || null;
     email = String(notes?.email ?? "");
@@ -81,15 +102,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Couldn't confirm this order." }, { status: 500 });
   }
 
-  if (!productId || !creatorId || !email) {
+  if (!notedProductId || !creatorId || !email) {
     return NextResponse.json(
       { error: "This order has no OrangeLink product attached." },
       { status: 400 },
     );
   }
 
+  // The order Razorpay returned must be for the product we verified against.
+  if (notedProductId !== product.id || creatorId !== product.creator_id) {
+    console.warn(
+      `[razorpay verify] order ${razorpay_order_id} does not match product ${product.id}`,
+    );
+    return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
+  }
+
   const result = await fulfillOrder({
-    productId,
+    productId: notedProductId,
     creatorId,
     visitorId,
     email,

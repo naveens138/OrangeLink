@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
+import { FirstRunChoice } from "@/components/dashboard/first-run-choice";
 import { requireCreator } from "@/lib/queries/dashboard";
 import { getFunnelStats } from "@/lib/queries/analytics";
 import { createClient } from "@/lib/supabase/server";
@@ -29,8 +30,14 @@ export default async function DashboardOverviewPage() {
     { label: "Subscribers", value: (subscriberCount ?? 0).toLocaleString() },
   ];
 
+  // The one branch worth asking about up front: moving a page across, or
+  // building one. Only while the page is still empty.
+  const isEmptyPage = page.blocks.length === 0;
+
   return (
     <div className="flex flex-col gap-8">
+      {isEmptyPage && <FirstRunChoice username={creator.username} />}
+
       <div>
         <h1 className="text-h2">Overview</h1>
         <p className="mt-1 text-body text-text-secondary">
