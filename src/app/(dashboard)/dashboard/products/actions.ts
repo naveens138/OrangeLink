@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isDodoConfigured } from "@/lib/env";
-import { archiveDodoProduct, syncProductToDodo } from "@/lib/dodo/products";
+import { archiveDodoProduct } from "@/lib/dodo/products";
 import {
   buildStoragePath,
   deleteProductFile,
@@ -74,10 +74,8 @@ export async function createProduct(
     return { ok: false, error: error?.message ?? "Couldn't create the product." };
   }
 
-  const withDodoId = await maybeSyncToDodo(product as Product, supabase);
-
   revalidatePath("/dashboard/products");
-  return { ok: true, product: withDodoId };
+  return { ok: true, product: product as Product };
 }
 
 export async function updateProduct(
@@ -99,44 +97,16 @@ export async function updateProduct(
     return { ok: false, error: error?.message ?? "Couldn't update the product." };
   }
 
-  const withDodoId = await maybeSyncToDodo(product as Product, supabase);
-
   revalidatePath("/dashboard/products");
   revalidatePath("/dashboard/links");
-  return { ok: true, product: withDodoId };
+  return { ok: true, product: product as Product };
 }
 
-async function maybeSyncToDodo(
-  product: Product,
-  supabase: Awaited<ReturnType<typeof createClient>>,
-): Promise<Product> {
-  if (!isDodoConfigured()) return product;
-
-  try {
-    const dodoProductId = await syncProductToDodo({
-      id: product.id,
-      dodo_product_id: product.dodo_product_id,
-      type: product.type,
-      name: product.name,
-      description: product.description,
-      price_cents: product.price_cents,
-      currency: product.currency,
-    });
-
-    const { data: updated } = await supabase
-      .from("products")
-      .update({ dodo_product_id: dodoProductId })
-      .eq("id", product.id)
-      .select()
-      .single();
-
-    return (updated as Product) ?? product;
-  } catch {
-    // The product exists in our DB regardless — Dodo sync can be retried on
-    // the next edit. A payments outage should not block editing a page.
-    return product;
-  }
-}
+// Products are no longer mirrored into Dodo on save: checkout runs on each
+// creator's own Razorpay account, which needs no product catalogue, and the
+// sync added a Dodo API round trip to every save. The Dodo code stays in
+// lib/dodo for if it is ever switched back on. Deleting still archives a
+// product that an earlier sync created, so nothing is left live in Dodo.
 
 export async function deleteProduct(
   productId: string,
