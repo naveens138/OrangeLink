@@ -175,6 +175,14 @@
   position: absolute;
 }
 
+/* Knobs an AI design (lib/theme-custom.ts) can turn, set inline on the
+   page root. These defaults are the storefront's own look. */
+.theme-storefront {
+  --storefront-accent: #141413;
+  --link-radius: 999px;
+  --card-radius: 28px;
+}
+
 /* White pills that lift off the frosted card. */
 .storefront-pill {
   background: var(--pill);
@@ -191,6 +199,25 @@
 }
 .storefront-pill:active {
   transform: scale(0.99);
+}
+
+/* The two alternative button styles an AI design can choose. Solid (the
+   rules above) is the default. */
+[data-buttons="outline"] .storefront-pill {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--text-primary);
+}
+[data-buttons="outline"] .storefront-pill:hover {
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 0 0 1.5px var(--text-primary);
+}
+[data-buttons="frosted"] .storefront-pill {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+[data-buttons="frosted"] .storefront-pill:hover {
+  background: rgba(255, 255, 255, 0.68);
 }
 
 /* ----------------------------------------------------------------------

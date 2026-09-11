@@ -38,7 +38,7 @@ export function ProductBlock({
         onClick={() =>
           track({ username, eventType: "block_click", blockId: block.id, productId: product.id })
         }
-        className="storefront-pill flex h-full flex-col overflow-hidden rounded-[28px]"
+        className="storefront-pill flex h-full flex-col overflow-hidden rounded-[var(--card-radius)]"
       >
         {/* Half-width cards run the image edge to edge, as the reference
             does; the wide card insets it. `cover` because creators upload
@@ -46,7 +46,7 @@ export function ProductBlock({
             bars where the reference fills the tile. */}
         <div className="in-data-wide:px-4 in-data-wide:pt-4">
           <div
-            className="aspect-square w-full bg-white bg-cover bg-center in-data-wide:mx-auto in-data-wide:max-w-[56%] in-data-wide:rounded-[22px]"
+            className="aspect-square w-full bg-white bg-cover bg-center in-data-wide:mx-auto in-data-wide:max-w-[56%] in-data-wide:rounded-[calc(var(--card-radius)_-_6px)]"
             style={
               product.cover_image_url
                 ? { backgroundImage: `url(${product.cover_image_url})` }

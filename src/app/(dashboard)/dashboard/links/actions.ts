@@ -5,6 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import { fetchLinkMetadata, type LinkMetadata } from "@/lib/import/link-metadata";
 import type { Block, BlockType } from "@/lib/types";
 import { isThemePreset, type ThemePreset } from "@/lib/theme-presets";
+import { generatePageTheme } from "@/lib/ai/page-theme";
+import type { CustomTheme } from "@/lib/theme-custom";
+import type { Page } from "@/lib/types";
 
 // Every write here goes through the cookie-bound client, so the RLS policy on
 // `blocks` ("creators manage own blocks", joined through pages.creator_id) is
@@ -118,17 +121,67 @@ export async function reorderBlocks(
   return { ok: true, data: undefined };
 }
 
-export async function updatePageTheme(
-  pageId: string,
-  preset: ThemePreset,
-  tabbedView?: boolean,
-): Promise<ActionResult> {
-  if (!isThemePreset(preset)) return { ok: false, error: "Unknown theme." };
+type ThemePatch = { preset?: ThemePreset; tabbed_view?: boolean; custom?: null };
 
+/**
+ * Merges a change into the page's saved theme instead of overwriting it, so
+ * toggling tabs keeps an AI design, and choosing a preset clears it
+ * (custom: null). Custom designs only arrive through designPageWithAi, which
+ * validates them server-side, so this action never accepts one.
+ */
+export async function updatePageTheme(pageId: string, patch: ThemePatch): Promise<ActionResult> {
+  if (patch.preset !== undefined && !isThemePreset(patch.preset)) {
+    return { ok: false, error: "Unknown theme." };
+  }
+  return writeTheme(pageId, (current) => {
+    const next = { ...current, ...patch };
+    if (patch.custom === null) delete next.custom;
+    return next;
+  });
+}
+
+/**
+ * Designs the page from the creator's description with AI and saves it.
+ * Returns the design so the editor can show it without a reload.
+ */
+export async function designPageWithAi(
+  pageId: string,
+  description: string,
+): Promise<ActionResult<{ theme: CustomTheme; tabbedView?: boolean }>> {
+  const text = description.trim().slice(0, 280);
+  if (text.length < 3) return { ok: false, error: "Describe the look you want first." };
+
+  const result = await generatePageTheme(text);
+  if (!result.ok) return { ok: false, error: result.error };
+
+  const tabbedView =
+    result.layout === "tabs" ? true : result.layout === "scroll" ? false : undefined;
+  const saved = await writeTheme(pageId, (current) => ({
+    ...current,
+    custom: result.theme,
+    ...(tabbedView === undefined ? {} : { tabbed_view: tabbedView }),
+  }));
+  if (!saved.ok) return saved;
+  return { ok: true, data: { theme: result.theme, tabbedView } };
+}
+
+async function writeTheme(
+  pageId: string,
+  change: (current: Page["theme"]) => Page["theme"],
+): Promise<ActionResult> {
   const supabase = await createClient();
+  // RLS limits both the read and the write to the creator's own page.
+  const { data: page, error: readError } = await supabase
+    .from("pages")
+    .select("theme")
+    .eq("id", pageId)
+    .maybeSingle();
+  if (readError) return { ok: false, error: readError.message };
+  if (!page) return { ok: false, error: "Page not found." };
+
   const { error } = await supabase
     .from("pages")
-    .update({ theme: { preset, tabbed_view: tabbedView ?? true } })
+    .update({ theme: change((page.theme ?? {}) as Page["theme"]) })
     .eq("id", pageId);
 
   if (error) return { ok: false, error: error.message };

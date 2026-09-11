@@ -10,6 +10,7 @@ import { PageTracker } from "@/components/analytics/page-tracker";
 import { ShareButton } from "@/components/public/share-button";
 import { Modal } from "@/components/ui/modal";
 import { DEFAULT_PRESET, isThemePreset, themePresets } from "@/lib/theme-presets";
+import { customThemeStyle, normalizeCustomTheme } from "@/lib/theme-custom";
 import { cn } from "@/lib/utils";
 import type { Block, Creator, Page, Product } from "@/lib/types";
 
@@ -63,6 +64,16 @@ export function PublicPageView({
   const tabbed = page.theme?.tabbed_view ?? true;
   const canTab = tabbed && hasShop && hasLinks;
   const preset = isThemePreset(page.theme?.preset) ? page.theme.preset : DEFAULT_PRESET;
+  // An AI design, if the creator has one, overrides the preset. Re-checked
+  // here rather than trusted from the database, since it feeds a style
+  // attribute.
+  const custom = normalizeCustomTheme(page.theme?.custom);
+  const look = custom
+    ? customThemeStyle(custom)
+    : {
+        style: { "--storefront-gradient": themePresets[preset].gradient } as React.CSSProperties,
+        buttons: "solid" as const,
+      };
 
   const shopProducts = productBlocks
     .map((b) => products.find((p) => p.id === (b.config as { product_id?: string }).product_id))
@@ -107,13 +118,13 @@ export function PublicPageView({
           <button
             type="button"
             onClick={() => setActiveTab("shop")}
-            className="storefront-pill w-full overflow-hidden rounded-[32px] p-3 pb-4"
+            className="storefront-pill w-full overflow-hidden rounded-[calc(var(--card-radius)_+_4px)] p-3 pb-4"
           >
             {/* Fixed-width tiles rather than flex-1, so the third runs off
                 the edge the way the reference's does and the strip reads as
                 "there's more in here". The strip's own grey shows through the
                 gaps as hairline dividers. */}
-            <div className="flex gap-[3px] overflow-hidden rounded-[24px] bg-[#e9e7e3]">
+            <div className="flex gap-[3px] overflow-hidden rounded-[calc(var(--card-radius)_-_4px)] bg-[#e9e7e3]">
               {shopProducts.slice(0, 3).map((p) => (
                 <div
                   key={p.id}
@@ -140,7 +151,8 @@ export function PublicPageView({
   return (
     <div
       className="theme-storefront storefront-ground min-h-screen text-text-primary sm:px-6 sm:pt-12"
-      style={{ "--storefront-gradient": themePresets[preset].gradient } as React.CSSProperties}
+      style={look.style}
+      data-buttons={look.buttons}
     >
       <PageTracker username={creator.username} pageId={page.id} />
 
@@ -206,7 +218,7 @@ export function PublicPageView({
                   className={cn(
                     "rounded-full px-6 py-2 text-[14px] font-semibold transition-colors duration-200",
                     activeTab === tab
-                      ? "bg-text-primary text-white"
+                      ? "bg-[var(--storefront-accent)] text-white"
                       : "text-text-primary hover:text-text-secondary",
                   )}
                 >

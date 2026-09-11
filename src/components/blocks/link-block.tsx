@@ -26,9 +26,9 @@ export function LinkBlock({ block, username }: { block: Block; username: string 
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
         onClick={() => track({ username, eventType: "block_click", blockId: block.id })}
-        className="storefront-pill flex min-h-[64px] w-full items-center rounded-full p-2"
+        className="storefront-pill flex min-h-[64px] w-full items-center rounded-[var(--link-radius)] p-2"
       >
-        <span className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]">
+        <span className="h-12 w-12 shrink-0 overflow-hidden rounded-[max(6px,calc(var(--link-radius)_-_8px))] bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]">
           {config.image && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={config.image} alt="" loading="lazy" className="h-full w-full object-cover" />

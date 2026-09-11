@@ -22,9 +22,11 @@ import { BlockLibrary } from "@/components/editor/block-library";
 import { SortableBlockItem } from "@/components/editor/sortable-block-item";
 import { BlockInspector } from "@/components/editor/block-inspector";
 import { ThemePresetPicker } from "@/components/editor/theme-preset-picker";
+import { AiThemeDesigner } from "@/components/editor/ai-theme-designer";
 import { blockTypeMeta } from "@/lib/block-defaults";
 import type { Block, BlockType, Product } from "@/lib/types";
 import type { ThemePreset } from "@/lib/theme-presets";
+import type { CustomTheme } from "@/lib/theme-custom";
 import {
   createBlock,
   deleteBlock,
@@ -42,6 +44,7 @@ export function BlockEditor({
   initialBlocks,
   initialPreset,
   initialTabbedView,
+  initialCustom,
   products,
 }: {
   pageId: string;
@@ -49,11 +52,13 @@ export function BlockEditor({
   initialBlocks: Block[];
   initialPreset: ThemePreset;
   initialTabbedView: boolean;
+  initialCustom: CustomTheme | null;
   products: Product[];
 }) {
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [themePreset, setThemePreset] = useState<ThemePreset>(initialPreset);
   const [tabbedView, setTabbedView] = useState<boolean>(initialTabbedView);
+  const [customTheme, setCustomTheme] = useState<CustomTheme | null>(initialCustom);
   const [selectedId, setSelectedId] = useState<string | null>(
     initialBlocks[0]?.id ?? null,
   );
@@ -165,20 +170,31 @@ export function BlockEditor({
     );
   }
 
+  // Picking a preset also clears an AI design, which otherwise overrides it.
   function changeTheme(preset: ThemePreset) {
-    const previous = themePreset;
+    const previous = { preset: themePreset, custom: customTheme };
     setThemePreset(preset);
-    persist(() => updatePageTheme(pageId, preset, tabbedView), {
-      revert: () => setThemePreset(previous),
+    setCustomTheme(null);
+    persist(() => updatePageTheme(pageId, { preset, custom: null }), {
+      revert: () => {
+        setThemePreset(previous.preset);
+        setCustomTheme(previous.custom);
+      },
     });
   }
 
   function changeTabbedView(next: boolean) {
     const previous = tabbedView;
     setTabbedView(next);
-    persist(() => updatePageTheme(pageId, themePreset, next), {
+    persist(() => updatePageTheme(pageId, { tabbed_view: next }), {
       revert: () => setTabbedView(previous),
     });
+  }
+
+  // The AI action has already saved the design; this just shows it.
+  function applyAiDesign(theme: CustomTheme, nextTabbedView?: boolean) {
+    setCustomTheme(theme);
+    if (nextTabbedView !== undefined) setTabbedView(nextTabbedView);
   }
 
   const statusLabel =
@@ -320,7 +336,8 @@ export function BlockEditor({
         title="Page theme"
       >
         <div className="flex flex-col gap-5">
-          <ThemePresetPicker value={themePreset} onChange={changeTheme} />
+          <AiThemeDesigner pageId={pageId} onDesigned={applyAiDesign} />
+          <ThemePresetPicker value={themePreset} custom={customTheme} onChange={changeTheme} />
 
           <label className="flex items-start gap-2.5 border-t border-border pt-4 text-body text-text-primary">
             <input

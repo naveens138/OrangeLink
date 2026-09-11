@@ -71,6 +71,8 @@ export interface Creator {
   avatar_url: string | null;
 }
 
+import type { CustomTheme } from "./theme-custom";
+
 export interface Page {
   id: string;
   creator_id: string;
@@ -80,6 +82,8 @@ export interface Page {
     preset?: "minimal" | "warm" | "soft" | "creator";
     /** Links/Shop tabs (only shown when both block types are present) vs one continuous scroll. Creator's choice. */
     tabbed_view?: boolean;
+    /** An AI-made design (lib/theme-custom.ts). Overrides the preset while set. */
+    custom?: CustomTheme | null;
   };
   published: boolean;
   blocks: Block[];

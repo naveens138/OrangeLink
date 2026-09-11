@@ -5,15 +5,19 @@ import { DeviceMockup } from "@/components/marketing/device-mockup";
 import { ValueStack } from "@/components/marketing/value-stack";
 import { Faq, type FaqItem } from "@/components/marketing/faq";
 import { BrandLockup } from "@/components/brand/brand";
+import { isDomainsConfigured } from "@/lib/vercel/domains";
 
 // Structure and rhythm follow runner.now: one narrow centred column, small
 // dense type, hairline-boxed cards, numbered section eyebrows, and a single
 // animated card (SaleTimeline) carrying the page rather than motion
 // sprinkled everywhere.
 //
-// Claims stay limited to what actually ships. Custom domains, comment-to-DM
-// and the media kit are placeholders in the dashboard, so they appear only
-// in the FAQ under what isn't built.
+// Claims stay limited to what actually ships. Comment-to-DM and the media
+// kit are placeholders in the dashboard, so they aren't claimed. Custom
+// domains show as live only when the deployment has the Vercel API token
+// they need (checked at build time), and as "Soon" otherwise.
+
+const domainsLive = isDomainsConfigured();
 
 const features: {
   title: string;
@@ -55,10 +59,8 @@ const features: {
   },
   {
     title: "Your Own Domain",
-    // Flagged as coming rather than shipped: /dashboard/domains is still a
-    // placeholder, so claiming it works would be a promise we can't keep.
-    body: "Point your own domain at your page instead of using the OrangeLink address.",
-    soon: true,
+    body: "Point your own domain at your page instead of using the OrangeLink address. HTTPS is set up for you.",
+    soon: !domainsLive,
   },
 ];
 
@@ -85,7 +87,9 @@ const faqItems: FaqItem[] = [
   },
   {
     q: "Can I use my own domain?",
-    a: "Not yet. Custom domains are on the roadmap but are not live, so pages currently sit at your OrangeLink address. We would rather say so here than let you find out after signing up.",
+    a: domainsLive
+      ? "Yes. Add your domain in the dashboard, copy the DNS record it shows you into wherever you bought the domain, and your page goes live there with HTTPS. Your OrangeLink address keeps working too."
+      : "Not yet. Custom domains are almost ready but not switched on, so pages currently sit at your OrangeLink address. We would rather say so here than let you find out after signing up.",
   },
 ];
 
@@ -228,15 +232,8 @@ export default function Home() {
           />
           <div className="rise rise-2 mt-7 rounded-md border border-border bg-surface-2 px-5 pb-6 pt-8">
             <DeviceMockup />
-            {/* Not built yet, so it carries the same "Soon" tag as the
-                custom domain card rather than reading as a live feature. */}
             <div className="mx-auto mt-7 flex max-w-[44ch] flex-col items-center gap-2 text-center">
-              <div className="flex items-center gap-2">
-                <p className="t-heading">Customize your page with AI</p>
-                <span className="t-mono rounded border border-border px-1.5 py-0.5 text-text-muted">
-                  Soon
-                </span>
-              </div>
+              <p className="t-heading">Customize your page with AI</p>
               <p className="t-small leading-relaxed text-text-secondary">
                 Describe the look you want and it restyles your page to match. Colours, fonts, layout, in one go.
               </p>
