@@ -3,10 +3,6 @@
 Photos used by the demo creator page (scripts/seed-storefront-demo.mjs).
 All are from Wikimedia Commons except where noted.
 
-- **moto/avatar.jpg**: Rider photo supplied by the site owner (found on Pinterest)
-  - License: unverified: confirm the original photographer and licence before shipping
-  - Author: unknown
-  - Changes: cropped square
 - **moto/boots.jpg**: File:Alpinestars S-MX Motorcycle boots.jpg
   - License: CC BY-SA 3.0
   - Author: Ocdp
@@ -33,6 +29,11 @@ All are from Wikimedia Commons except where noted.
   - License: CC BY-SA 4.0
   - Author: Samihasib
   - Source: https://commons.wikimedia.org/wiki/File:Royal_Enfield_Classic_350_(2017_Model_Year).jpg
+- **moto/rider.jpg**: File:Rider (121901823).jpeg
+  - License: CC BY 3.0
+  - Author: Laimis B
+  - Source: https://commons.wikimedia.org/wiki/File:Rider_(121901823).jpeg
+  - Changes: cropped square
 
 Product covers (moto/cover-call.jpg, moto/cover-luts.jpg, moto/cover-presets.jpg) are built by
 scripts/build-moto-covers.mjs from presets.jpg, luts.jpg and call.jpg above,

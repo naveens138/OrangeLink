@@ -41,7 +41,7 @@ const { error: profileErr } = await admin
   .update({
     display_name: "JANE",
     bio: "Discount codes, links, and presets",
-    avatar_url: "/demo/moto/avatar.jpg",
+    avatar_url: "/demo/moto/rider.jpg",
   })
   .eq("id", creator.id);
 check("update profile", profileErr);

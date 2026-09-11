@@ -106,7 +106,7 @@ export function DeviceMockup() {
               <div className="mt-7 flex flex-col items-center text-center">
                 <div className="h-[120px] w-[120px] overflow-hidden rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.8)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/moto/avatar.jpg" alt="" className="h-full w-full object-cover" />
+                  <img src="/demo/moto/rider.jpg" alt="" className="h-full w-full object-cover" />
                 </div>
                 <p className="mt-4 text-[28px] font-bold leading-tight tracking-[-0.01em]">JANE</p>
                 <p className="mt-1 text-[16px] font-semibold leading-snug text-text-primary/80">

@@ -1,11 +1,4 @@
 {
-  "avatar.jpg": {
-    "title": "Rider photo supplied by the site owner (found on Pinterest)",
-    "license": "unverified: confirm the original photographer and licence before shipping",
-    "author": "unknown",
-    "url": "",
-    "note": "cropped square"
-  },
   "presets.jpg": {
     "title": "File:Royal Enfield Classic 350 (2017 Model Year).jpg",
     "license": "CC BY-SA 4.0",
@@ -43,5 +36,12 @@
     "license": "CC BY-SA 3.0",
     "author": "Ocdp",
     "url": "https://commons.wikimedia.org/wiki/File:Alpinestars_S-MX_Motorcycle_boots.jpg"
+  },
+  "rider.jpg": {
+    "title": "File:Rider (121901823).jpeg",
+    "license": "CC BY 3.0",
+    "author": "Laimis B",
+    "url": "https://commons.wikimedia.org/wiki/File:Rider_(121901823).jpeg",
+    "note": "cropped square"
   }
 }
