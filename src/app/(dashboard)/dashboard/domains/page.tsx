@@ -54,8 +54,9 @@ export default async function DomainsPage() {
   return (
     <div className="flex flex-col gap-6">
       {header}
-      <DomainGuide open={!initial?.live} />
+      {/* The domain itself first; the how-to sits underneath for reference. */}
       <DomainManager initial={initial} fallbackUrl={fallbackUrl} />
+      <DomainGuide open={!initial?.live} />
     </div>
   );
 }

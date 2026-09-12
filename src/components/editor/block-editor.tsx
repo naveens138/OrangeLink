@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import {
   DndContext,
   closestCenter,
@@ -15,7 +14,7 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { Plus, Layers, SlidersHorizontal, Palette } from "lucide-react";
+import { Plus, Layers, Palette, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { BlockLibrary } from "@/components/editor/block-library";
@@ -23,6 +22,7 @@ import { SortableBlockItem } from "@/components/editor/sortable-block-item";
 import { BlockInspector } from "@/components/editor/block-inspector";
 import { ThemePresetPicker } from "@/components/editor/theme-preset-picker";
 import { AiThemeDesigner } from "@/components/editor/ai-theme-designer";
+import { PhonePreview } from "@/components/editor/phone-preview";
 import { blockTypeMeta } from "@/lib/block-defaults";
 import type { Block, BlockType, Product } from "@/lib/types";
 import type { ThemePreset } from "@/lib/theme-presets";
@@ -59,12 +59,14 @@ export function BlockEditor({
   const [themePreset, setThemePreset] = useState<ThemePreset>(initialPreset);
   const [tabbedView, setTabbedView] = useState<boolean>(initialTabbedView);
   const [customTheme, setCustomTheme] = useState<CustomTheme | null>(initialCustom);
-  const [selectedId, setSelectedId] = useState<string | null>(
-    initialBlocks[0]?.id ?? null,
-  );
+  // Nothing open at first: the list reads as an overview, and a block's
+  // settings open under it when clicked.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
-  const [mobileInspectorOpen, setMobileInspectorOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  // Bumped after every successful save so the live preview reloads.
+  const [previewVersion, setPreviewVersion] = useState(0);
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -73,7 +75,6 @@ export function BlockEditor({
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
   );
 
-  const selectedBlock = blocks.find((b) => b.id === selectedId) ?? null;
 
   /**
    * Runs a server action and reflects its outcome in the save indicator.
@@ -91,6 +92,7 @@ export function BlockEditor({
       if (result.ok) {
         options.onSuccess?.(result.data);
         setSaveState("saved");
+        setPreviewVersion((v) => v + 1);
       } else {
         options.revert?.();
         setSaveState("error");
@@ -195,6 +197,12 @@ export function BlockEditor({
   function applyAiDesign(theme: CustomTheme, nextTabbedView?: boolean) {
     setCustomTheme(theme);
     if (nextTabbedView !== undefined) setTabbedView(nextTabbedView);
+    setPreviewVersion((v) => v + 1);
+  }
+
+  // Back to the preset the page had before the AI design.
+  function removeAiDesign() {
+    changeTheme(themePreset);
   }
 
   const statusLabel =
@@ -206,137 +214,105 @@ export function BlockEditor({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-h2">Links</h1>
-          <p
-            className={
-              saveState === "error"
-                ? "mt-1 text-body text-danger"
-                : "mt-1 text-body text-text-secondary"
-            }
-          >
+          <p className={saveState === "error" ? "mt-1 text-body text-danger" : "mt-1 text-body text-text-secondary"}>
             {statusLabel}
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={() => setPreviewOpen(true)} className="lg:hidden">
+            <Smartphone className="h-4 w-4" />
+            Preview
+          </Button>
           <Button variant="secondary" size="sm" onClick={() => setThemeOpen(true)}>
             <Palette className="h-4 w-4" />
             Theme
           </Button>
-          <Link href={`/${username}`} target="_blank">
-            <Button variant="secondary" size="sm">
-              Preview
-            </Button>
-          </Link>
+          <Button size="sm" onClick={() => setLibraryOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Add block
+          </Button>
         </div>
       </div>
 
-      <div className="flex gap-6">
-        {/* Block library — desktop only */}
-        <div className="hidden w-[240px] shrink-0 lg:block">
-          <p className="mb-3 font-mono text-label uppercase tracking-[0.1em] text-text-muted">
-            Add a block
-          </p>
-          <BlockLibrary onAdd={addBlock} />
-        </div>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <AiThemeDesigner
+            pageId={pageId}
+            current={customTheme}
+            onDesigned={applyAiDesign}
+            onRemove={removeAiDesign}
+          />
 
-        {/* Canvas */}
-        <div className="min-w-0 flex-1">
-          <div className="mb-3 lg:hidden">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setLibraryOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Add block
-            </Button>
-          </div>
-
-          <DndContext
-            // Without a stable id, dnd-kit derives its own on each render and
-            // the server/client aria-describedby values disagree, which React
-            // reports as a hydration mismatch.
-            id="block-editor"
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={onDragEnd}
-          >
-            <SortableContext
-              items={blocks.map((b) => b.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="flex flex-col gap-2">
-                {blocks.length === 0 && (
-                  <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-16 text-center">
-                    <Layers className="h-6 w-6 text-text-muted" />
-                    <p className="mt-3 text-body text-text-secondary">
-                      No blocks yet. Add one to get started.
-                    </p>
-                  </div>
-                )}
-                {blocks.map((block) => (
-                  <SortableBlockItem
-                    key={block.id}
-                    block={block}
-                    selected={block.id === selectedId}
-                    onSelect={() => setSelectedId(block.id)}
-                    onToggleVisible={() => toggleVisible(block.id)}
-                    onDelete={() => removeBlock(block.id)}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </div>
-
-        {/* Inspector — desktop only */}
-        <div className="hidden w-[320px] shrink-0 xl:block">
-          <p className="mb-3 font-mono text-label uppercase tracking-[0.1em] text-text-muted">
-            Block settings
-          </p>
-          {selectedBlock ? (
-            <BlockInspector
-              key={selectedBlock.id}
-              block={selectedBlock}
-              products={products}
-              onChange={(updates) => applyBlockUpdate(selectedBlock.id, updates)}
-            />
-          ) : (
-            <p className="text-small text-text-muted">
-              Select a block to edit it.
+          <div>
+            <p className="mb-3 font-mono text-label uppercase tracking-[0.1em] text-text-muted">
+              Your blocks · drag to reorder
             </p>
-          )}
+            <DndContext
+              // Without a stable id, dnd-kit derives its own on each render and
+              // the server/client aria-describedby values disagree, which React
+              // reports as a hydration mismatch.
+              id="block-editor"
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={onDragEnd}
+            >
+              <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+                <div className="flex flex-col gap-2">
+                  {blocks.length === 0 && (
+                    <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-border-strong px-6 py-16 text-center">
+                      <Layers className="h-6 w-6 text-text-muted" />
+                      <p className="mt-3 text-body text-text-secondary">No blocks yet. Add one to get started.</p>
+                      <Button size="sm" className="mt-4" onClick={() => setLibraryOpen(true)}>
+                        <Plus className="h-4 w-4" />
+                        Add block
+                      </Button>
+                    </div>
+                  )}
+                  {blocks.map((block) => (
+                    <SortableBlockItem
+                      key={block.id}
+                      block={block}
+                      products={products}
+                      selected={block.id === selectedId}
+                      onSelect={() => setSelectedId(block.id === selectedId ? null : block.id)}
+                      onToggleVisible={() => toggleVisible(block.id)}
+                      onDelete={() => removeBlock(block.id)}
+                    >
+                      <BlockInspector
+                        key={block.id}
+                        block={block}
+                        products={products}
+                        onChange={(updates) => applyBlockUpdate(block.id, updates)}
+                      />
+                    </SortableBlockItem>
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </div>
+        </div>
+
+        {/* Live preview, beside the editor on wide screens. */}
+        <div className="hidden lg:block">
+          <div className="sticky top-20">
+            <PhonePreview username={username} version={previewVersion} />
+          </div>
         </div>
       </div>
 
-      {selectedBlock && (
-        <button
-          type="button"
-          onClick={() => setMobileInspectorOpen(true)}
-          className="fixed bottom-20 right-4 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-accent text-white shadow-[var(--shadow-elevated)] xl:hidden"
-          aria-label="Edit selected block"
-        >
-          <SlidersHorizontal className="h-5 w-5" />
-        </button>
-      )}
-
-      <Modal
-        open={libraryOpen}
-        onClose={() => setLibraryOpen(false)}
-        title="Add a block"
-      >
+      <Modal open={libraryOpen} onClose={() => setLibraryOpen(false)} title="Add a block">
         <BlockLibrary onAdd={addBlock} />
       </Modal>
 
-      <Modal
-        open={themeOpen}
-        onClose={() => setThemeOpen(false)}
-        title="Page theme"
-      >
+      <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} title="Preview" maxWidthClassName="max-w-[360px]">
+        <PhonePreview username={username} version={previewVersion} width={290} />
+      </Modal>
+
+      <Modal open={themeOpen} onClose={() => setThemeOpen(false)} title="Page theme">
         <div className="flex flex-col gap-5">
-          <AiThemeDesigner pageId={pageId} onDesigned={applyAiDesign} />
           <ThemePresetPicker value={themePreset} custom={customTheme} onChange={changeTheme} />
 
           <label className="flex items-start gap-2.5 border-t border-border pt-4 text-body text-text-primary">
@@ -344,34 +320,18 @@ export function BlockEditor({
               type="checkbox"
               checked={tabbedView}
               onChange={(e) => changeTabbedView(e.target.checked)}
-              className="mt-0.5 h-4 w-4 accent-accent"
+              className="mt-0.5 h-4 w-4 accent-[#141413]"
             />
             <span>
               Links / Shop tabs
               <span className="mt-0.5 block text-small text-text-muted">
-                Splits your page into two tabs instead of one scroll. Only
-                shown if your page has both link and product blocks.
+                Splits your page into two tabs instead of one scroll. Only shown if your page has
+                both link and product blocks.
               </span>
             </span>
           </label>
         </div>
       </Modal>
-
-      {selectedBlock && (
-        <Modal
-          open={mobileInspectorOpen}
-          onClose={() => setMobileInspectorOpen(false)}
-          title="Block settings"
-          maxWidthClassName="max-w-[420px]"
-        >
-          <BlockInspector
-            key={selectedBlock.id}
-            block={selectedBlock}
-            products={products}
-            onChange={(updates) => applyBlockUpdate(selectedBlock.id, updates)}
-          />
-        </Modal>
-      )}
     </div>
   );
 }

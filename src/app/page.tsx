@@ -12,8 +12,8 @@ import { isDomainsConfigured } from "@/lib/vercel/domains";
 // animated card (SaleTimeline) carrying the page rather than motion
 // sprinkled everywhere.
 //
-// Claims stay limited to what actually ships. Comment-to-DM and the media
-// kit are placeholders in the dashboard, so they aren't claimed. Custom
+// Claims stay limited to what actually ships. Comment-to-DM is a
+// placeholder in the dashboard, so it isn't claimed. Custom
 // domains show as live only when the deployment has the Vercel API token
 // they need (checked at build time), and as "Soon" otherwise.
 

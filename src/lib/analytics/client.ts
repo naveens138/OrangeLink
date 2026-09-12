@@ -22,6 +22,19 @@ export function getVisitorId(): string {
   }
 }
 
+/**
+ * True when this page is framed by the OrangeLink dashboard (the Links
+ * editor's phone preview). Reading a cross-origin parent throws, so a page
+ * embedded anywhere else still tracks normally.
+ */
+function isDashboardPreview(): boolean {
+  try {
+    return window.self !== window.top && window.top!.location.pathname.startsWith("/dashboard");
+  } catch {
+    return false;
+  }
+}
+
 export interface TrackInput {
   username: string;
   eventType:
@@ -43,6 +56,9 @@ export interface TrackInput {
  */
 export function track(input: TrackInput): void {
   if (typeof window === "undefined") return;
+  // The dashboard's live preview shows the real page in an iframe; a
+  // creator editing their own page shouldn't count as visits and clicks.
+  if (isDashboardPreview()) return;
 
   const params = new URLSearchParams(window.location.search);
   const body = JSON.stringify({

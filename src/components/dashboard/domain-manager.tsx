@@ -131,7 +131,7 @@ export function DomainManager({
         ) : (
           <p className="mt-2 text-small text-text-secondary">
             Add the {status.records.length === 1 ? "record" : "records"} below in your domain&apos;s
-            DNS settings (step 03 in the guide above shows where). Changes usually show up within
+            DNS settings (step 03 in the guide below shows where). Changes usually show up within
             a few minutes, occasionally a few hours.
           </p>
         )}

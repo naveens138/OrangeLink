@@ -45,7 +45,7 @@ export const TIERS: Tier[] = [
       "Everything in Pro",
       "Custom domain",
       "Automation rules",
-      "Media kit",
+      "Post planner",
     ],
     priceId: {
       month: "pri_01m1kv5x9k78zg87x4n0ye99s1",
