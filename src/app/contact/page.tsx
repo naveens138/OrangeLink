@@ -21,8 +21,8 @@ export default function ContactPage() {
         <p>
           For a question about a specific charge, include the order or payment
           ID from your confirmation email. It helps us look it up faster. Email{" "}
-          <a href="mailto:billing@orangelink.in" className="text-accent underline">
-            billing@orangelink.in
+          <a href="mailto:support@orangelink.in" className="text-accent underline">
+            support@orangelink.in
           </a>
           .
         </p>
@@ -35,8 +35,8 @@ export default function ContactPage() {
             Privacy Policy
           </Link>{" "}
           or email{" "}
-          <a href="mailto:legal@orangelink.in" className="text-accent underline">
-            legal@orangelink.in
+          <a href="mailto:support@orangelink.in" className="text-accent underline">
+            support@orangelink.in
           </a>
           .
         </p>

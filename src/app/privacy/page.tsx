@@ -108,8 +108,8 @@ export default function PrivacyPage() {
         <p>
           You can request access to, correction of, or deletion of your
           personal data by emailing{" "}
-          <a href="mailto:privacy@orangelink.in" className="text-accent underline">
-            privacy@orangelink.in
+          <a href="mailto:support@orangelink.in" className="text-accent underline">
+            support@orangelink.in
           </a>
           . Creators can also manage and delete their own account data directly
           from their dashboard settings. If you connected a Facebook Page or
@@ -135,8 +135,8 @@ export default function PrivacyPage() {
       <PolicySection heading="Contact">
         <p>
           Questions about this policy or a privacy request:{" "}
-          <a href="mailto:privacy@orangelink.in" className="text-accent underline">
-            privacy@orangelink.in
+          <a href="mailto:support@orangelink.in" className="text-accent underline">
+            support@orangelink.in
           </a>
           .
         </p>

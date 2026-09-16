@@ -424,7 +424,7 @@ Two things worth knowing about this content before it goes live:
    deliberately not invented, since fabricating a business address or
    entity name would be presenting false information as fact. Fill these
    in before publishing. Contact emails (`support@`, `billing@`, `legal@`,
-   `privacy@orangelink.in`) and the refund window (7 days, unopened
+   `support@orangelink.in`) and the refund window (7 days, unopened
    digital files) are genuine drafted defaults, not placeholders — real,
    reasonable choices that can be edited freely, not blanks.
 

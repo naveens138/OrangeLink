@@ -42,8 +42,8 @@ export default function RefundPolicyPage() {
         <p>
           If you believe a charge on your account wasn&apos;t authorized by you,
           contact us first at{" "}
-          <a href="mailto:billing@orangelink.in" className="text-accent underline">
-            billing@orangelink.in
+          <a href="mailto:support@orangelink.in" className="text-accent underline">
+            support@orangelink.in
           </a>{" "}
           before filing a chargeback with your bank. Most issues can be
           resolved faster this way, and it&apos;s the only way we can help correct
