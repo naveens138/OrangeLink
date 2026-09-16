@@ -6,7 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/format";
+import { formatProductPrice } from "@/lib/format";
 import { dodoCheckoutMode } from "@/lib/env-client";
 import { getOrderStatus, startCheckout } from "@/app/(public)/[username]/p/[productId]/checkout-actions";
 import { loadRazorpayCheckoutScript } from "@/lib/razorpay/load-checkout-script";
@@ -55,6 +55,7 @@ export function CheckoutModal({
   // configured" is answered honestly by attempting startCheckout() and
   // showing whatever it returns, not by guessing from a public env var.
   const mode = dodoCheckoutMode();
+  const isFree = product.price_cents === 0;
 
   // Reset for a fresh attempt each time the modal reopens. This component
   // itself never unmounts (only Modal's portal content does), so there is no
@@ -109,10 +110,37 @@ export function CheckoutModal({
     // The Dodo path below predates that and was never per-creator, so it is
     // no longer routed to — kept intact because Dodo is paused, not dropped.
     const useRazorpay: boolean = true;
-    if (useRazorpay) {
+    if (isFree) {
+      await onSubmitFree();
+    } else if (useRazorpay) {
       await onSubmitRazorpay();
     } else {
       await onSubmitDodo();
+    }
+  }
+
+  // Free products skip payment entirely: the email is all it takes.
+  async function onSubmitFree() {
+    setStage({ name: "starting" });
+    try {
+      const res = await fetch("/api/checkout/free", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          email,
+          name: name || email,
+          visitorId: getVisitorId(),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setStage({ name: "done", downloadUrl: data.downloadUrl ?? null });
+      } else {
+        setStage({ name: "error", message: data.error ?? "Couldn't get this for you." });
+      }
+    } catch {
+      setStage({ name: "error", message: "Couldn't reach OrangeLink. Check your connection." });
     }
   }
 
@@ -254,7 +282,7 @@ export function CheckoutModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Checkout">
+    <Modal open={open} onClose={onClose} title={isFree ? "Get it free" : "Checkout"}>
       {stage.name === "done" ? (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success/15 text-success">
@@ -278,7 +306,8 @@ export function CheckoutModal({
             </>
           ) : (
             <p className="text-body text-text-secondary">
-              Payment received. {product.name} is on its way.
+              {isFree ? "" : "Payment received. "}
+              {product.name} is on its way.
             </p>
           )}
         </div>
@@ -306,7 +335,7 @@ export function CheckoutModal({
               <p className="truncate text-body text-text-primary">{product.name}</p>
             </div>
             <p className="font-mono text-body text-text-primary">
-              {formatPrice(product.price_cents, product.currency)}
+              {formatProductPrice(product.price_cents, product.currency)}
             </p>
           </div>
 
@@ -343,7 +372,7 @@ export function CheckoutModal({
           <div className="flex items-center justify-between border-t border-border pt-4">
             <span className="text-body text-text-secondary">Total</span>
             <span className="font-mono text-h3">
-              {formatPrice(product.price_cents, product.currency)}
+              {formatProductPrice(product.price_cents, product.currency)}
             </span>
           </div>
 
@@ -352,7 +381,13 @@ export function CheckoutModal({
             disabled={stage.name === "starting"}
             className="w-full"
           >
-            {stage.name === "starting" ? "Starting checkout…" : "Continue to payment"}
+            {stage.name === "starting"
+              ? isFree
+                ? "Getting it…"
+                : "Starting checkout…"
+              : isFree
+                ? "Get it free"
+                : "Continue to payment"}
           </Button>
         </form>
       )}

@@ -3,7 +3,7 @@ import { MoreVertical } from "lucide-react";
 import { track } from "@/lib/analytics/client";
 import { ShareButton } from "@/components/public/share-button";
 import type { Block, Product } from "@/lib/types";
-import { formatPrice } from "@/lib/format";
+import { formatProductPrice } from "@/lib/format";
 
 /**
  * A product in the Shop grid: image on top, then title and price, with the
@@ -57,7 +57,7 @@ export function ProductBlock({
         <div className="flex-1 px-4 pb-4 pr-11 pt-3 in-data-wide:px-11 in-data-wide:text-center">
           <p className="line-clamp-2 text-[14px] font-medium leading-snug text-text-primary">{product.name}</p>
           <p className="mt-0.5 text-[13px] text-text-secondary">
-            {formatPrice(product.price_cents, product.currency)}
+            {formatProductPrice(product.price_cents, product.currency)}
           </p>
         </div>
       </Link>

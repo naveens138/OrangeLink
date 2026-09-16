@@ -113,14 +113,16 @@ export function OrdersManager({ orders, topCustomers }: { orders: OrderRow[]; to
   }
 
   const customers = new Set(paid.map((o) => o.buyerEmail.toLowerCase())).size;
+  // Free claims count as customers but not as sales.
+  const sales = paid.filter((o) => o.provider !== "free");
   const stats = [
     { label: "Revenue", value: paid.length ? sumByCurrency(paid) : formatPrice(0) },
-    { label: "Paid orders", value: paid.length.toLocaleString() },
+    { label: "Paid orders", value: sales.length.toLocaleString() },
     { label: "Customers", value: customers.toLocaleString() },
     {
       label: "Average order",
-      value: paid.length && new Set(paid.map((o) => o.currency)).size === 1
-        ? formatPrice(Math.round(paid.reduce((s, o) => s + o.totalCents, 0) / paid.length), paid[0].currency)
+      value: sales.length && new Set(sales.map((o) => o.currency)).size === 1
+        ? formatPrice(Math.round(sales.reduce((s, o) => s + o.totalCents, 0) / sales.length), sales[0].currency)
         : "-",
     },
   ];
@@ -194,7 +196,7 @@ export function OrdersManager({ orders, topCustomers }: { orders: OrderRow[]; to
                   {o.source && <p className="text-[12px] text-text-muted">via {o.source}</p>}
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 font-mono text-text-primary">
-                  {formatPrice(o.totalCents, o.currency)}
+                  {o.provider === "free" ? "Free" : formatPrice(o.totalCents, o.currency)}
                 </td>
                 <td className="px-4 py-3">
                   <span className={cn("rounded-full px-2 py-0.5 text-[12px] font-medium capitalize", STATUS_STYLE[o.status])}>

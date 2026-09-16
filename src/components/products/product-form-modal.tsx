@@ -124,7 +124,7 @@ export function ProductFormModal({
         </Field>
 
         <div className="flex gap-3">
-          <Field label="Price" className="flex-1">
+          <Field label="Price" hint="0 makes it free" className="flex-1">
             {(p) => (
               <Input
                 {...p}

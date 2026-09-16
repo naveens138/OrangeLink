@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CheckoutModal } from "@/components/checkout/checkout-modal";
 import { track } from "@/lib/analytics/client";
-import { formatPrice } from "@/lib/format";
+import { formatProductPrice } from "@/lib/format";
 import type { Creator, Product } from "@/lib/types";
 
 export function ProductDetail({
@@ -44,9 +44,11 @@ export function ProductDetail({
 
         <div className="mt-8 flex items-center justify-between rounded-lg border border-border bg-surface-1 p-5">
           <span className="font-mono text-h2">
-            {formatPrice(product.price_cents, product.currency)}
+            {formatProductPrice(product.price_cents, product.currency)}
           </span>
-          <Button onClick={() => setCheckoutOpen(true)}>Buy now</Button>
+          <Button onClick={() => setCheckoutOpen(true)}>
+            {product.price_cents === 0 ? "Get it free" : "Buy now"}
+          </Button>
         </div>
       </div>
 

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductFormModal } from "./product-form-modal";
 import { deleteProduct } from "@/app/(dashboard)/dashboard/products/actions";
-import { formatPrice } from "@/lib/format";
+import { formatProductPrice } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
 export function ProductsManager({
@@ -96,7 +96,7 @@ export function ProductsManager({
               </p>
               <div className="mt-3 flex items-center justify-between">
                 <p className="font-mono text-body text-text-primary">
-                  {formatPrice(product.price_cents, product.currency)}
+                  {formatProductPrice(product.price_cents, product.currency)}
                 </p>
                 <div className="flex items-center gap-1">
                   <button

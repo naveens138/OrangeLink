@@ -4,7 +4,7 @@ import { FirstRunChoice } from "@/components/dashboard/first-run-choice";
 import { requireCreator } from "@/lib/queries/dashboard";
 import { getFunnelStats } from "@/lib/queries/analytics";
 import { createClient } from "@/lib/supabase/server";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, formatProductPrice } from "@/lib/format";
 
 export default async function DashboardOverviewPage() {
   const { creator, page, products } = await requireCreator();
@@ -101,7 +101,7 @@ export default async function DashboardOverviewPage() {
                   </p>
                 </div>
                 <p className="ml-4 shrink-0 font-mono text-body text-text-primary">
-                  {formatPrice(product.price_cents, product.currency)}
+                  {formatProductPrice(product.price_cents, product.currency)}
                 </p>
               </div>
             ))}

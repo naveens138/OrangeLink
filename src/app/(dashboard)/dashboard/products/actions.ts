@@ -47,6 +47,10 @@ function parseProductInput(
   if (!Number.isFinite(priceCents) || priceCents < 0) {
     return { error: "Enter a valid price." };
   }
+  // Razorpay's minimum charge is 1.00 in any currency; 0 means free.
+  if (priceCents > 0 && priceCents < 100) {
+    return { error: "Paid products start at 1.00. Use 0 to make it free." };
+  }
 
   return {
     name,

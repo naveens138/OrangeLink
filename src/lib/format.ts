@@ -21,3 +21,8 @@ export function formatDate(iso: string) {
     timeZone: "UTC",
   }).format(new Date(iso));
 }
+
+/** A product's price as shown to buyers: "Free" at 0, otherwise formatPrice. */
+export function formatProductPrice(cents: number, currency = "USD") {
+  return cents === 0 ? "Free" : formatPrice(cents, currency);
+}
