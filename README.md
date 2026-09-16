@@ -37,7 +37,7 @@ Requires `.env.local` (see below). Sign in to the seeded demo account with **jan
 
 ## Deployment
 
-**Live**: https://orangelink-six.vercel.app (Vercel project `naveens138/orangelink`), deployed via the Vercel CLI. Not yet connected to GitHub for continuous deployment — the repo hasn't been pushed to `origin` yet, so shipping a change means `vercel --prod` by hand until that's set up (`vercel git connect` once the push happens). Razorpay's webhook (`/api/webhooks/razorpay`) is registered against the live URL and verified working — see `PROGRESS.md` for the full setup log, including a real Razorpay API gotcha (webhook `events` must be an object of `{eventName: true}`, not an array of strings, despite what several online examples show).
+**Live**: https://orangelink.in (Vercel project `naveens138/orangelink`; `orangelink-six.vercel.app` still resolves), deployed via the Vercel CLI. Not yet connected to GitHub for continuous deployment — the repo hasn't been pushed to `origin` yet, so shipping a change means `vercel --prod` by hand until that's set up (`vercel git connect` once the push happens). Razorpay's webhook (`/api/webhooks/razorpay`) is registered against the live URL and verified working — see `PROGRESS.md` for the full setup log, including a real Razorpay API gotcha (webhook `events` must be an object of `{eventName: true}`, not an array of strings, despite what several online examples show).
 
 ## Environment
 

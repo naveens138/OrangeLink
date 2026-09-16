@@ -87,7 +87,7 @@ export default function ClaimUsernamePage() {
             )}
           >
             <span className="whitespace-nowrap text-body text-text-muted">
-              orangelink.co/
+              orangelink.in/
             </span>
             <input
               autoFocus

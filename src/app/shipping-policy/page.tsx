@@ -38,8 +38,8 @@ export default function ShippingPolicyPage() {
           Digital file downloads are available immediately on successful
           payment. If a download link doesn&apos;t arrive or doesn&apos;t work,
           contact{" "}
-          <a href="mailto:support@orangelink.co" className="text-accent underline">
-            support@orangelink.co
+          <a href="mailto:support@orangelink.in" className="text-accent underline">
+            support@orangelink.in
           </a>{" "}
           with your order confirmation and we&apos;ll resolve it, typically
           within 1 business day.

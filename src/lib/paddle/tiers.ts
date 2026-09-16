@@ -44,7 +44,6 @@ export const TIERS: Tier[] = [
     features: [
       "Everything in Pro",
       "Custom domain",
-      "Automation rules",
       "Post planner",
     ],
     priceId: {

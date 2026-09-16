@@ -13,6 +13,7 @@ import {
   type ScheduledPost,
 } from "@/app/(dashboard)/dashboard/schedule/actions";
 import { cn } from "@/lib/utils";
+import { SocialAccounts, type Accounts } from "./social-accounts";
 
 export interface LinkOption {
   label: string;
@@ -76,12 +77,15 @@ function PlatformIcons({ platforms, className = "h-3.5 w-3.5" }: { platforms: Pl
 
 export function ScheduleManager({
   initialPosts,
+  initialAccounts,
   linkOptions,
 }: {
   initialPosts: ScheduledPost[];
+  initialAccounts: Accounts;
   linkOptions: LinkOption[];
 }) {
   const [posts, setPosts] = useState(initialPosts);
+  const [accounts, setAccounts] = useState<Accounts>(initialAccounts);
   const now = useNow();
   // Weeks away from this one; 0 is the current week.
   const [weekOffset, setWeekOffset] = useState(0);
@@ -123,6 +127,18 @@ export function ScheduleManager({
 
   return (
     <div className="flex flex-col gap-6">
+      <SocialAccounts
+        accounts={accounts}
+        onChange={(platform, handle) =>
+          setAccounts((prev) => {
+            const next = { ...prev };
+            if (handle) next[platform] = handle;
+            else delete next[platform];
+            return next;
+          })
+        }
+      />
+
       {due.length > 0 && (
         <div className="rounded-md border border-[var(--accent-strong)]/30 bg-accent-soft p-4">
           <p className="text-h3">Ready to post</p>
@@ -254,6 +270,7 @@ export function ScheduleManager({
           key={editing === "new" ? "new" : editing.id}
           post={editing === "new" ? null : editing}
           defaultDate={draftDate}
+          accounts={accounts}
           linkOptions={linkOptions}
           onClose={() => setEditing(null)}
           onSaved={(post) => {
@@ -273,6 +290,7 @@ export function ScheduleManager({
 function PostEditor({
   post,
   defaultDate,
+  accounts,
   linkOptions,
   onClose,
   onSaved,
@@ -280,12 +298,18 @@ function PostEditor({
 }: {
   post: ScheduledPost | null;
   defaultDate: Date | null;
+  accounts: Accounts;
   linkOptions: LinkOption[];
   onClose: () => void;
   onSaved: (post: ScheduledPost) => void;
   onDeleted: (id: string) => void;
 }) {
-  const [platforms, setPlatforms] = useState<Platform[]>(post?.platforms ?? ["instagram"]);
+  // A new post starts on every platform the creator has added.
+  const [platforms, setPlatforms] = useState<Platform[]>(() => {
+    if (post) return post.platforms;
+    const added = PLATFORMS.filter((p) => accounts[p]);
+    return added.length ? added : ["instagram"];
+  });
   const [caption, setCaption] = useState(post?.caption ?? "");
   const [link, setLink] = useState<string>(post?.link_url ?? "");
   const [when, setWhen] = useState(() =>
@@ -452,7 +476,7 @@ function PostEditor({
                     className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1.5 text-small text-text-primary transition-colors hover:border-border-strong"
                   >
                     <Icon className="h-3.5 w-3.5" />
-                    {PLATFORM_META[p].label}
+                    {accounts[p] ? `@${accounts[p]}` : PLATFORM_META[p].label}
                     {copied === p ? <Copy className="h-3 w-3 text-success" /> : <ExternalLink className="h-3 w-3 text-text-muted" />}
                   </button>
                 );

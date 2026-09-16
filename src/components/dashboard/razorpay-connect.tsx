@@ -62,7 +62,7 @@ export function RazorpayConnect({
       <form action={formAction} className="flex max-w-xl flex-col gap-4">
         <Field
           label="Key ID"
-          hint="Starts with rzp_live_. See the steps above for where to find it."
+          hint="Starts with rzp_live_. The guide below shows where to find it."
         >
           {(p) => (
             <Input
@@ -119,7 +119,7 @@ export function RazorpayConnect({
         <p className="text-h3">Your webhook URL</p>
         <p className="mt-1 text-body text-text-secondary">
           Paste this into Razorpay under Account &amp; Settings → Webhooks,
-          with the <code>payment.captured</code> event (steps 05 to 07 above).
+          with the <code>payment.captured</code> event (steps 05 to 07 below).
         </p>
         <div className="mt-3 flex items-center gap-2">
           <code className="flex-1 truncate rounded border border-border bg-background px-3 py-2 text-small">

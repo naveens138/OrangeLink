@@ -41,7 +41,7 @@ const keySteps = [
     ),
   },
   {
-    title: "Copy both values into the form below",
+    title: "Copy both values into the form above",
     body: (
       <>
         The <b>Key ID</b> starts with <code>rzp_live_</code>. The{" "}
@@ -59,8 +59,7 @@ const webhookSteps = [
     body: (
       <>
         In <b>Account &amp; Settings → Webhooks</b>, click{" "}
-        <b>Add New Webhook</b> and paste your webhook URL from the bottom of
-        this page.
+        <b>Add New Webhook</b> and paste your webhook URL from the box above.
       </>
     ),
   },
@@ -77,7 +76,7 @@ const webhookSteps = [
     title: "Paste the same secret here",
     body: (
       <>
-        Enter it in <b>Webhook secret</b> below and save. This makes sure a sale
+        Enter it in <b>Webhook secret</b> above and save. This makes sure a sale
         still completes if the buyer closes the tab mid-payment.
       </>
     ),
@@ -105,7 +104,7 @@ function Steps({ steps, start }: { steps: typeof keySteps; start: number }) {
 }
 
 /**
- * Where to find the keys the form below asks for, step by step. Open until
+ * Where to find the keys the form above asks for, step by step. Open until
  * the creator has connected, then folded away but still there for when
  * they rotate keys.
  */

@@ -14,7 +14,7 @@ export function FirstRunChoice({ username }: { username: string }) {
     <section className="rounded-lg border border-border bg-surface-1 p-6">
       <h2 className="text-h3">Let&apos;s get your page started</h2>
       <p className="mt-1 text-body text-text-secondary">
-        Your page is live at orangelink.co/{username}, but there&apos;s nothing
+        Your page is live at orangelink.in/{username}, but there&apos;s nothing
         on it yet. Pick whichever is less work.
       </p>
 

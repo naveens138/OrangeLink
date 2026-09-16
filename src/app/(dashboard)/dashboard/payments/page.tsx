@@ -29,8 +29,7 @@ export default async function PaymentsPage() {
         </p>
       </div>
 
-      <RazorpayGuide connected={Boolean(account)} />
-
+      {/* The form and webhook URL first; the how-to sits underneath. */}
       <RazorpayConnect
         connected={Boolean(account)}
         keyId={account?.key_id ?? null}
@@ -38,6 +37,8 @@ export default async function PaymentsPage() {
         hasWebhook={Boolean(account?.webhook_secret_id)}
         webhookUrl={webhookUrl}
       />
+
+      <RazorpayGuide connected={Boolean(account)} />
     </div>
   );
 }

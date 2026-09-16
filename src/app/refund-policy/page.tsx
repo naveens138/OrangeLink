@@ -11,8 +11,8 @@ export default function RefundPolicyPage() {
           downloaded, purchases are generally final once the download link has
           been used. If you haven&apos;t downloaded your file yet, or it doesn&apos;t
           match its description, or it&apos;s corrupted or unusable, contact{" "}
-          <a href="mailto:support@orangelink.co" className="text-accent underline">
-            support@orangelink.co
+          <a href="mailto:support@orangelink.in" className="text-accent underline">
+            support@orangelink.in
           </a>{" "}
           within 7 days of purchase and we&apos;ll review it. We&apos;ll issue a
           full refund if the file wasn&apos;t downloaded, or if it genuinely
@@ -42,8 +42,8 @@ export default function RefundPolicyPage() {
         <p>
           If you believe a charge on your account wasn&apos;t authorized by you,
           contact us first at{" "}
-          <a href="mailto:billing@orangelink.co" className="text-accent underline">
-            billing@orangelink.co
+          <a href="mailto:billing@orangelink.in" className="text-accent underline">
+            billing@orangelink.in
           </a>{" "}
           before filing a chargeback with your bank. Most issues can be
           resolved faster this way, and it&apos;s the only way we can help correct
@@ -54,8 +54,8 @@ export default function RefundPolicyPage() {
       <PolicySection heading="Requesting a refund">
         <p>
           Email{" "}
-          <a href="mailto:support@orangelink.co" className="text-accent underline">
-            support@orangelink.co
+          <a href="mailto:support@orangelink.in" className="text-accent underline">
+            support@orangelink.in
           </a>{" "}
           with your order confirmation and the reason for your request. We
           respond within 2 business days.

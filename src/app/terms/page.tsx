@@ -126,8 +126,8 @@ export default function TermsPage() {
       <PolicySection heading="13. Contact">
         <p>
           Questions about these terms:{" "}
-          <a href="mailto:legal@orangelink.co" className="text-accent underline">
-            legal@orangelink.co
+          <a href="mailto:legal@orangelink.in" className="text-accent underline">
+            legal@orangelink.in
           </a>
           . See also our{" "}
           <Link href="/contact" className="text-accent underline">

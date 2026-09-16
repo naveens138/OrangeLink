@@ -2,6 +2,8 @@ import { requireCreator } from "@/lib/queries/dashboard";
 import { createClient } from "@/lib/supabase/server";
 import { ScheduleManager, type LinkOption } from "@/components/schedule/schedule-manager";
 import type { ScheduledPost } from "./actions";
+import type { Accounts } from "@/components/schedule/social-accounts";
+import { isPlatform } from "@/lib/schedule/platforms";
 
 export default async function SchedulePage() {
   const { creator, products, userId } = await requireCreator();
@@ -10,7 +12,7 @@ export default async function SchedulePage() {
   const sinceDate = new Date();
   sinceDate.setTime(sinceDate.getTime() - 60 * 24 * 60 * 60 * 1000);
   const since = sinceDate.toISOString();
-  const [{ data: posts }, { data: domain }] = await Promise.all([
+  const [{ data: posts }, { data: domain }, { data: accountRows }] = await Promise.all([
     supabase
       .from("scheduled_posts")
       .select("id, platforms, caption, link_url, scheduled_for, status, posted_at")
@@ -23,7 +25,13 @@ export default async function SchedulePage() {
       .select("domain, verification_status")
       .eq("creator_id", userId)
       .maybeSingle(),
+    supabase.from("social_accounts").select("platform, handle").eq("creator_id", userId),
   ]);
+
+  const accounts: Accounts = {};
+  for (const row of accountRows ?? []) {
+    if (isPlatform(row.platform)) accounts[row.platform] = row.handle;
+  }
 
   // Links point at the creator's own domain once it's live, else their
   // OrangeLink address.
@@ -49,7 +57,11 @@ export default async function SchedulePage() {
           copies your caption and opens the app to post.
         </p>
       </div>
-      <ScheduleManager initialPosts={(posts ?? []) as ScheduledPost[]} linkOptions={linkOptions} />
+      <ScheduleManager
+        initialPosts={(posts ?? []) as ScheduledPost[]}
+        initialAccounts={accounts}
+        linkOptions={linkOptions}
+      />
     </div>
   );
 }

@@ -5,7 +5,6 @@ import {
   ShoppingBag,
   BarChart3,
   CreditCard,
-  Zap,
   Mail,
   Globe,
   Upload,
@@ -36,7 +35,6 @@ export const navItems: NavItem[] = [
   { href: "/dashboard/schedule", label: "Schedule", icon: CalendarClock, group: "Grow" },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, group: "Grow" },
   { href: "/dashboard/email", label: "Email", icon: Mail, group: "Grow" },
-  { href: "/dashboard/automations", label: "Automations", icon: Zap, group: "Grow" },
   { href: "/dashboard/domains", label: "Domains", icon: Globe, group: "Grow" },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, group: "Account" },
 ];

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { isPlatform, type Platform } from "@/lib/schedule/platforms";
+import { isPlatform, parseHandle, type Platform } from "@/lib/schedule/platforms";
 
 // Writes go through the cookie-bound client; the RLS policy on
 // scheduled_posts (migration 0016) limits every read and write to the
@@ -99,4 +99,40 @@ export async function deletePost(id: string): Promise<{ ok: boolean; error?: str
   if (error) return { ok: false, error: "Couldn't delete the post." };
   revalidatePath("/dashboard/schedule");
   return { ok: true };
+}
+
+export type AccountResult = { ok: true; handle: string | null } | { ok: false; error: string };
+
+/**
+ * Saves the creator's handle on one platform (migration 0017). Accepts
+ * "@name", "name" or a pasted profile link. Handles only: OrangeLink holds
+ * no login for the platform.
+ */
+export async function saveSocialAccount(platform: string, input: string): Promise<AccountResult> {
+  if (!isPlatform(platform)) return { ok: false, error: "Unknown platform." };
+  const handle = parseHandle(input);
+  if (!handle) return { ok: false, error: "Enter your username, like @yourname, or paste your profile link." };
+
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { ok: false, error: "Sign in again to save." };
+
+  const { error } = await supabase
+    .from("social_accounts")
+    .upsert({ creator_id: auth.user.id, platform, handle }, { onConflict: "creator_id,platform" });
+  if (error) return { ok: false, error: "Couldn't save that account. Try again." };
+
+  revalidatePath("/dashboard/schedule");
+  return { ok: true, handle };
+}
+
+export async function removeSocialAccount(platform: string): Promise<AccountResult> {
+  if (!isPlatform(platform)) return { ok: false, error: "Unknown platform." };
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { ok: false, error: "Sign in again to save." };
+
+  await supabase.from("social_accounts").delete().eq("creator_id", auth.user.id).eq("platform", platform);
+  revalidatePath("/dashboard/schedule");
+  return { ok: true, handle: null };
 }

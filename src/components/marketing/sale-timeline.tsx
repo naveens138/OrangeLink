@@ -29,7 +29,7 @@ const scenarios: Scenario[] = [
       {
         tick: "Username",
         title: "Claim your username",
-        detail: "Pick your address: orangelink.co/yourname",
+        detail: "Pick your address: orangelink.in/yourname",
         level: 0.6,
       },
       {

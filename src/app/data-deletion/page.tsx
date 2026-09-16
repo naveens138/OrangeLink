@@ -38,8 +38,8 @@ export default function DataDeletionPage() {
           automation rules immediately. To also delete the historical log of
           past automated replies, or if you no longer have access to your
           OrangeLink account, email{" "}
-          <a href="mailto:privacy@orangelink.co" className="text-accent underline">
-            privacy@orangelink.co
+          <a href="mailto:privacy@orangelink.in" className="text-accent underline">
+            privacy@orangelink.in
           </a>{" "}
           with the Page or Instagram account name. We complete deletion
           requests within 30 days.

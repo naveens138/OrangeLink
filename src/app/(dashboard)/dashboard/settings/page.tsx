@@ -3,6 +3,7 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { requireCreator } from "@/lib/queries/dashboard";
+import { AvatarUploader } from "@/components/dashboard/avatar-uploader";
 import { updateProfile } from "./actions";
 
 export default async function SettingsPage() {
@@ -19,7 +20,13 @@ export default async function SettingsPage() {
 
       <Card className="max-w-xl">
         <h2 className="text-h3">Profile</h2>
-        <form action={updateProfile} className="mt-5 flex flex-col gap-4">
+        <div className="mt-5">
+          <AvatarUploader
+            initialUrl={creator.avatar_url}
+            name={creator.display_name ?? creator.username}
+          />
+        </div>
+        <form action={updateProfile} className="mt-6 flex flex-col gap-4">
           <Field label="Display name">
             {(p) => (
               <Input
@@ -31,7 +38,7 @@ export default async function SettingsPage() {
           </Field>
           <Field
             label="Username"
-            hint={`orangelink.co/${creator.username}. Changing this breaks existing links.`}
+            hint={`orangelink.in/${creator.username}. Changing this breaks existing links.`}
           >
             {(p) => (
               <Input {...p} defaultValue={creator.username} disabled />

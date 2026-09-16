@@ -30,7 +30,7 @@ export async function safeFetchPage(raw: string): Promise<FetchedPage> {
           // Identifying the bot is the courteous thing to do, and some hosts
           // serve a saner page to a declared crawler than to a blank agent.
           "user-agent":
-            "OrangeLinkImporter/1.0 (+https://orangelink.co/import; page import on behalf of its owner)",
+            "OrangeLinkImporter/1.0 (+https://orangelink.in/import; page import on behalf of its owner)",
           accept: "text/html,application/xhtml+xml",
           "accept-language": "en-US,en;q=0.9",
         },

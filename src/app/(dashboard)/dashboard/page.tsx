@@ -49,7 +49,7 @@ export default async function DashboardOverviewPage() {
                 target="_blank"
                 className="font-medium text-accent"
               >
-                orangelink.co/{creator.username}
+                orangelink.in/{creator.username}
               </Link>
             </>
           ) : (

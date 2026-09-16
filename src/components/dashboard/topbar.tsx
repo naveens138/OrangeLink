@@ -38,8 +38,13 @@ export function Topbar({ creator }: { creator: Creator }) {
             <LogOut className="h-4 w-4" />
           </button>
         </form>
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-text-primary text-small font-medium text-white">
-          {initial}
+        <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-text-primary text-small font-medium text-white">
+          {creator.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={creator.avatar_url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            initial
+          )}
         </div>
       </div>
     </header>
