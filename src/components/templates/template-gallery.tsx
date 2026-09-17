@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import Link from "next/link";
-import { ArrowUpRight, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { PLATFORM_ICONS } from "@/components/brand/platform-icons";
 import { pageTemplates, templateStyle, type PageTemplate } from "@/lib/page-templates";
-import { applyPageTemplate } from "@/app/(dashboard)/dashboard/links/actions";
+import { DEFAULT_PRESET, themePresets } from "@/lib/theme-presets";
+import { applyPageTemplate, updatePageTheme } from "@/app/(dashboard)/dashboard/links/actions";
 import { cn } from "@/lib/utils";
 
 export interface TemplateSample {
@@ -20,103 +20,95 @@ export interface TemplateSample {
 // keep the same proportions on a phone and on a wide screen.
 const CARD_WIDTH = 300;
 
+// The page's own look, before any template: offered first so a creator can
+// always go back to it.
+const CLASSIC = "classic";
+
 /**
- * The template gallery: every template as a phone-shaped card showing the
- * creator's own name, photo and links in that style. Clicking a card
- * applies it straight away; the page shows it on the next load.
+ * Every template as a big phone-shaped card showing the creator's own name,
+ * photo and links in that style, as Linktree shows its templates. Clicking
+ * a card applies and saves it straight away. Opened from the Templates
+ * button on the Links page.
  */
 export function TemplateGallery({
   pageId,
-  username,
   current,
   hasCustomDesign,
   sample,
+  onApplied,
 }: {
   pageId: string;
-  username: string;
+  /** The page's template id, or null for the classic look. */
   current: string | null;
   hasCustomDesign: boolean;
   sample: TemplateSample;
+  onApplied: (templateId: string | null) => void;
 }) {
-  const [selected, setSelected] = useState<string | null>(hasCustomDesign ? null : current);
+  const [selected, setSelected] = useState<string | null>(
+    hasCustomDesign ? null : (current ?? CLASSIC),
+  );
   const [pendingId, setPendingId] = useState<string | null>(null);
-  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
-  function choose(template: PageTemplate) {
-    if (template.id === selected || pendingId) return;
+  function choose(id: string) {
+    if (id === selected || pendingId) return;
     const previous = selected;
-    setSelected(template.id);
-    setPendingId(template.id);
-    setMessage(null);
+    setSelected(id);
+    setPendingId(id);
+    setError(null);
     startTransition(async () => {
-      const result = await applyPageTemplate(pageId, template.id);
+      const result =
+        id === CLASSIC
+          ? await updatePageTheme(pageId, { preset: DEFAULT_PRESET, template: null, custom: null })
+          : await applyPageTemplate(pageId, id);
       setPendingId(null);
       if (result.ok) {
-        setMessage({ ok: true, text: `Your page now uses ${template.name}.` });
+        onApplied(id === CLASSIC ? null : id);
       } else {
         setSelected(previous);
-        setMessage({ ok: false, text: result.error });
+        setError(result.error);
       }
     });
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-h2">Templates</h1>
-          <p className="mt-1 text-body text-text-secondary">
-            {pageTemplates.length} designs, shown with your own name and links. Tap one to use it.
-          </p>
-        </div>
-        <Link
-          href={`/${username}`}
-          target="_blank"
-          className="flex items-center gap-1 rounded-md border border-border bg-surface-1 px-3 py-1.5 text-small font-medium text-text-primary transition-colors hover:bg-surface-2"
-        >
-          View your page
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </Link>
-      </div>
-
-      {hasCustomDesign && !message && (
+    <div className="flex flex-col gap-5">
+      {hasCustomDesign && (
         <p className="rounded-md border border-border bg-surface-1 px-4 py-3 text-small text-text-secondary">
           Your page uses an AI design right now. Picking a template replaces it.
         </p>
       )}
-
-      {message && (
-        <p
-          role="status"
-          className={cn(
-            "rounded-md border px-4 py-3 text-small",
-            message.ok
-              ? "border-border bg-surface-1 text-text-primary"
-              : "border-danger/30 bg-danger/5 text-danger",
-          )}
-        >
-          {message.text}
-          {message.ok && (
-            <>
-              {" "}
-              <Link href={`/${username}`} target="_blank" className="font-medium underline underline-offset-2">
-                See it live
-              </Link>
-            </>
-          )}
+      {error && (
+        <p role="alert" className="rounded-md border border-danger/30 bg-danger/5 px-4 py-3 text-small text-danger">
+          {error}
         </p>
       )}
 
-      <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-5 md:grid-cols-3">
+      {/* Big cards: one per row on a phone. */}
+      <div className="mx-auto grid w-full max-w-[380px] grid-cols-1 gap-y-9 sm:max-w-none sm:grid-cols-2 sm:gap-x-5 lg:grid-cols-3">
+        <TemplateCard
+          name="Classic"
+          vibe="The OrangeLink look: white into soft peach"
+          look={{
+            style: { "--storefront-gradient": themePresets[DEFAULT_PRESET].gradient } as React.CSSProperties,
+            buttons: "solid",
+          }}
+          sample={sample}
+          selected={selected === CLASSIC}
+          pending={pendingId === CLASSIC}
+          onChoose={() => choose(CLASSIC)}
+        />
         {pageTemplates.map((template) => (
           <TemplateCard
             key={template.id}
-            template={template}
+            name={template.name}
+            vibe={template.vibe}
+            look={templateStyle(template, { preview: true })}
             sample={sample}
             selected={selected === template.id}
             pending={pendingId === template.id}
-            onChoose={() => choose(template)}
+            onChoose={() => choose(template.id)}
           />
         ))}
       </div>
@@ -125,20 +117,24 @@ export function TemplateGallery({
 }
 
 function TemplateCard({
-  template,
+  name,
+  vibe,
+  look,
   sample,
   selected,
   pending,
   onChoose,
 }: {
-  template: PageTemplate;
+  name: string;
+  vibe: string;
+  look: { style: React.CSSProperties; buttons: PageTemplate["buttons"] };
   sample: TemplateSample;
   selected: boolean;
   pending: boolean;
   onChoose: () => void;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(0.8);
+  const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
     const el = frameRef.current;
@@ -149,7 +145,6 @@ function TemplateCard({
     return () => observer.disconnect();
   }, []);
 
-  const look = templateStyle(template);
   const initial = sample.name.charAt(0).toUpperCase();
 
   return (
@@ -158,9 +153,9 @@ function TemplateCard({
         type="button"
         onClick={onChoose}
         aria-pressed={selected}
-        aria-label={`Use the ${template.name} template`}
+        aria-label={`Use the ${name} template`}
         className={cn(
-          "group relative block w-full overflow-hidden rounded-[26px] text-left outline-none transition-[box-shadow,transform] duration-200 focus-visible:ring-2 focus-visible:ring-text-primary sm:rounded-[32px]",
+          "group relative block w-full overflow-hidden rounded-[36px] text-left outline-none transition-[box-shadow,transform] duration-200 focus-visible:ring-2 focus-visible:ring-text-primary",
           selected
             ? "ring-2 ring-text-primary ring-offset-2 ring-offset-background"
             : "hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-12px_rgba(0,0,0,0.35)]",
@@ -168,13 +163,13 @@ function TemplateCard({
       >
         <div
           ref={frameRef}
-          className="theme-storefront storefront-screen aspect-[9/17] w-full overflow-hidden"
+          className="theme-storefront storefront-screen aspect-[9/18] w-full overflow-hidden"
           style={look.style}
           data-buttons={look.buttons}
         >
           <div
             style={{ width: CARD_WIDTH, zoom }}
-            className="pointer-events-none relative flex flex-col items-center px-5 pt-12 text-center text-text-primary"
+            className="pointer-events-none relative flex flex-col items-center px-5 pt-14 text-center text-text-primary"
           >
             <div className="flex h-[76px] w-[76px] items-center justify-center overflow-hidden rounded-full bg-white/80 text-[28px] font-semibold text-[#141413] shadow-[0_0_0_3px_rgba(255,255,255,0.7)]">
               {sample.avatar ? (
@@ -211,24 +206,23 @@ function TemplateCard({
           </div>
         </div>
 
-        {/* Hover hint, and the in-use badge. */}
         {!selected && (
-          <span className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-            <span className="rounded-full bg-[#141413] px-3 py-1.5 text-[12px] font-semibold text-white shadow-lg">
+          <span className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+            <span className="rounded-full bg-[#141413] px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-lg">
               Use template
             </span>
           </span>
         )}
         {selected && (
-          <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-[#141413] px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg">
+          <span className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-[#141413] px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg">
             <Check className="h-3 w-3" />
             {pending ? "Saving" : "In use"}
           </span>
         )}
       </button>
       <div className="px-1">
-        <p className="text-small font-medium text-text-primary">{template.name}</p>
-        <p className="text-[12px] text-text-muted">{template.vibe}</p>
+        <p className="text-body font-medium text-text-primary">{name}</p>
+        <p className="text-small text-text-muted">{vibe}</p>
       </div>
     </div>
   );

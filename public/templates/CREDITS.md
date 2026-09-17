@@ -1,0 +1,56 @@
+# Template photo credits
+
+Background photos for the page templates (src/lib/page-templates.ts), all from Wikimedia Commons, resized and compressed. The -preview files are smaller copies for the dashboard gallery.
+
+- **templates/pool.jpg**: File:Reflets de la lumière sur la surface d'une piscine.JPG
+  - License: CC0
+  - Author: Benoît Prieur
+  - Source: https://commons.wikimedia.org/wiki/File:Reflets_de_la_lumi%C3%A8re_sur_la_surface_d%27une_piscine.JPG
+- **templates/citrus.jpg**: File:Citrus fruits.jpg
+  - License: Public domain
+  - Author: Scott Bauer, USDA
+  - Source: https://commons.wikimedia.org/wiki/File:Citrus_fruits.jpg
+- **templates/lake.jpg**: File:Moraine Lake 17092005.jpg
+  - License: Public domain
+  - Author: Gorgo
+  - Source: https://commons.wikimedia.org/wiki/File:Moraine_Lake_17092005.jpg
+- **templates/shore.jpg**: File:Ocean waves drone view of Palm Coast beach.jpg
+  - License: CC0
+  - Author: Lance Asper lance_asper
+  - Source: https://commons.wikimedia.org/wiki/File:Ocean_waves_drone_view_of_Palm_Coast_beach.jpg
+- **templates/lanes.jpg**: File:Track and field numbers.jpg
+  - License: CC BY 2.0
+  - Author: Celeste
+  - Source: https://commons.wikimedia.org/wiki/File:Track_and_field_numbers.jpg
+- **templates/petunia.jpg**: File:Field of Pink Petunia.jpg
+  - License: CC BY-SA 4.0
+  - Author: Clipbb
+  - Source: https://commons.wikimedia.org/wiki/File:Field_of_Pink_Petunia.jpg
+- **templates/fern.jpg**: File:Fern Leaves (Unsplash).jpg
+  - License: CC0
+  - Author: Becky Phan beckyphan
+  - Source: https://commons.wikimedia.org/wiki/File:Fern_Leaves_(Unsplash).jpg
+- **templates/city-glow.jpg**: File:City Of Blinding Lights (200123341).jpeg
+  - License: CC BY-SA 3.0
+  - Author: Andrea Pagani
+  - Source: https://commons.wikimedia.org/wiki/File:City_Of_Blinding_Lights_(200123341).jpeg
+- **templates/dusk.jpg**: File:Wooden walkway leading to a hut with straw roof at sunset with colorful sky in Vang Vieng Laos.jpg
+  - License: CC BY-SA 4.0
+  - Author: Basile Morin
+  - Source: https://commons.wikimedia.org/wiki/File:Wooden_walkway_leading_to_a_hut_with_straw_roof_at_sunset_with_colorful_sky_in_Vang_Vieng_Laos.jpg
+- **templates/marble.jpg**: File:Marble blocks pattern texture.jpg
+  - License: Public domain
+  - Author: Titus Tscharntke
+  - Source: https://commons.wikimedia.org/wiki/File:Marble_blocks_pattern_texture.jpg
+- **templates/onyx.jpg**: File:HK Central Landmark mall shop wall marble pattern texture Nov-2013 006.JPG
+  - License: CC BY-SA 3.0
+  - Author: HaleiLaihaweadu
+  - Source: https://commons.wikimedia.org/wiki/File:HK_Central_Landmark_mall_shop_wall_marble_pattern_texture_Nov-2013_006.JPG
+- **templates/summit.jpg**: File:Vihren & Kutelo Pirin Mountains Bulgaria 2025.jpg
+  - License: CC BY-SA 4.0
+  - Author: kallerna
+  - Source: https://commons.wikimedia.org/wiki/File:Vihren_%26_Kutelo_Pirin_Mountains_Bulgaria_2025.jpg
+- **templates/bokeh.jpg**: File:Ngyduc21894.jpeg
+  - License: CC BY-SA 4.0
+  - Author: Ngyduc21894
+  - Source: https://commons.wikimedia.org/wiki/File:Ngyduc21894.jpeg

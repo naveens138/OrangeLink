@@ -153,7 +153,6 @@ export async function applyPageTemplate(pageId: string, templateId: string): Pro
     delete next.custom;
     return next;
   });
-  revalidatePath("/dashboard/templates");
   return result;
 }
 

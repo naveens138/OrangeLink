@@ -1,5 +1,6 @@
 // Full-page templates for the public page, browsed as a gallery in the
-// dashboard (/dashboard/templates) the way Linktree shows its templates.
+// dashboard (the Templates button on the Links page) the way Linktree shows
+// its templates.
 //
 // A template is more than a preset tint: its own background art, text and
 // button colours, button style and font. Unlike an AI design these are
@@ -7,8 +8,9 @@
 // constant in code, and a page only stores the template's id, so nothing a
 // creator types ever reaches a style attribute.
 //
-// Background art is inline SVG rather than photos: no image requests, no
-// licences to track, and it stays sharp at any size.
+// Two kinds. Photo templates use a freely licensed photo under a dark wash
+// so text stays readable (files and credits in public/templates). Drawn
+// templates use inline SVG art, which needs no image request at all.
 import type { CSSProperties } from "react";
 import { FONT_STACKS, type ThemeFont } from "@/lib/theme-custom";
 
@@ -20,8 +22,11 @@ export interface PageTemplate {
   name: string;
   /** One line for the gallery card. */
   vibe: string;
-  /** A CSS `background` value: layers of SVG art over a gradient. */
+  /** A CSS `background` value: SVG art over a gradient, or a washed photo. */
   background: string;
+  /** Photo templates: the file name in public/templates, and the dark wash over it (top, bottom). */
+  photo?: string;
+  shade?: [number, number];
   /** Page text: name, bio, social icons, footer. */
   ink: string;
   inkSoft: string;
@@ -45,8 +50,14 @@ const svg = (markup: string) =>
 const bottomArt = (markup: string) => `${svg(markup)} center bottom / 100% auto no-repeat`;
 // Art covering the whole page.
 const coverArt = (markup: string) => `${svg(markup)} center / cover no-repeat`;
-// A repeating tile.
-const tile = (markup: string, size: number) => `${svg(markup)} 0 0 / ${size}px ${size}px repeat`;
+// A photo under a dark wash. The photo is the last layer, so the page's
+// background-attachment: fixed lands on it and it stays put while the links
+// scroll, instead of stretching over the page's full height. The gallery
+// uses the smaller -preview copy.
+function photoBackground(photo: string, [top, bottom]: [number, number], preview = false) {
+  const file = `/templates/${photo}${preview ? "-preview" : ""}.jpg`;
+  return `linear-gradient(180deg, rgba(0,0,0,${top}) 0%, rgba(0,0,0,${bottom}) 100%), url("${file}") center / cover no-repeat`;
+}
 
 const RADII: Record<TemplateShape, [string, string]> = {
   round: ["999px", "28px"],
@@ -55,154 +66,231 @@ const RADII: Record<TemplateShape, [string, string]> = {
 };
 
 export const pageTemplates: PageTemplate[] = [
+  // Photo templates first: they read strongest in the gallery.
   {
-    id: "olive-grove",
-    name: "Olive Grove",
-    vibe: "Muted olive with ripe fruit",
-    background: [
-      bottomArt(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220">
-        <ellipse cx="200" cy="215" rx="230" ry="30" fill="#3f4433"/>
-        <circle cx="70" cy="170" r="48" fill="#e9923f"/><path d="M70 122 a48 48 0 0 1 0 96" fill="#d97a2b"/>
-        <circle cx="160" cy="185" r="36" fill="#a9b86a"/><circle cx="160" cy="185" r="22" fill="#c7d38b"/>
-        <circle cx="255" cy="172" r="44" fill="#f2c14e"/><circle cx="240" cy="160" r="8" fill="#fbe39a"/>
-        <circle cx="345" cy="182" r="40" fill="#7a8f4f"/><circle cx="330" cy="170" r="10" fill="#9aad69"/>
-        <path d="M120 150 q18 -30 40 -10 q-18 22 -40 10z" fill="#5d6b3a"/>
-      </svg>`),
-      "linear-gradient(180deg, #6f775b 0%, #626a4f 100%)",
-    ].join(", "),
+    id: "pool",
+    name: "Pool",
+    vibe: "Sunlit pool water",
+    photo: "pool",
+    shade: [0.12, 0.28],
+    background: photoBackground("pool", [0.12, 0.28]),
     ink: "#ffffff",
-    inkSoft: "#e3e6d8",
-    pill: "#dcdcd2",
-    pillInk: "#2c3024",
-    pillInkSoft: "#5c6150",
-    buttons: "solid",
-    shape: "round",
-    accent: "#2c3024",
-    font: "sans",
-  },
-  {
-    id: "poolside",
-    name: "Poolside",
-    vibe: "Sunlit water, white buttons",
-    background: [
-      coverArt(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
-        <g fill="none" stroke="#bff3f2" stroke-width="3" stroke-linecap="round" opacity=".55">
-          <path d="M-20 80 q40 -22 80 0 t80 0 t80 0 t80 0 t80 0"/>
-          <path d="M-20 190 q40 -18 80 4 t80 -6 t80 6 t80 -4 t80 2"/>
-          <path d="M-20 320 q50 -24 90 0 t90 0 t90 0 t90 0"/>
-          <path d="M-20 460 q40 -20 80 2 t80 -4 t80 4 t80 -2 t80 0"/>
-          <path d="M-20 600 q50 -22 90 0 t90 0 t90 0 t90 0"/>
-          <path d="M-20 730 q40 -18 80 2 t80 -2 t80 2 t80 -2 t80 0"/>
-        </g>
-        <g fill="#e8fffe" opacity=".35"><circle cx="90" cy="140" r="5"/><circle cx="310" cy="260" r="4"/><circle cx="60" cy="520" r="6"/><circle cx="330" cy="660" r="5"/></g>
-      </svg>`),
-      "linear-gradient(180deg, #3fb7bf 0%, #2a9aa6 55%, #1f7f8e 100%)",
-    ].join(", "),
-    ink: "#ffffff",
-    inkSoft: "#dff6f6",
+    inkSoft: "#e3f6fb",
     pill: "#ffffff",
-    pillInk: "#12343a",
-    pillInkSoft: "#4d6d72",
+    pillInk: "#0f3440",
+    pillInkSoft: "#4a6b75",
     buttons: "solid",
     shape: "round",
-    accent: "#12343a",
+    accent: "#0f3440",
     font: "sans",
   },
   {
-    id: "clay",
-    name: "Clay",
-    vibe: "Dark earth, peach blocks",
-    background: [
-      coverArt(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
-        <g fill="none" stroke="#8a6a55" stroke-width="1.5" opacity=".45">
-          <path d="M-40 620 C80 540 160 700 300 600 S460 560 460 560"/>
-          <path d="M-40 650 C80 570 170 730 300 630 S460 590 460 590"/>
-          <path d="M-40 680 C90 600 180 760 310 660 S460 620 460 620"/>
-          <path d="M-40 140 C70 220 180 60 300 150 S460 120 460 120"/>
-          <path d="M-40 170 C70 250 190 90 300 180 S460 150 460 150"/>
-        </g>
-      </svg>`),
-      "linear-gradient(170deg, #5b4a40 0%, #3e332d 60%, #2b2420 100%)",
-    ].join(", "),
+    id: "shore",
+    name: "Shore",
+    vibe: "Waves from above",
+    photo: "shore",
+    shade: [0.18, 0.32],
+    background: photoBackground("shore", [0.18, 0.32]),
     ink: "#ffffff",
-    inkSoft: "#e2d6cc",
-    pill: "#e8a47c",
-    pillInk: "#ffffff",
-    pillInkSoft: "#fff1e8",
-    buttons: "solid",
+    inkSoft: "#e0f3f3",
+    pill: "#ffffff",
+    pillInk: "#0b3b45",
+    pillInkSoft: "#46707a",
+    buttons: "wavy",
     shape: "square",
-    accent: "#c9794d",
+    accent: "#0b3b45",
     font: "rounded",
   },
   {
-    id: "track",
-    name: "Track",
-    vibe: "Running-track blue, wavy edges",
-    background: [
-      coverArt(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
-        <g fill="none" stroke="#ffffff" stroke-width="9" opacity=".85">
-          <path d="M520 -40 C 240 120 120 360 -60 520"/>
-          <path d="M560 60 C 300 220 190 470 -20 700"/>
-          <path d="M600 190 C 380 330 280 600 120 860"/>
-        </g>
-      </svg>`),
-      "linear-gradient(160deg, #2b7de0 0%, #1b62c4 60%, #144f9f 100%)",
-    ].join(", "),
+    id: "lake",
+    name: "Lake",
+    vibe: "Mountain lake, still water",
+    photo: "lake",
+    shade: [0.25, 0.3],
+    background: photoBackground("lake", [0.25, 0.3]),
     ink: "#ffffff",
-    inkSoft: "#dbe9ff",
-    pill: "#ffffff",
-    pillInk: "#123a73",
-    pillInkSoft: "#4f6e99",
-    buttons: "wavy",
-    shape: "square",
-    accent: "#0f2f5c",
-    font: "sans",
-  },
-  {
-    id: "concrete",
-    name: "Concrete",
-    vibe: "Skatepark grey, crisp white",
-    background: [
-      coverArt(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
-        <circle cx="330" cy="140" r="260" fill="#8d8f92" opacity=".35"/>
-        <circle cx="60" cy="700" r="300" fill="#5d5f63" opacity=".4"/>
-        <circle cx="60" cy="700" r="220" fill="none" stroke="#b9bbbe" stroke-width="2" opacity=".5"/>
-        <circle cx="330" cy="140" r="200" fill="none" stroke="#c4c6c8" stroke-width="2" opacity=".4"/>
-      </svg>`),
-      "linear-gradient(180deg, #7a7c80 0%, #6a6c70 100%)",
-    ].join(", "),
-    ink: "#ffffff",
-    inkSoft: "#eceded",
-    pill: "#ffffff",
-    pillInk: "#161718",
-    pillInkSoft: "#5a5c60",
+    inkSoft: "#e6eef5",
+    pill: "rgba(255,255,255,0.9)",
+    pillInk: "#0e2a3a",
+    pillInkSoft: "#3d5566",
     buttons: "solid",
-    shape: "soft",
-    accent: "#161718",
-    font: "sans",
-  },
-  {
-    id: "bakery",
-    name: "Bakery",
-    vibe: "Warm caramel, cream and red",
-    background: [
-      coverArt(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
-        <ellipse cx="380" cy="80" rx="190" ry="140" fill="#f3c9a0" opacity=".7"/>
-        <ellipse cx="0" cy="760" rx="240" ry="170" fill="#b8541f" opacity=".45"/>
-        <path d="M-10 420 C 120 360 260 480 420 400" fill="none" stroke="#fbe2c6" stroke-width="30" opacity=".35" stroke-linecap="round"/>
-      </svg>`),
-      "linear-gradient(165deg, #e39a5c 0%, #cf7437 55%, #a9531f 100%)",
-    ].join(", "),
-    ink: "#ffffff",
-    inkSoft: "#fde9d6",
-    pill: "#fff6ec",
-    pillInk: "#c0281c",
-    pillInkSoft: "#9a4a33",
-    buttons: "wavy",
-    shape: "square",
-    accent: "#c0281c",
+    shape: "round",
+    accent: "#0e2a3a",
     font: "serif",
   },
+  {
+    id: "summit",
+    name: "Summit",
+    vibe: "Snow peak, bold blocks",
+    photo: "summit",
+    shade: [0.22, 0.3],
+    background: photoBackground("summit", [0.22, 0.3]),
+    ink: "#ffffff",
+    inkSoft: "#e5edf6",
+    pill: "#ffffff",
+    pillInk: "#13263d",
+    pillInkSoft: "#4b5d72",
+    buttons: "offset",
+    shape: "square",
+    edge: "#13263d",
+    accent: "#13263d",
+    font: "condensed",
+  },
+  {
+    id: "fern",
+    name: "Fern",
+    vibe: "Fresh green leaves",
+    photo: "fern",
+    shade: [0.3, 0.38],
+    background: photoBackground("fern", [0.3, 0.38]),
+    ink: "#ffffff",
+    inkSoft: "#e4f2e2",
+    pill: "rgba(255,255,255,0.9)",
+    pillInk: "#173d1c",
+    pillInkSoft: "#40603f",
+    buttons: "solid",
+    shape: "soft",
+    accent: "#173d1c",
+    font: "sans",
+  },
+  {
+    id: "petunia",
+    name: "Petunia",
+    vibe: "A field of pink flowers",
+    photo: "petunia",
+    shade: [0.3, 0.38],
+    background: photoBackground("petunia", [0.3, 0.38]),
+    ink: "#ffffff",
+    inkSoft: "#ffe6f1",
+    pill: "#ffffff",
+    pillInk: "#8a1f4f",
+    pillInkSoft: "#9e5a78",
+    buttons: "solid",
+    shape: "round",
+    accent: "#8a1f4f",
+    font: "serif",
+  },
+  {
+    id: "citrus",
+    name: "Citrus",
+    vibe: "Sliced oranges and limes",
+    photo: "citrus",
+    shade: [0.38, 0.45],
+    background: photoBackground("citrus", [0.38, 0.45]),
+    ink: "#ffffff",
+    inkSoft: "#fff1e0",
+    pill: "#ffffff",
+    pillInk: "#1a1a1a",
+    pillInkSoft: "#5c5c5c",
+    buttons: "solid",
+    shape: "soft",
+    accent: "#d9661a",
+    font: "rounded",
+  },
+  {
+    id: "lanes",
+    name: "Lanes",
+    vibe: "Running-track numbers",
+    photo: "lanes",
+    shade: [0.42, 0.5],
+    background: photoBackground("lanes", [0.42, 0.5]),
+    ink: "#ffffff",
+    inkSoft: "#f2e3e1",
+    pill: "#ffffff",
+    pillInk: "#b3261e",
+    pillInkSoft: "#8a4a45",
+    buttons: "wavy",
+    shape: "square",
+    accent: "#b3261e",
+    font: "condensed",
+  },
+  {
+    id: "dusk",
+    name: "Dusk",
+    vibe: "Pink and violet sunset",
+    photo: "dusk",
+    shade: [0.2, 0.35],
+    background: photoBackground("dusk", [0.2, 0.35]),
+    ink: "#ffffff",
+    inkSoft: "#f7e6f0",
+    pill: "rgba(255,255,255,0.9)",
+    pillInk: "#3b1d3f",
+    pillInkSoft: "#6a4a6c",
+    buttons: "solid",
+    shape: "round",
+    accent: "#3b1d3f",
+    font: "serif",
+  },
+  {
+    id: "city-glow",
+    name: "City Glow",
+    vibe: "Orange sky over city lights",
+    photo: "city-glow",
+    shade: [0.2, 0.4],
+    background: photoBackground("city-glow", [0.2, 0.4]),
+    ink: "#ffffff",
+    inkSoft: "#ffe9d6",
+    pill: "transparent",
+    pillInk: "#ffffff",
+    pillInkSoft: "#ffe9d6",
+    buttons: "outline",
+    shape: "round",
+    accent: "#c2521f",
+    font: "rounded",
+  },
+  {
+    id: "bokeh",
+    name: "Bokeh",
+    vibe: "Warm lights at night",
+    photo: "bokeh",
+    shade: [0.35, 0.45],
+    background: photoBackground("bokeh", [0.35, 0.45]),
+    ink: "#ffffff",
+    inkSoft: "#f5e7d0",
+    pill: "transparent",
+    pillInk: "#ffd48a",
+    pillInkSoft: "#ffe6ba",
+    buttons: "outline",
+    shape: "round",
+    accent: "#a8641c",
+    font: "mono",
+  },
+  {
+    id: "marble",
+    name: "Marble",
+    vibe: "White stone, black blocks",
+    photo: "marble",
+    shade: [0, 0],
+    background: photoBackground("marble", [0, 0]),
+    ink: "#1c1c1c",
+    inkSoft: "#4d4d4d",
+    pill: "#1c1c1c",
+    pillInk: "#ffffff",
+    pillInkSoft: "#cfcfcf",
+    buttons: "solid",
+    shape: "square",
+    accent: "#1c1c1c",
+    font: "serif",
+  },
+  {
+    id: "onyx",
+    name: "Onyx",
+    vibe: "Swirled agate stone",
+    photo: "onyx",
+    shade: [0.4, 0.48],
+    background: photoBackground("onyx", [0.4, 0.48]),
+    ink: "#ffffff",
+    inkSoft: "#f3e6d8",
+    pill: "#fff7ec",
+    pillInk: "#5a2e12",
+    pillInkSoft: "#80573c",
+    buttons: "solid",
+    shape: "soft",
+    accent: "#5a2e12",
+    font: "serif",
+  },
+
+  // Drawn templates.
   {
     id: "jungle",
     name: "Jungle",
@@ -276,167 +364,6 @@ export const pageTemplates: PageTemplate[] = [
     font: "sans",
   },
   {
-    id: "midnight",
-    name: "Midnight",
-    vibe: "Near-black with a fine grid",
-    background: [
-      tile(`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><path d="M32 0H0V32" fill="none" stroke="#ffffff" stroke-opacity=".06"/></svg>`, 32),
-      "radial-gradient(80% 50% at 50% 0%, #26283a 0%, transparent 70%)",
-      "linear-gradient(180deg, #111218 0%, #0b0c10 100%)",
-    ].join(", "),
-    ink: "#ffffff",
-    inkSoft: "#a9adbb",
-    pill: "#1c1e27",
-    pillInk: "#ffffff",
-    pillInkSoft: "#a9adbb",
-    buttons: "solid",
-    shape: "round",
-    accent: "#ff4812",
-    font: "sans",
-  },
-  {
-    id: "sunset",
-    name: "Sunset",
-    vibe: "Pink, orange and violet glow",
-    background:
-      "radial-gradient(90% 55% at 15% 10%, #ffb36b 0%, transparent 65%), radial-gradient(90% 60% at 90% 40%, #ff5f8f 0%, transparent 65%), radial-gradient(100% 60% at 30% 100%, #7b4dff 0%, transparent 70%), linear-gradient(180deg, #ff8a6b 0%, #c255b8 100%)",
-    ink: "#ffffff",
-    inkSoft: "#fff0f5",
-    pill: "rgba(255,255,255,0.5)",
-    pillInk: "#3a1450",
-    pillInkSoft: "#6b3f7a",
-    buttons: "frosted",
-    shape: "round",
-    accent: "#3a1450",
-    font: "rounded",
-  },
-  {
-    id: "paper",
-    name: "Paper",
-    vibe: "Cream dot grid, typewriter",
-    background: [
-      tile(`<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"><circle cx="2" cy="2" r="1.2" fill="#b9ad96"/></svg>`, 22),
-      "linear-gradient(180deg, #f6f1e6 0%, #efe7d6 100%)",
-    ].join(", "),
-    ink: "#1b1a17",
-    inkSoft: "#5a5446",
-    pill: "#fffdf8",
-    pillInk: "#1b1a17",
-    pillInkSoft: "#6b6557",
-    buttons: "outline",
-    shape: "square",
-    accent: "#1b1a17",
-    font: "mono",
-  },
-  {
-    id: "citrus",
-    name: "Citrus",
-    vibe: "OrangeLink orange, bold and loud",
-    background: [
-      coverArt(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
-        <g transform="translate(360 90)">
-          <circle r="120" fill="#ffb23f"/><circle r="104" fill="#ffd27a"/>
-          <g stroke="#ffb23f" stroke-width="6"><path d="M0 -104V104M-104 0H104M-74 -74L74 74M74 -74L-74 74"/></g>
-        </g>
-        <g transform="translate(20 740)">
-          <circle r="150" fill="#ffb23f"/><circle r="130" fill="#ffd27a"/>
-          <g stroke="#ffb23f" stroke-width="7"><path d="M0 -130V130M-130 0H130M-92 -92L92 92M92 -92L-92 92"/></g>
-        </g>
-      </svg>`),
-      "linear-gradient(180deg, #ff5a1f 0%, #ff7a2e 100%)",
-    ].join(", "),
-    ink: "#ffffff",
-    inkSoft: "#fff1e6",
-    pill: "#ffffff",
-    pillInk: "#1a1a1a",
-    pillInkSoft: "#5c5c5c",
-    buttons: "offset",
-    shape: "soft",
-    edge: "#1a1a1a",
-    accent: "#1a1a1a",
-    font: "condensed",
-  },
-  {
-    id: "mint-check",
-    name: "Mint Check",
-    vibe: "Mint checkerboard, black pills",
-    background: [
-      tile(`<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><rect width="24" height="24" fill="#c3ecd6"/><rect x="24" y="24" width="24" height="24" fill="#c3ecd6"/></svg>`, 48),
-      "linear-gradient(180deg, #e2f7ec 0%, #d8f3e4 100%)",
-    ].join(", "),
-    ink: "#0f2a1d",
-    inkSoft: "#3c5a4b",
-    pill: "#111111",
-    pillInk: "#ffffff",
-    pillInkSoft: "#cfcfcf",
-    buttons: "solid",
-    shape: "round",
-    accent: "#111111",
-    font: "sans",
-  },
-  {
-    id: "lilac-dream",
-    name: "Lilac Dream",
-    vibe: "Soft lilac with sparkles",
-    background: [
-      coverArt(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
-        <g fill="#ffffff">
-          <path d="M60 110 l6 18 l18 6 l-18 6 l-6 18 l-6 -18 l-18 -6 l18 -6z" opacity=".9"/>
-          <path d="M340 60 l4 12 l12 4 l-12 4 l-4 12 l-4 -12 l-12 -4 l12 -4z" opacity=".8"/>
-          <path d="M350 420 l7 20 l20 7 l-20 7 l-7 20 l-7 -20 l-20 -7 l20 -7z" opacity=".85"/>
-          <path d="M40 620 l4 12 l12 4 l-12 4 l-4 12 l-4 -12 l-12 -4 l12 -4z" opacity=".8"/>
-          <path d="M300 720 l5 15 l15 5 l-15 5 l-5 15 l-5 -15 l-15 -5 l15 -5z" opacity=".7"/>
-        </g>
-      </svg>`),
-      "radial-gradient(90% 60% at 80% 0%, #f1d9ff 0%, transparent 70%)",
-      "linear-gradient(180deg, #e3d4fb 0%, #cdb8f3 100%)",
-    ].join(", "),
-    ink: "#34205a",
-    inkSoft: "#5d4a80",
-    pill: "rgba(255,255,255,0.5)",
-    pillInk: "#34205a",
-    pillInkSoft: "#5d4a80",
-    buttons: "frosted",
-    shape: "round",
-    accent: "#34205a",
-    font: "rounded",
-  },
-  {
-    id: "retro",
-    name: "Retro",
-    vibe: "Mustard stripes, navy blocks",
-    background: [
-      tile(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><path d="M-10 50 L50 -10 M-30 30 L30 -30 M10 70 L70 10" stroke="#e6a93a" stroke-width="10"/></svg>`, 40),
-      "linear-gradient(180deg, #f3c552 0%, #f0bb45 100%)",
-    ].join(", "),
-    ink: "#1f3a5f",
-    inkSoft: "#34507a",
-    pill: "#1f3a5f",
-    pillInk: "#ffffff",
-    pillInkSoft: "#d6e1f0",
-    buttons: "offset",
-    shape: "square",
-    edge: "#0e1d33",
-    accent: "#1f3a5f",
-    font: "condensed",
-  },
-  {
-    id: "neon",
-    name: "Neon",
-    vibe: "Deep purple, cyan outlines",
-    background:
-      "radial-gradient(70% 45% at 100% 0%, rgba(255,64,180,.45) 0%, transparent 70%), radial-gradient(70% 45% at 0% 100%, rgba(62,240,255,.35) 0%, transparent 70%), linear-gradient(180deg, #1a0c3a 0%, #0e0724 100%)",
-    ink: "#ffffff",
-    inkSoft: "#c9c2ea",
-    pill: "transparent",
-    pillInk: "#7ff4ff",
-    pillInkSoft: "#b8f9ff",
-    buttons: "outline",
-    shape: "round",
-    accent: "#ff40b4",
-    font: "mono",
-  },
-  {
     id: "dunes",
     name: "Dunes",
     vibe: "Sand waves, soft serif",
@@ -467,7 +394,10 @@ export function getTemplate(id: unknown): PageTemplate | null {
 }
 
 /** The CSS variables the storefront reads, plus the button style. */
-export function templateStyle(template: PageTemplate): {
+export function templateStyle(
+  template: PageTemplate,
+  { preview = false }: { preview?: boolean } = {},
+): {
   style: CSSProperties;
   buttons: TemplateButtons;
 } {
@@ -475,7 +405,10 @@ export function templateStyle(template: PageTemplate): {
   return {
     buttons: template.buttons,
     style: {
-      "--storefront-gradient": template.background,
+      "--storefront-gradient":
+        preview && template.photo && template.shade
+          ? photoBackground(template.photo, template.shade, true)
+          : template.background,
       "--text-primary": template.ink,
       "--text-secondary": template.inkSoft,
       "--text-muted": template.inkSoft,

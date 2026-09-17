@@ -3,6 +3,7 @@ import { BlockEditor } from "@/components/editor/block-editor";
 import { DEFAULT_PRESET } from "@/lib/theme-presets";
 import { normalizeCustomTheme } from "@/lib/theme-custom";
 import { getTemplate } from "@/lib/page-templates";
+import { buildTemplateSample } from "@/lib/template-sample";
 
 export default async function LinksPage() {
   const { creator, page, products } = await requireCreator();
@@ -18,6 +19,7 @@ export default async function LinksPage() {
       initialTabbedView={page.theme.tabbed_view ?? true}
       initialCustom={normalizeCustomTheme(page.theme.custom)}
       initialTemplate={getTemplate(page.theme.template)?.id ?? null}
+      templateSample={buildTemplateSample(creator, page.blocks)}
       products={products}
     />
   );

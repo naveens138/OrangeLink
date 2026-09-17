@@ -14,20 +14,18 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import Link from "next/link";
-import { Plus, Layers, Palette, Smartphone, ArrowUpRight } from "lucide-react";
-import { getTemplate, pageTemplates } from "@/lib/page-templates";
+import { Plus, Layers, LayoutTemplate, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { BlockLibrary } from "@/components/editor/block-library";
 import { SortableBlockItem } from "@/components/editor/sortable-block-item";
 import { BlockInspector } from "@/components/editor/block-inspector";
-import { ThemePresetPicker } from "@/components/editor/theme-preset-picker";
+import { TemplateGallery, type TemplateSample } from "@/components/templates/template-gallery";
 import { AiThemeDesigner } from "@/components/editor/ai-theme-designer";
 import { PhonePreview } from "@/components/editor/phone-preview";
 import { blockTypeMeta } from "@/lib/block-defaults";
 import type { Block, BlockType, Product } from "@/lib/types";
-import type { ThemePreset } from "@/lib/theme-presets";
+import { DEFAULT_PRESET, type ThemePreset } from "@/lib/theme-presets";
 import type { CustomTheme } from "@/lib/theme-custom";
 import {
   createBlock,
@@ -48,6 +46,7 @@ export function BlockEditor({
   initialTabbedView,
   initialCustom,
   initialTemplate,
+  templateSample,
   products,
 }: {
   pageId: string;
@@ -57,6 +56,7 @@ export function BlockEditor({
   initialTabbedView: boolean;
   initialCustom: CustomTheme | null;
   initialTemplate: string | null;
+  templateSample: TemplateSample;
   products: Product[];
 }) {
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
@@ -201,6 +201,15 @@ export function BlockEditor({
     });
   }
 
+  // The gallery has already saved the choice; this shows it. Null is the
+  // classic look, which the gallery saves as the default preset.
+  function applyTemplate(nextTemplate: string | null) {
+    setTemplateId(nextTemplate);
+    setCustomTheme(null);
+    if (nextTemplate === null) setThemePreset(DEFAULT_PRESET);
+    setPreviewVersion((v) => v + 1);
+  }
+
   // The AI action has already saved the design; this just shows it.
   function applyAiDesign(theme: CustomTheme, nextTabbedView?: boolean) {
     setCustomTheme(theme);
@@ -235,8 +244,8 @@ export function BlockEditor({
             Preview
           </Button>
           <Button variant="secondary" size="sm" onClick={() => setThemeOpen(true)}>
-            <Palette className="h-4 w-4" />
-            Theme
+            <LayoutTemplate className="h-4 w-4" />
+            Templates
           </Button>
           <Button size="sm" onClick={() => setLibraryOpen(true)}>
             <Plus className="h-4 w-4" />
@@ -319,29 +328,14 @@ export function BlockEditor({
         <PhonePreview username={username} version={previewVersion} width={290} />
       </Modal>
 
-      <Modal open={themeOpen} onClose={() => setThemeOpen(false)} title="Page theme">
-        <div className="flex flex-col gap-5">
-          <Link
-            href="/dashboard/templates"
-            className="flex items-center justify-between rounded-md border border-border bg-surface-1 px-3.5 py-3 transition-colors hover:bg-surface-2"
-          >
-            <span>
-              <span className="block text-small font-medium text-text-primary">
-                {templateId ? `Template: ${getTemplate(templateId)?.name ?? "custom"}` : "Browse templates"}
-              </span>
-              <span className="block text-[12px] text-text-muted">
-                {pageTemplates.length} full designs with their own backgrounds and buttons
-              </span>
-            </span>
-            <ArrowUpRight className="h-4 w-4 text-text-muted" />
-          </Link>
-          <ThemePresetPicker
-            value={templateId ? null : themePreset}
-            custom={customTheme}
-            onChange={changeTheme}
-          />
-
-          <label className="flex items-start gap-2.5 border-t border-border pt-4 text-body text-text-primary">
+      <Modal
+        open={themeOpen}
+        onClose={() => setThemeOpen(false)}
+        title="Templates"
+        maxWidthClassName="max-w-[1080px]"
+      >
+        <div className="flex flex-col gap-6">
+          <label className="flex items-start gap-2.5 text-body text-text-primary">
             <input
               type="checkbox"
               checked={tabbedView}
@@ -356,6 +350,13 @@ export function BlockEditor({
               </span>
             </span>
           </label>
+          <TemplateGallery
+            pageId={pageId}
+            current={templateId}
+            hasCustomDesign={Boolean(customTheme)}
+            sample={templateSample}
+            onApplied={applyTemplate}
+          />
         </div>
       </Modal>
     </div>
