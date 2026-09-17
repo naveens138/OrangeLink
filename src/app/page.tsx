@@ -94,13 +94,6 @@ const faqItems: FaqItem[] = [
   },
 ];
 
-// The same starters the AI designer offers in the dashboard.
-const aiPrompts = [
-  "Calm and minimal, sage green, serif",
-  "Bold and sporty, deep red, square buttons",
-  "Warm sunset, rounded and friendly",
-];
-
 export default function Home() {
   return (
     <div className="theme-marketing min-h-screen bg-background text-text-primary">
@@ -219,16 +212,6 @@ export default function Home() {
               <p className="t-small leading-relaxed text-text-secondary">
                 Describe the look you want. AI picks the colors, fonts and layout to match.
               </p>
-              <div className="mt-2 flex flex-wrap justify-center gap-2">
-                {aiPrompts.map((prompt) => (
-                  <span
-                    key={prompt}
-                    className="t-small rounded-full border border-border bg-background px-3 py-1 text-text-secondary"
-                  >
-                    &ldquo;{prompt}&rdquo;
-                  </span>
-                ))}
-              </div>
             </div>
           </div>
         </section>

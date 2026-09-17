@@ -8,15 +8,21 @@ export default async function PublicCreatorPage({
   searchParams,
 }: {
   params: Promise<{ username: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; preview?: string }>;
 }) {
   const { username } = await params;
-  const { tab } = await searchParams;
+  const { tab, preview } = await searchParams;
   const data = await getPublicPage(username);
   if (!data) notFound();
 
   return (
     <>
+      {/* Inside the dashboard's phone preview (loaded with ?preview=), a
+          desktop scrollbar would sit inside the phone frame. The page still
+          scrolls; only the bar is hidden, and only there. */}
+      {preview !== undefined && (
+        <style>{"html{scrollbar-width:none}html::-webkit-scrollbar{display:none}"}</style>
+      )}
       <TrackingPixels pixels={data.pixels} />
       <PublicPageView
         creator={data.creator}

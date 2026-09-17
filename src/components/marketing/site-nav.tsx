@@ -42,7 +42,7 @@ export function SiteNav() {
     >
       <div className="mx-auto flex h-14 w-full max-w-[560px] items-center justify-between gap-5 px-5">
         <Link href="/" className="inline-flex">
-          <BrandLockup />
+          <BrandLockup size={26} textClassName="text-[16px]" className="gap-2" />
         </Link>
 
         <nav className="flex items-center gap-4">

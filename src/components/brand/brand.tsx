@@ -23,17 +23,20 @@ export function BrandMark({ size = 20, className }: { size?: number; className?:
 export function BrandLockup({
   size = 20,
   className,
+  textClassName,
   children,
 }: {
   size?: number;
   className?: string;
+  /** Wordmark size override, e.g. a larger logo in the marketing nav. */
+  textClassName?: string;
   /** Anything after the wordmark, e.g. an "/ admin" suffix. */
   children?: React.ReactNode;
 }) {
   return (
     <span className={cn("flex items-center gap-1.5", className)}>
       <BrandMark size={size} />
-      <span className="text-[13px] font-semibold tracking-[-0.02em] text-text-primary">
+      <span className={cn("text-[13px] font-semibold tracking-[-0.02em] text-text-primary", textClassName)}>
         OrangeLink
       </span>
       {children}
