@@ -10,6 +10,7 @@ import {
   Upload,
   CalendarClock,
   Settings,
+  LayoutTemplate,
   type LucideIcon,
 } from "lucide-react";
 
@@ -29,6 +30,7 @@ export const navItems: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: LayoutGrid, group: "Page", primary: true },
   { href: "/dashboard/links", label: "Links", icon: Link2, group: "Page", primary: true },
   { href: "/dashboard/products", label: "Products", icon: Package, group: "Page", primary: true },
+  { href: "/dashboard/templates", label: "Templates", icon: LayoutTemplate, group: "Page" },
   { href: "/dashboard/import", label: "Import", icon: Upload, group: "Page" },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag, group: "Sell", primary: true },
   { href: "/dashboard/payments", label: "Payments", icon: CreditCard, group: "Sell" },

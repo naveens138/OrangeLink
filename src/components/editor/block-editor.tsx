@@ -14,7 +14,9 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { Plus, Layers, Palette, Smartphone } from "lucide-react";
+import Link from "next/link";
+import { Plus, Layers, Palette, Smartphone, ArrowUpRight } from "lucide-react";
+import { getTemplate, pageTemplates } from "@/lib/page-templates";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { BlockLibrary } from "@/components/editor/block-library";
@@ -45,6 +47,7 @@ export function BlockEditor({
   initialPreset,
   initialTabbedView,
   initialCustom,
+  initialTemplate,
   products,
 }: {
   pageId: string;
@@ -53,12 +56,14 @@ export function BlockEditor({
   initialPreset: ThemePreset;
   initialTabbedView: boolean;
   initialCustom: CustomTheme | null;
+  initialTemplate: string | null;
   products: Product[];
 }) {
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [themePreset, setThemePreset] = useState<ThemePreset>(initialPreset);
   const [tabbedView, setTabbedView] = useState<boolean>(initialTabbedView);
   const [customTheme, setCustomTheme] = useState<CustomTheme | null>(initialCustom);
+  const [templateId, setTemplateId] = useState<string | null>(initialTemplate);
   // Nothing open at first: the list reads as an overview, and a block's
   // settings open under it when clicked.
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -172,15 +177,18 @@ export function BlockEditor({
     );
   }
 
-  // Picking a preset also clears an AI design, which otherwise overrides it.
+  // Picking a preset also clears an AI design and a template, which
+  // otherwise override it.
   function changeTheme(preset: ThemePreset) {
-    const previous = { preset: themePreset, custom: customTheme };
+    const previous = { preset: themePreset, custom: customTheme, template: templateId };
     setThemePreset(preset);
     setCustomTheme(null);
-    persist(() => updatePageTheme(pageId, { preset, custom: null }), {
+    setTemplateId(null);
+    persist(() => updatePageTheme(pageId, { preset, custom: null, template: null }), {
       revert: () => {
         setThemePreset(previous.preset);
         setCustomTheme(previous.custom);
+        setTemplateId(previous.template);
       },
     });
   }
@@ -313,7 +321,25 @@ export function BlockEditor({
 
       <Modal open={themeOpen} onClose={() => setThemeOpen(false)} title="Page theme">
         <div className="flex flex-col gap-5">
-          <ThemePresetPicker value={themePreset} custom={customTheme} onChange={changeTheme} />
+          <Link
+            href="/dashboard/templates"
+            className="flex items-center justify-between rounded-md border border-border bg-surface-1 px-3.5 py-3 transition-colors hover:bg-surface-2"
+          >
+            <span>
+              <span className="block text-small font-medium text-text-primary">
+                {templateId ? `Template: ${getTemplate(templateId)?.name ?? "custom"}` : "Browse templates"}
+              </span>
+              <span className="block text-[12px] text-text-muted">
+                {pageTemplates.length} full designs with their own backgrounds and buttons
+              </span>
+            </span>
+            <ArrowUpRight className="h-4 w-4 text-text-muted" />
+          </Link>
+          <ThemePresetPicker
+            value={templateId ? null : themePreset}
+            custom={customTheme}
+            onChange={changeTheme}
+          />
 
           <label className="flex items-start gap-2.5 border-t border-border pt-4 text-body text-text-primary">
             <input

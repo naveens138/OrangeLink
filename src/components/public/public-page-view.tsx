@@ -11,6 +11,7 @@ import { ShareButton } from "@/components/public/share-button";
 import { Modal } from "@/components/ui/modal";
 import { DEFAULT_PRESET, isThemePreset, themePresets } from "@/lib/theme-presets";
 import { customThemeStyle, normalizeCustomTheme } from "@/lib/theme-custom";
+import { getTemplate, templateStyle } from "@/lib/page-templates";
 import { cn } from "@/lib/utils";
 import type { Block, Creator, Page, Product } from "@/lib/types";
 
@@ -67,10 +68,15 @@ export function PublicPageView({
   // An AI design, if the creator has one, overrides the preset. Re-checked
   // here rather than trusted from the database, since it feeds a style
   // attribute.
+  // Then a template from the gallery, looked up by id so only the
+  // hand-made values in lib/page-templates.ts are ever applied.
   const custom = normalizeCustomTheme(page.theme?.custom);
+  const template = getTemplate(page.theme?.template);
   const look = custom
     ? customThemeStyle(custom)
-    : {
+    : template
+      ? templateStyle(template)
+      : {
         style: { "--storefront-gradient": themePresets[preset].gradient } as React.CSSProperties,
         buttons: "solid" as const,
       };
@@ -134,7 +140,7 @@ export function PublicPageView({
               ))}
             </div>
             <p className="mt-3 text-[14px] font-semibold">See Full Shop</p>
-            <p className="text-[13px] text-text-secondary">
+            <p className="text-[13px] text-[var(--pill-ink-soft)]">
               {shopProducts.length} product{shopProducts.length === 1 ? "" : "s"}
             </p>
           </button>
@@ -146,7 +152,7 @@ export function PublicPageView({
 
   // Frosted, like the card: the ground shows through.
   const glassButton =
-    "flex h-10 items-center justify-center rounded-full bg-white/70 text-text-primary shadow-[0_0_0_1px_rgba(0,0,0,0.06)] backdrop-blur-md transition-[background-color,transform] duration-200 hover:scale-[1.04] hover:bg-white";
+    "flex h-10 items-center justify-center rounded-full bg-white/70 text-[#141413] shadow-[0_0_0_1px_rgba(0,0,0,0.06)] backdrop-blur-md transition-[background-color,transform] duration-200 hover:scale-[1.04] hover:bg-white";
 
   return (
     <div
@@ -250,7 +256,7 @@ export function PublicPageView({
         <div className="mt-16 flex flex-col items-center gap-6">
           <Link
             href="/signup"
-            className="rounded-full bg-text-primary px-5 py-3 text-[14px] font-semibold text-white shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-transform duration-200 hover:scale-[1.03]"
+            className="rounded-full bg-[#141413] px-5 py-3 text-[14px] font-semibold text-white shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_6px_20px_rgba(0,0,0,0.15)] transition-transform duration-200 hover:scale-[1.03]"
           >
             Get your own OrangeLink
           </Link>

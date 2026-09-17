@@ -181,10 +181,16 @@
   --storefront-accent: #141413;
   --link-radius: 999px;
   --card-radius: 28px;
+  /* Text on link and product buttons. Separate from the page text so a
+     template can put dark buttons on a light page, or the reverse. */
+  --pill-ink: var(--text-primary);
+  --pill-ink-soft: var(--text-secondary);
+  --pill-edge: var(--text-primary);
 }
 
 /* White pills that lift off the frosted card. */
 .storefront-pill {
+  color: var(--pill-ink);
   background: var(--pill);
   box-shadow: var(--pill-shadow);
   transition:
@@ -218,6 +224,43 @@
 }
 [data-buttons="frosted"] .storefront-pill:hover {
   background: rgba(255, 255, 255, 0.68);
+}
+
+/* Template-only button styles (lib/page-templates.ts). */
+[data-buttons="outline"] .storefront-pill {
+  box-shadow: inset 0 0 0 1.5px var(--pill-ink);
+}
+[data-buttons="outline"] .storefront-pill:hover {
+  box-shadow: inset 0 0 0 1.5px var(--pill-ink);
+}
+/* A hard shadow offset down and right, like a sticker. */
+[data-buttons="offset"] .storefront-pill {
+  box-shadow: 0 0 0 1.5px var(--pill-edge), 4px 4px 0 var(--pill-edge);
+}
+[data-buttons="offset"] .storefront-pill:hover {
+  box-shadow: 0 0 0 1.5px var(--pill-edge), 6px 6px 0 var(--pill-edge);
+  transform: translate(-1px, -1px);
+}
+/* A soft wave along the top and bottom of link buttons, cut with a mask:
+   a wave strip at each edge and a solid band between them. Product cards
+   keep plain edges so their photos aren't cut. */
+[data-buttons="wavy"] .storefront-link {
+  --wave-top: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%228%22%20viewBox%3D%220%200%2040%208%22%3E%3Cpath%20d%3D%22M0%204%20C10%20-1%2010%20-1%2020%204%20S30%209%2040%204%20V8%20H0z%22%2F%3E%3C%2Fsvg%3E");
+  --wave-bottom: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2240%22%20height%3D%228%22%20viewBox%3D%220%200%2040%208%22%3E%3Cpath%20d%3D%22M0%204%20C10%209%2010%209%2020%204%20S30%20-1%2040%204%20V0%20H0z%22%2F%3E%3C%2Fsvg%3E");
+  padding-top: 14px;
+  padding-bottom: 14px;
+  box-shadow: none;
+  -webkit-mask:
+    var(--wave-top) left top / 40px 8px repeat-x,
+    linear-gradient(#000, #000) center / 100% calc(100% - 14px) no-repeat,
+    var(--wave-bottom) left bottom / 40px 8px repeat-x;
+  mask:
+    var(--wave-top) left top / 40px 8px repeat-x,
+    linear-gradient(#000, #000) center / 100% calc(100% - 14px) no-repeat,
+    var(--wave-bottom) left bottom / 40px 8px repeat-x;
+}
+[data-buttons="wavy"] .storefront-link:hover {
+  box-shadow: none;
 }
 
 /* ----------------------------------------------------------------------

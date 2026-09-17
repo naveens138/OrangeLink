@@ -26,7 +26,7 @@ export function LinkBlock({ block, username }: { block: Block; username: string 
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
         onClick={() => track({ username, eventType: "block_click", blockId: block.id })}
-        className="storefront-pill flex min-h-[64px] w-full items-center rounded-[var(--link-radius)] p-2"
+        className="storefront-pill storefront-link flex min-h-[64px] w-full items-center rounded-[var(--link-radius)] p-2"
       >
         <span className="h-12 w-12 shrink-0 overflow-hidden rounded-[max(6px,calc(var(--link-radius)_-_8px))] bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05)]">
           {config.image && (
@@ -34,7 +34,7 @@ export function LinkBlock({ block, username }: { block: Block; username: string 
             <img src={config.image} alt="" loading="lazy" className="h-full w-full object-cover" />
           )}
         </span>
-        <span className="min-w-0 flex-1 px-3 text-center text-[14px] font-medium leading-snug text-text-primary">
+        <span className="min-w-0 flex-1 px-3 text-center text-[14px] font-medium leading-snug text-[var(--pill-ink)]">
           {label}
         </span>
         {/* Keeps the title centred against the thumbnail on the other side. */}
@@ -45,7 +45,7 @@ export function LinkBlock({ block, username }: { block: Block; username: string 
         url={url}
         title={label}
         label={`Share ${label}`}
-        className="absolute right-4 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-white hover:text-text-primary"
+        className="absolute right-4 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[var(--pill-ink-soft)] transition-colors hover:bg-black/5 hover:text-[var(--pill-ink)]"
       >
         <MoreVertical className="h-4 w-4" />
       </ShareButton>

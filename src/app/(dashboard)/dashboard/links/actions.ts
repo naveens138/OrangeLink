@@ -7,6 +7,7 @@ import type { Block, BlockType } from "@/lib/types";
 import { isThemePreset, type ThemePreset } from "@/lib/theme-presets";
 import { generatePageTheme } from "@/lib/ai/page-theme";
 import type { CustomTheme } from "@/lib/theme-custom";
+import { getTemplate } from "@/lib/page-templates";
 import type { Page } from "@/lib/types";
 
 // Every write here goes through the cookie-bound client, so the RLS policy on
@@ -121,7 +122,7 @@ export async function reorderBlocks(
   return { ok: true, data: undefined };
 }
 
-type ThemePatch = { preset?: ThemePreset; tabbed_view?: boolean; custom?: null };
+type ThemePatch = { preset?: ThemePreset; tabbed_view?: boolean; custom?: null; template?: null };
 
 /**
  * Merges a change into the page's saved theme instead of overwriting it, so
@@ -136,8 +137,24 @@ export async function updatePageTheme(pageId: string, patch: ThemePatch): Promis
   return writeTheme(pageId, (current) => {
     const next = { ...current, ...patch };
     if (patch.custom === null) delete next.custom;
+    if (patch.template === null) delete next.template;
     return next;
   });
+}
+
+/**
+ * Applies a gallery template. Only the id is stored, and only a known id is
+ * accepted. Clears an AI design, which would otherwise sit on top of it.
+ */
+export async function applyPageTemplate(pageId: string, templateId: string): Promise<ActionResult> {
+  if (!getTemplate(templateId)) return { ok: false, error: "Unknown template." };
+  const result = await writeTheme(pageId, (current) => {
+    const next = { ...current, template: templateId };
+    delete next.custom;
+    return next;
+  });
+  revalidatePath("/dashboard/templates");
+  return result;
 }
 
 /**
@@ -158,6 +175,7 @@ export async function designPageWithAi(
     result.layout === "tabs" ? true : result.layout === "scroll" ? false : undefined;
   const saved = await writeTheme(pageId, (current) => ({
     ...current,
+    template: undefined,
     custom: result.theme,
     ...(tabbedView === undefined ? {} : { tabbed_view: tabbedView }),
   }));

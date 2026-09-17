@@ -82,7 +82,9 @@ export interface Page {
     preset?: "minimal" | "warm" | "soft" | "creator";
     /** Links/Shop tabs (only shown when both block types are present) vs one continuous scroll. Creator's choice. */
     tabbed_view?: boolean;
-    /** An AI-made design (lib/theme-custom.ts). Overrides the preset while set. */
+    /** A gallery template id (lib/page-templates.ts). Overrides the preset while set. */
+    template?: string | null;
+    /** An AI-made design (lib/theme-custom.ts). Overrides the template and preset while set. */
     custom?: CustomTheme | null;
   };
   published: boolean;

@@ -55,8 +55,8 @@ export function ProductBlock({
           />
         </div>
         <div className="flex-1 px-4 pb-4 pr-11 pt-3 in-data-wide:px-11 in-data-wide:text-center">
-          <p className="line-clamp-2 text-[14px] font-medium leading-snug text-text-primary">{product.name}</p>
-          <p className="mt-0.5 text-[13px] text-text-secondary">
+          <p className="line-clamp-2 text-[14px] font-medium leading-snug text-[var(--pill-ink)]">{product.name}</p>
+          <p className="mt-0.5 text-[13px] text-[var(--pill-ink-soft)]">
             {formatProductPrice(product.price_cents, product.currency)}
           </p>
         </div>
@@ -66,7 +66,7 @@ export function ProductBlock({
         url={href}
         title={product.name}
         label={`Share ${product.name}`}
-        className="absolute bottom-3 right-2 flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-white hover:text-text-primary"
+        className="absolute bottom-3 right-2 flex h-9 w-9 items-center justify-center rounded-full text-[var(--pill-ink-soft)] transition-colors hover:bg-black/5 hover:text-[var(--pill-ink)]"
       >
         <MoreVertical className="h-4 w-4" />
       </ShareButton>

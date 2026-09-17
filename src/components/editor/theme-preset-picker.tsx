@@ -21,7 +21,8 @@ export function ThemePresetPicker({
   custom,
   onChange,
 }: {
-  value: ThemePreset;
+  /** Null when a template is in use, so no preset shows as selected. */
+  value: ThemePreset | null;
   custom?: CustomTheme | null;
   onChange: (preset: ThemePreset) => void;
 }) {
