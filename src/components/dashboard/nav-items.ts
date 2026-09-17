@@ -9,6 +9,7 @@ import {
   Globe,
   Upload,
   CalendarClock,
+  Gift,
   Settings,
   LayoutTemplate,
   type LucideIcon,
@@ -38,6 +39,7 @@ export const navItems: NavItem[] = [
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, group: "Grow" },
   { href: "/dashboard/email", label: "Email", icon: Mail, group: "Grow" },
   { href: "/dashboard/domains", label: "Domains", icon: Globe, group: "Grow" },
+  { href: "/creator-program", label: "Creator Program", icon: Gift, group: "Grow" },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, group: "Account" },
 ];
 
