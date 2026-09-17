@@ -78,8 +78,38 @@ export async function createProduct(
     return { ok: false, error: error?.message ?? "Couldn't create the product." };
   }
 
+  // The page only shows products that have a product block, so a new
+  // product gets one at the end of the page straight away. Otherwise it
+  // exists in Products but never appears in the Shop. Best-effort: the
+  // product is already saved, and the block can still be added by hand.
+  await addProductBlock(supabase, user.id, product.id);
+
   revalidatePath("/dashboard/products");
+  revalidatePath("/dashboard/links");
   return { ok: true, product: product as Product };
+}
+
+async function addProductBlock(
+  supabase: Awaited<ReturnType<typeof requireUser>>["supabase"],
+  creatorId: string,
+  productId: string,
+) {
+  const { data: page } = await supabase
+    .from("pages")
+    .select("id, blocks(position)")
+    .eq("creator_id", creatorId)
+    .eq("is_primary", true)
+    .maybeSingle();
+  if (!page) return;
+
+  const positions = ((page.blocks ?? []) as { position: number }[]).map((b) => b.position);
+  const { error } = await supabase.from("blocks").insert({
+    page_id: page.id,
+    type: "product",
+    position: positions.length ? Math.max(...positions) + 1 : 0,
+    config: { product_id: productId },
+  });
+  if (error) console.error("[products] couldn't add product block:", error.message);
 }
 
 export async function updateProduct(
@@ -125,6 +155,9 @@ export async function deleteProduct(
 
   const { error } = await supabase.from("products").delete().eq("id", productId);
   if (error) return { ok: false, error: error.message };
+
+  // Take its block off the page too, so the Shop isn't left with an empty slot.
+  await supabase.from("blocks").delete().eq("type", "product").eq("config->>product_id", productId);
 
   if (product?.file_url) {
     await deleteProductFile(product.file_url).catch(() => {});
