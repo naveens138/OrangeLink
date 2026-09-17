@@ -7,6 +7,7 @@ import { AvatarUploader } from "@/components/dashboard/avatar-uploader";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/format";
 import Link from "next/link";
+import { getApprovedCount, PROGRAM_CAP } from "@/lib/creator-program";
 import { updateProfile } from "./actions";
 
 export default async function SettingsPage() {
@@ -14,7 +15,7 @@ export default async function SettingsPage() {
 
   // Read with the creator's own session: RLS only returns their rows.
   const supabase = await createClient();
-  const [{ data: submission }, { data: override }] = await Promise.all([
+  const [{ data: submission }, { data: override }, approvedCount] = await Promise.all([
     supabase
       .from("creator_program_submissions")
       .select("status")
@@ -22,14 +23,21 @@ export default async function SettingsPage() {
       .limit(1)
       .maybeSingle<{ status: "pending" | "approved" | "rejected" }>(),
     supabase.from("billing_overrides").select("free_until").maybeSingle<{ free_until: string }>(),
+    getApprovedCount(),
   ]);
-  const program = override
-    ? { title: "Free year active", body: `From the Creator Program. Free until ${formatDate(override.free_until)}.` }
+  const spotsLeft = Math.max(PROGRAM_CAP - approvedCount, 0);
+  const program: { body: string; cta?: string } = override
+    ? { body: `You're in. Your free year runs until ${formatDate(override.free_until)}.` }
     : submission?.status === "pending"
-      ? { title: "Reel in review", body: "We'll review your Creator Program reel within 48 hours." }
-      : submission?.status === "rejected"
-        ? { title: "Reel not approved", body: "Your last reel didn't qualify. You can submit a new one." }
-        : null;
+      ? { body: "Your reel is in review. We'll get back to you within 48 hours." }
+      : spotsLeft === 0
+        ? { body: "All 100 spots are claimed. Join the waitlist for the next round.", cta: "Join the waitlist" }
+        : submission?.status === "rejected"
+          ? { body: "Your last reel didn't qualify. You can submit a new one.", cta: "Submit a new reel" }
+          : {
+              body: `Post a reel showing how you use OrangeLink and get a year free. ${spotsLeft} of ${PROGRAM_CAP} spots left.`,
+              cta: "See how it works",
+            };
 
   return (
     <div className="flex flex-col gap-6">
@@ -77,17 +85,18 @@ export default async function SettingsPage() {
         </form>
       </Card>
 
-      {program && (
-        <Card className="max-w-xl">
-          <h2 className="text-h3">{program.title}</h2>
-          <p className="mt-1 text-body text-text-secondary">{program.body}</p>
-          {submission?.status === "rejected" && !override && (
-            <Link href="/creator-program#submit" className="mt-3 inline-block text-small font-medium text-accent">
-              Submit a new reel
-            </Link>
-          )}
-        </Card>
-      )}
+      <Card className="max-w-xl">
+        <h2 className="text-h3">Creator Program</h2>
+        <p className="mt-1 text-body text-text-secondary">{program.body}</p>
+        {program.cta && (
+          <Link
+            href="/creator-program"
+            className="mt-4 inline-flex h-9 items-center rounded-md bg-text-primary px-3.5 text-small font-medium text-white transition-[opacity,transform] duration-100 hover:opacity-90 active:scale-[0.97]"
+          >
+            {program.cta}
+          </Link>
+        )}
+      </Card>
     </div>
   );
 }

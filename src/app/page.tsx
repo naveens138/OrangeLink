@@ -109,6 +109,18 @@ export default function Home() {
       <main className="mx-auto w-full max-w-[560px] px-5">
         {/* Hero */}
         <section className="pb-16 pt-16">
+          <Link
+            href="/creator-program"
+            className="t-small rise group mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface-1 py-1 pl-1 pr-3 text-text-secondary transition-colors duration-150 hover:bg-surface-2 hover:text-text-primary"
+          >
+            <span className="rounded-full bg-text-primary px-2 py-0.5 text-[11px] font-medium text-white">
+              New
+            </span>
+            Post a reel, get a year free
+            <span aria-hidden className="transition-transform duration-150 group-hover:translate-x-0.5">
+              &rarr;
+            </span>
+          </Link>
           <h1 className="t-display rise max-w-[24ch] text-balance">
             One link for everything you share and sell.
           </h1>
