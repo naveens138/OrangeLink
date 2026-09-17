@@ -8,22 +8,19 @@ export default function AboutPage() {
     <PolicyPage title="About Us">
       <PolicySection heading="What OrangeLink is">
         <p>
-          OrangeLink is a creator operating system: one public page that combines a
-          link-in-bio, a storefront, and a portfolio, backed by a dashboard where
-          creators manage their links, products, email list, and sales in one
-          place, instead of stitching together a link-in-bio tool, a checkout
-          provider, and an email platform separately.
+          OrangeLink gives creators one page for their links, their digital
+          products and their checkout, plus a dashboard to run it all. Instead of
+          juggling a link-in-bio tool, a checkout provider and an email tool,
+          they use one.
         </p>
       </PolicySection>
 
       <PolicySection heading="What we do">
         <p>
-          Creators use OrangeLink to publish a page at their own OrangeLink URL,
-          sell digital products (presets, guides, templates, bookable calls, and
-          similar) directly from that page, capture email subscribers, and see
-          how visitors move from a link click to a sale. Checkout happens
-          in-page: buyers never leave the creator&apos;s page to complete a
-          purchase.
+          Creators publish a page at orangelink.in/theirname. From it they sell
+          digital products like presets, guides, templates and calls, collect
+          email subscribers, and see which links lead to sales. Checkout happens
+          right on the creator&apos;s page, so buyers never leave it.
         </p>
       </PolicySection>
 

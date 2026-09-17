@@ -103,7 +103,7 @@ export function OrdersManager({ orders, topCustomers }: { orders: OrderRow[]; to
         <ShoppingBag className="h-6 w-6 text-text-muted" />
         <p className="mt-3 text-h3">No orders yet</p>
         <p className="mt-1 max-w-sm text-body text-text-secondary">
-          When someone buys from your page, the sale shows up here straight away.
+          When someone buys from you, it shows up here right away.
         </p>
         <Link href="/dashboard/products" className="mt-4">
           <Button size="sm" variant="secondary">Add a product</Button>

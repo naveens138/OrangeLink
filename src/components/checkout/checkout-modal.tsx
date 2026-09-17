@@ -316,8 +316,8 @@ export function CheckoutModal({
           <AlertCircle className="h-8 w-8 text-warning" />
           <p className="text-h3">Still confirming</p>
           <p className="text-body text-text-secondary">
-            Your payment is being processed. If it went through, it&apos;ll
-            finish shortly. Check back on this page.
+            Your payment is still going through. Check back on this page in a
+            minute.
           </p>
         </div>
       ) : stage.name === "confirming" ? (

@@ -59,7 +59,7 @@ export function SiteNav() {
             href="/signup"
             className="t-small rounded-md bg-text-primary px-3 py-1.5 font-medium text-white transition-[opacity,transform] duration-100 ease-out hover:opacity-90 active:scale-[0.97]"
           >
-            Claim Your Page
+            Claim your page
           </Link>
         </nav>
       </div>

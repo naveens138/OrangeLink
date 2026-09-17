@@ -12,10 +12,10 @@ import { ArrowRight, Download, Sparkles } from "lucide-react";
 export function FirstRunChoice({ username }: { username: string }) {
   return (
     <section className="rounded-lg border border-border bg-surface-1 p-6">
-      <h2 className="text-h3">Let&apos;s get your page started</h2>
+      <h2 className="text-h3">Let&apos;s set up your page</h2>
       <p className="mt-1 text-body text-text-secondary">
-        Your page is live at orangelink.in/{username}, but there&apos;s nothing
-        on it yet. Pick whichever is less work.
+        Your page is live at orangelink.in/{username}, but it&apos;s empty.
+        Pick the quicker way to fill it.
       </p>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -29,8 +29,8 @@ export function FirstRunChoice({ username }: { username: string }) {
             <ArrowRight className="h-4 w-4 text-text-muted transition-transform duration-200 group-hover:translate-x-0.5" />
           </span>
           <span className="mt-1.5 text-body text-text-secondary">
-            Paste the link to your Linktree, Stan or similar page and we&apos;ll
-            bring the links across. You review everything before it goes on.
+            Paste your Linktree, Stan or similar link. We&apos;ll copy your
+            links over, and you check them first.
           </span>
         </Link>
 
@@ -44,8 +44,8 @@ export function FirstRunChoice({ username }: { username: string }) {
             <ArrowRight className="h-4 w-4 text-text-muted transition-transform duration-200 group-hover:translate-x-0.5" />
           </span>
           <span className="mt-1.5 text-body text-text-secondary">
-            Add your first link, product or booking block yourself and arrange
-            the page how you want it.
+            Add your first link, product or booking, and arrange it your
+            way.
           </span>
         </Link>
       </div>

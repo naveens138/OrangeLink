@@ -23,9 +23,8 @@ export default async function PaymentsPage() {
       <div>
         <h1 className="text-h2">Payments</h1>
         <p className="mt-1 max-w-2xl text-body text-text-secondary">
-          Your buyers pay you directly, into your own Razorpay account.
-          OrangeLink never holds your money and takes no cut of a sale. We
-          bill you for the platform separately.
+          Get paid straight into your own Razorpay account. We never hold your
+          money or take a cut. You only pay us for your plan.
         </p>
       </div>
 

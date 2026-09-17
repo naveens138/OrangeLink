@@ -60,8 +60,8 @@ export default async function OrdersPage() {
       <div>
         <h1 className="text-h2">Orders</h1>
         <p className="mt-1 max-w-2xl text-body text-text-secondary">
-          Every sale from your page. Money goes straight to your Razorpay account; this is your
-          record of who bought what.
+          Every sale from your page, in one place. The money goes straight to your Razorpay
+          account.
         </p>
       </div>
       <OrdersManager orders={rows} topCustomers={(customers ?? []) as TopCustomer[]} />

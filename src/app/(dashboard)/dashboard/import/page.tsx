@@ -10,7 +10,7 @@ export default async function ImportPage() {
       <div>
         <h1 className="text-h2">Import</h1>
         <p className="mt-1 text-body text-text-secondary">
-          Bring your links across from another link-in-bio tool.
+          Bring your links over from Linktree, Stan and others.
         </p>
       </div>
       <ImportWizard supportedPlatforms={SUPPORTED_PLATFORM_LABELS} />

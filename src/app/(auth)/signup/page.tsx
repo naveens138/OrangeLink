@@ -22,11 +22,11 @@ export default function SignupPage() {
       >
         <div className="mb-10 text-center">
           <h1 className="text-h1 md:text-display">
-            <span className="block text-text-secondary">One page.</span>
+            <span className="block text-text-secondary">One link.</span>
             <span className="block text-text-primary">Everything you sell.</span>
           </h1>
           <p className="mt-6 text-body-lg text-text-secondary">
-            Create your account and start free. No credit card required.
+            Start free. No card needed.
           </p>
         </div>
 

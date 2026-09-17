@@ -113,8 +113,8 @@ export function ImportWizard({ supportedPlatforms }: { supportedPlatforms: strin
         <Card className="max-w-2xl">
           <h2 className="text-h3">Import from your old page</h2>
           <p className="mt-2 text-body text-text-secondary">
-            Paste the link to your existing page and we&apos;ll pull across your
-            links. Nothing is added until you review it.
+            Paste your old page&apos;s link and we&apos;ll copy your links.
+            Nothing is added until you check them.
           </p>
 
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end">

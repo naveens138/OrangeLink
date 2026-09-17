@@ -325,8 +325,8 @@ export function BlockEditor({
             <span>
               Links / Shop tabs
               <span className="mt-0.5 block text-small text-text-muted">
-                Splits your page into two tabs instead of one scroll. Only shown if your page has
-                both link and product blocks.
+                Show links and products in two tabs instead of one long page. Only appears when
+                you have both.
               </span>
             </span>
           </label>

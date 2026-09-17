@@ -53,8 +53,8 @@ export default async function SchedulePage() {
       <div>
         <h1 className="text-h2">Schedule</h1>
         <p className="mt-1 max-w-2xl text-body text-text-secondary">
-          Plan your posts across every platform in one place. When it&apos;s time, one click
-          copies your caption and opens the app to post.
+          Plan posts for every platform in one place. When it&apos;s time, one click copies
+          your caption and opens the app.
         </p>
       </div>
       <ScheduleManager

@@ -14,7 +14,7 @@ export default async function SettingsPage() {
       <div>
         <h1 className="text-h2">Settings</h1>
         <p className="mt-1 text-body text-text-secondary">
-          Profile, plan, and account details.
+          Your profile, plan and account.
         </p>
       </div>
 

@@ -19,35 +19,35 @@ interface StackRow {
 const rows: StackRow[] = [
   {
     icon: ShoppingBag,
-    title: "In-Page Storefront & Checkout",
+    title: "Store and checkout",
     replaces: "Replaces Linktree, Stan",
     price: "$29",
     value: 29,
   },
   {
     icon: Mail,
-    title: "Email List Builder",
+    title: "Email list",
     replaces: "Replaces ConvertKit, Beehiiv",
     price: "$29",
     value: 29,
   },
   {
     icon: BarChart3,
-    title: "Real Funnel Analytics",
+    title: "Sales analytics",
     replaces: "Replaces Google Analytics",
     price: "$10",
     value: 10,
   },
   {
     icon: Palette,
-    title: "Full Page Customization",
+    title: "Page design",
     replaces: "Replaces Webflow, Framer",
     price: "$20",
     value: 20,
   },
   {
     icon: Download,
-    title: "One-Click Import from Other Platforms",
+    title: "Import from other platforms",
     replaces: "",
     price: "Free",
     value: 0,
@@ -93,7 +93,7 @@ export function ValueStack() {
 
       <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4 sm:px-6">
         <span className="t-body text-text-secondary line-through decoration-[var(--strike)] decoration-1">
-          What You&apos;d Spend Otherwise
+          What you&apos;d pay elsewhere
         </span>
         <span
           className="t-body shrink-0 tabular-nums line-through decoration-1"
@@ -104,7 +104,7 @@ export function ValueStack() {
       </div>
 
       <div className="flex items-center justify-between gap-4 px-5 py-5 sm:px-6">
-        <span className="t-heading">Join OrangeLink</span>
+        <span className="t-heading">OrangeLink</span>
         <span className="t-title shrink-0 tabular-nums">
           {ORANGELINK_PRICE}
           {/* No "/mo" while the price is a placeholder: "TBD/mo" reads as a

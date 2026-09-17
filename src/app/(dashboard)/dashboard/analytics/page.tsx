@@ -45,7 +45,7 @@ export default async function AnalyticsPage() {
       <div>
         <h1 className="text-h2">Analytics</h1>
         <p className="mt-1 text-body text-text-secondary">
-          Funnel and attribution, from visit to checkout.
+          See who visits, what they click and what sells.
         </p>
       </div>
 

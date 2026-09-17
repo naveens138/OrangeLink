@@ -29,8 +29,8 @@ const features: {
   example?: { from: string; to: string };
 }[] = [
   {
-    title: "OrangeLink Does the Work",
-    body: "Paste a link and the title, image and description fetch themselves. No typing the same details in twice.",
+    title: "Links that fill themselves in",
+    body: "Paste a link and we add the title, image and description for you. No typing it all out.",
     example: {
       from: "youtube.com/watch?v=…",
       to: "Title · Image · Description",
@@ -38,28 +38,28 @@ const features: {
     wide: true,
   },
   {
-    title: "One Page, Every Platform",
-    body: "Instagram, TikTok and YouTube all point at the same place, so there is one address to keep current.",
+    title: "One link for every bio",
+    body: "Use it on Instagram, TikTok and YouTube. Update your page once and it changes everywhere.",
   },
   {
-    title: "Sell Without Redirects",
-    body: "Checkout opens on your page. Nobody gets handed off to an external tab they don't recognise.",
+    title: "Sell right on your page",
+    body: "Checkout opens on your page, so nobody gets sent to a site they don't know.",
   },
   {
-    title: "Import in One Click",
-    body: "Bring an existing Linktree or Stan page across automatically, then review it before anything goes live.",
+    title: "Move your page in one click",
+    body: "Bring your Linktree or Stan page over. Check it, then publish.",
   },
   {
-    title: "You Stay in Control",
-    body: "You approve every price, product and payout. Nothing moves without your say-so.",
+    title: "You call the shots",
+    body: "You set every price and approve every product. The money goes straight to you.",
   },
   {
-    title: "Real Funnel Analytics",
-    body: "Clicks, product views and checkouts broken down by traffic source, not just a raw tap count.",
+    title: "See what sells",
+    body: "Track clicks, views and sales, and see which post sent each one.",
   },
   {
-    title: "Your Own Domain",
-    body: "Point your own domain at your page instead of using the OrangeLink address. HTTPS is set up for you.",
+    title: "Use your own domain",
+    body: "Put your page on a domain you own. We set up HTTPS for you.",
     soon: !domainsLive,
   },
 ];
@@ -67,30 +67,37 @@ const features: {
 const faqItems: FaqItem[] = [
   {
     q: "What is OrangeLink?",
-    a: "One page that holds your links, your digital products and your checkout together. You share a single address, and the people who find you can browse and buy without going anywhere else.",
+    a: "One page for your links, your digital products and your checkout. You share one link, and people can browse and buy without leaving it.",
   },
   {
     q: "Do I need to know how to code?",
-    a: "No. You add blocks and drag them into the order you want. There is nothing to install, host or configure, and no template to edit by hand.",
+    a: "No. Add blocks and drag them into place. There's nothing to install or host.",
   },
   {
-    q: "Can I import my existing Linktree or Stan page?",
-    a: "Yes. Paste the address of your current page and OrangeLink reads it and rebuilds the links for you. You review the result and change anything you like before it publishes.",
+    q: "Can I bring over my Linktree or Stan page?",
+    a: "Yes. Paste your page's link and we copy your links over. Check everything and change what you like before it goes live.",
   },
   {
-    q: "How does checkout work for my customers?",
-    a: "The payment box opens on your own page rather than sending anyone to another site. Cards from any country work, and card details go straight to the payment provider, which means OrangeLink never sees or stores them. Digital files are delivered automatically the moment payment clears.",
+    q: "How do my customers pay?",
+    a: "Checkout opens right on your page. Razorpay takes the payment, so we never see or store card details. Digital files are ready to download the moment the payment goes through.",
   },
   {
-    q: "What does OrangeLink charge?",
-    a: "A flat subscription for the platform, and nothing on top of what you sell. Your buyers pay into your own Razorpay account, so your sales never pass through us and we take no cut of them. Payment processing fees are charged by Razorpay directly, as they would be anywhere. Monthly pricing is still being finalised, so the figure in the comparison above is a placeholder rather than a live price.",
+    q: "What does OrangeLink cost?",
+    a: "One monthly plan, and no cut of your sales. People pay into your own Razorpay account, so your money never passes through us. Razorpay charges its usual fees. We're still setting the price, so the one above is a placeholder.",
   },
   {
     q: "Can I use my own domain?",
     a: domainsLive
-      ? "Yes. Add your domain in the dashboard, copy the DNS record it shows you into wherever you bought the domain, and your page goes live there with HTTPS. Your OrangeLink address keeps working too."
-      : "Not yet. Custom domains are almost ready but not switched on, so pages currently sit at your OrangeLink address. We would rather say so here than let you find out after signing up.",
+      ? "Yes. Add it in your dashboard, copy one DNS record to where you bought it, and your page goes live there with HTTPS. Your orangelink.in link keeps working too."
+      : "Not yet. It's almost ready. Until then, your page lives at orangelink.in/yourname.",
   },
+];
+
+// The same starters the AI designer offers in the dashboard.
+const aiPrompts = [
+  "Calm and minimal, sage green, serif",
+  "Bold and sporty, deep red, square buttons",
+  "Warm sunset, rounded and friendly",
 ];
 
 const footerLinks = [
@@ -141,22 +148,22 @@ export default function Home() {
         {/* Hero */}
         <section className="pb-16 pt-16">
           <h1 className="t-display rise max-w-[24ch] text-balance">
-            Stop Managing Five Tools to Run One Simple Business.
+            One link for everything you share and sell.
           </h1>
           <p className="t-body rise rise-1 mt-4 max-w-[52ch] text-text-secondary">
-            Links, digital products, and checkout. All on one page, live in
-            minutes.
+            Share your links, sell digital products and get paid. All from one
+            page you can set up in minutes.
           </p>
           <div className="rise rise-2 mt-6 flex flex-wrap items-center gap-2">
             <Link href="/signup" className={btnDark}>
-              Claim Your Page
+              Claim your page
             </Link>
             <Link href="/jane" className={btnGhost}>
               See a live page
             </Link>
           </div>
           <p className="t-small rise rise-3 mt-4 text-text-muted">
-            Free to start.
+            Free to start. No card needed.
           </p>
         </section>
 
@@ -165,8 +172,8 @@ export default function Home() {
           <SectionHeader
             index="01"
             eyebrow="how it works"
-            title="Watch the whole thing work, start to finish."
-            body="Four short walkthroughs: setting up, making a sale, moving your old page over, and growing your list."
+            title="From sign up to first sale, step by step."
+            body="Four quick walkthroughs: set up, make a sale, move your old page, grow your list."
           />
           <div className="rise rise-2 mt-7">
             <SaleTimeline />
@@ -177,9 +184,9 @@ export default function Home() {
         <section id="features" className="scroll-mt-16 pb-16">
           <SectionHeader
             index="02"
-            eyebrow="what goes on it"
-            title="Everything the page needs, already in it."
-            body="Drag the blocks into any order you like. Nothing here needs another subscription sitting behind it."
+            eyebrow="what you get"
+            title="Everything your page needs, built in."
+            body="Put blocks in any order you like. None of them need another subscription."
           />
           <div className="mt-9 grid gap-3 sm:grid-cols-2">
             {features.map((feature, i) => (
@@ -228,16 +235,26 @@ export default function Home() {
           <SectionHeader
             index="03"
             eyebrow="your page"
-            title="It looks like your page, because it is."
-            body="Your name, your products, your checkout, at your own address. The only thing we add is one small line at the bottom."
+            title="Your page, your brand."
+            body="Your name, your products and your link. Design the look with a simple AI prompt."
           />
           <div className="rise rise-2 mt-7 rounded-md border border-border bg-surface-2 px-5 pb-6 pt-8">
             <DeviceMockup />
             <div className="mx-auto mt-7 flex max-w-[44ch] flex-col items-center gap-2 text-center">
-              <p className="t-heading">Customize your page with AI</p>
+              <p className="t-heading">Design your page with AI</p>
               <p className="t-small leading-relaxed text-text-secondary">
-                Describe the look you want and it restyles your page to match. Colours, fonts, layout, in one go.
+                Describe the look you want. AI picks the colors, fonts and layout to match.
               </p>
+              <div className="mt-2 flex flex-wrap justify-center gap-2">
+                {aiPrompts.map((prompt) => (
+                  <span
+                    key={prompt}
+                    className="t-small rounded-full border border-border bg-background px-3 py-1 text-text-secondary"
+                  >
+                    &ldquo;{prompt}&rdquo;
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -246,9 +263,9 @@ export default function Home() {
         <section id="compare" className="scroll-mt-16 pb-16">
           <SectionHeader
             index="04"
-            eyebrow="the usual way vs. this"
-            title="A Simpler Way to Run Your Business"
-            body="Stop paying for five different tools. A link page here, a checkout there, an email tool, a booking tool. Four logins and four bills, every month, whether you sell anything or not."
+            eyebrow="why switch"
+            title="One page instead of four tools."
+            body="A link page, a checkout, an email tool and a booking tool. That's four logins and four bills, every month, even when you don't sell."
           />
           <div className="rise rise-2 mt-7">
             <ValueStack />
@@ -267,7 +284,7 @@ export default function Home() {
           <div>
             <BrandLockup />
             <p className="t-small mt-1 text-text-secondary">
-              One page for your links, your products and your checkout.
+              One link for everything you share and sell.
             </p>
           </div>
           <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">

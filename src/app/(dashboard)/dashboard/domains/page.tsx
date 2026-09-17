@@ -14,7 +14,7 @@ export default async function DomainsPage() {
     <div>
       <h1 className="text-h2">Domains</h1>
       <p className="mt-1 max-w-2xl text-body text-text-secondary">
-        Put your page on your own domain, with HTTPS set up for you.
+        Put your page on a domain you own. We set up HTTPS for you.
       </p>
     </div>
   );

@@ -71,8 +71,8 @@ export default function ClaimUsernamePage() {
           Claim your page
         </h1>
         <p className="mt-3 text-body-lg text-text-secondary">
-          This is your public URL. You can&apos;t change it later without
-          breaking existing links.
+          This is the link you&apos;ll share. Choose carefully: changing it
+          later breaks links you&apos;ve already shared.
         </p>
 
         <form action={formAction} className="mt-10">

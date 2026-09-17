@@ -54,7 +54,7 @@ export function ProductsManager({
         <div>
           <h1 className="text-h2">Products</h1>
           <p className="mt-1 text-body text-text-secondary">
-            Digital products, bookings, and coaching offers.
+            Everything you sell from your page.
           </p>
         </div>
         <Button size="sm" onClick={openCreate}>
@@ -80,7 +80,7 @@ export function ProductsManager({
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-16 text-center">
           <Package className="h-6 w-6 text-text-muted" />
           <p className="mt-3 text-body text-text-secondary">
-            No products yet. Create one to start selling.
+            No products yet. Add one to start selling.
           </p>
         </div>
       ) : (

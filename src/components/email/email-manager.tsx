@@ -69,7 +69,7 @@ export function EmailManager({
       <div>
         <h1 className="text-h2">Email</h1>
         <p className="mt-1 text-body text-text-secondary">
-          Subscribers and email service sync.
+          Your subscribers, and the email tool they sync to.
         </p>
       </div>
 
@@ -146,8 +146,8 @@ export function EmailManager({
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border px-6 py-16 text-center">
             <Users className="h-6 w-6 text-text-muted" />
             <p className="mt-3 text-body text-text-secondary">
-              No subscribers yet. They&apos;ll show up here as your email
-              capture block collects them.
+              No subscribers yet. People who join through your email block
+              show up here.
             </p>
           </div>
         ) : (
