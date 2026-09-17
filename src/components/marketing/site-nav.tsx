@@ -5,10 +5,10 @@ import Link from "next/link";
 import { BrandLockup } from "@/components/brand/brand";
 
 const links = [
-  { href: "#how", label: "How it works" },
-  { href: "#features", label: "Features" },
-  { href: "#compare", label: "Compare" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#how", label: "How it works" },
+  { href: "/#features", label: "Features" },
+  { href: "/#compare", label: "Compare" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 export function SiteNav() {
