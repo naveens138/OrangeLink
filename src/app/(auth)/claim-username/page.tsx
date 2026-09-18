@@ -1,163 +1,90 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { checkUsernameAvailable, claimUsername } from "../actions";
+import { OnboardingProgress } from "@/components/auth/onboarding-progress";
+import { UsernameField, type UsernameStatus } from "@/components/auth/username-field";
+import { TRIAL_DAYS } from "@/lib/billing/trial-length";
+import { PENDING_USERNAME_KEY } from "@/components/auth/pending-username";
+import { claimUsername } from "../actions";
 
-const USERNAME_RE = /^[a-z0-9_]{3,20}$/;
-
-type Status = "idle" | "checking" | "available" | "unavailable";
-
+/**
+ * Where someone lands when they have an account but no link yet: after
+ * Google, or after an email signup on a project with confirmation switched
+ * on. Same chrome as the signup wizard, on its second step, because from the
+ * creator's side it is the second step.
+ */
 export default function ClaimUsernamePage() {
-  const [value, setValue] = useState("");
-  // Result of the last completed availability check, keyed to the value it
-  // was computed for, so `status` stays a derivation of render state.
-  const [result, setResult] = useState<{
-    value: string;
-    available: boolean;
-    reason?: string;
-  } | null>(null);
+  const searchParams = useSearchParams();
+  const [value, setValue] = useState(searchParams.get("username")?.toLowerCase() ?? "");
 
+  // A name picked on the wizard's first step, before an email confirmation
+  // interrupted the signup. Read after mount rather than as initial state:
+  // localStorage doesn't exist while this renders on the server, and reading
+  // it during render would make the two disagree.
+  useEffect(() => {
+    if (value) return;
+    try {
+      const pending = window.localStorage.getItem(PENDING_USERNAME_KEY);
+      // Reading browser storage is exactly the "sync with an external
+      // system" an effect is for; there's no render-time equivalent, since
+      // localStorage doesn't exist on the server.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (pending) setValue(pending);
+    } catch {
+      // No storage available. They pick a name as normal.
+    }
+    // Only ever a starting point, so this runs once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const [status, setStatus] = useState<UsernameStatus>("idle");
   const [state, formAction, pending] = useActionState(claimUsername, null);
 
-  const patternValid = value.length > 0 && USERNAME_RE.test(value);
-
-  const status: Status = !value
-    ? "idle"
-    : result?.value === value
-      ? result.available
-        ? "available"
-        : "unavailable"
-      : "checking";
-
-  const message =
-    status === "available"
-      ? "Available!"
-      : status === "unavailable"
-        ? result?.reason
-        : null;
-
-  useEffect(() => {
-    if (!value) return;
-    // Debounced so a fast typist doesn't fire a request per keystroke.
-    const timeout = setTimeout(async () => {
-      if (!patternValid) {
-        setResult({
-          value,
-          available: false,
-          reason:
-            "3-20 characters, lowercase letters, numbers, underscores.",
-        });
-        return;
-      }
-      const check = await checkUsernameAvailable(value);
-      setResult({ value, ...check });
-    }, 400);
-    return () => clearTimeout(timeout);
-  }, [value, patternValid]);
-
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 md:px-16">
+    <div className="flex flex-1 flex-col items-center px-6 py-10 md:py-16">
+      <OnboardingProgress steps={2} current={2} className="mb-10" />
+
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.2, 0, 0, 1] }}
-        className="w-full max-w-[520px]"
+        className="w-full max-w-[460px]"
       >
-        <h1 className="text-h1 md:text-display text-text-primary">
-          Claim your page
-        </h1>
-        <p className="mt-3 text-body-lg text-text-secondary">
-          This is the link you&apos;ll share. Choose carefully: changing it
-          later breaks links you&apos;ve already shared.
-        </p>
-
-        <form action={formAction} className="mt-10">
-          <input type="hidden" name="username" value={value} />
-          <div
-            className={cn(
-              "flex h-14 items-center rounded-md border bg-surface-1 pl-4 pr-3 transition-colors duration-[170ms]",
-              status === "available" && "border-success",
-              status === "unavailable" && "border-danger",
-              (status === "idle" || status === "checking") &&
-                "border-border focus-within:border-border-strong",
-            )}
-          >
-            <span className="whitespace-nowrap text-body text-text-muted">
-              orangelink.in/
-            </span>
-            <input
-              autoFocus
-              value={value}
-              onChange={(e) =>
-                setValue(e.target.value.toLowerCase().replace(/\s/g, ""))
-              }
-              placeholder="username"
-              className="flex-1 bg-transparent font-mono text-body text-text-primary placeholder:text-text-muted focus:outline-none"
-              aria-describedby="username-status"
-            />
-            <div className="flex h-6 w-6 items-center justify-center">
-              {/* No mode="wait" — see email-capture-block.tsx for why: in
-                  dev mode an exit animation's completion can simply never
-                  fire, and mode="wait" gates the next icon's mount on it. */}
-              <AnimatePresence>
-                {status === "checking" && (
-                  <motion.div
-                    key="checking"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <Loader2 className="h-4 w-4 animate-spin text-text-muted" />
-                  </motion.div>
-                )}
-                {status === "available" && (
-                  <motion.div
-                    key="available"
-                    initial={{ opacity: 0, scale: 0.6 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  >
-                    <Check className="h-4 w-4 text-success" />
-                  </motion.div>
-                )}
-                {status === "unavailable" && (
-                  <motion.div
-                    key="unavailable"
-                    initial={{ opacity: 0, scale: 0.6 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <X className="h-4 w-4 text-danger" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-
-          <p
-            id="username-status"
-            className={cn(
-              "mt-2 min-h-[1.25rem] text-small",
-              status === "available" && "text-success",
-              status === "unavailable" && "text-danger",
-              (status === "idle" || status === "checking") && "text-text-muted",
-            )}
-          >
-            {state?.error ?? message ?? " "}
+        <div className="text-center">
+          <h1 className="text-h1 md:text-display">Claim your link</h1>
+          <p className="mt-3 text-body-lg text-text-secondary">
+            This is what you&apos;ll share everywhere. Pick it carefully:
+            changing it later breaks links you&apos;ve already put out.
           </p>
+        </div>
 
+        <form action={formAction} className="mt-9">
+          <input type="hidden" name="username" value={value} />
+          <UsernameField
+            value={value}
+            onChange={setValue}
+            onStatusChange={setStatus}
+            autoFocus
+            message={state?.error}
+          />
           <Button
             type="submit"
+            onClick={() => {
+              // Claimed or not, this name has served its purpose here.
+              try {
+                window.localStorage.removeItem(PENDING_USERNAME_KEY);
+              } catch {}
+            }}
             disabled={status !== "available" || pending}
-            className="mt-6 w-full"
+            className="w-full"
           >
-            {pending ? "Claiming…" : "Continue"}
+            {pending ? "Opening your store…" : "Open my store"}
           </Button>
+          <p className="mt-4 text-center text-small text-text-muted">
+            {TRIAL_DAYS} days free, no card needed.
+          </p>
         </form>
       </motion.div>
     </div>
