@@ -1,4 +1,4 @@
-import type { Block, Product, UnlockCondition } from "@/lib/types";
+import type { Block, Product, UnlockCondition, UnlockedBlock } from "@/lib/types";
 import { LinkBlock } from "./link-block";
 import { ProductBlock } from "./product-block";
 import { EmailCaptureBlock } from "./email-capture-block";
@@ -10,12 +10,6 @@ import { EmbedBlock } from "./embed-block";
 import { BookingBlock } from "./booking-block";
 import { PasswordGate } from "./password-gate";
 import { FollowUnlockGate } from "./follow-unlock-gate";
-
-function isWithinSchedule(block: Block, now: Date): boolean {
-  if (block.visible_from && now < new Date(block.visible_from)) return false;
-  if (block.visible_until && now > new Date(block.visible_until)) return false;
-  return true;
-}
 
 function renderContent(block: Block, username: string, products: Product[]) {
   switch (block.type) {
@@ -45,6 +39,11 @@ function renderContent(block: Block, username: string, products: Product[]) {
   }
 }
 
+/**
+ * Hidden and out-of-window blocks never get here: getPublicPage drops them
+ * on the server. Locked blocks arrive as stubs with no content, and their
+ * gates fetch the real block once they open.
+ */
 export function BlockRenderer({
   block,
   username,
@@ -54,25 +53,49 @@ export function BlockRenderer({
   username: string;
   products: Product[];
 }) {
-  if (!block.is_visible) return null;
-  if (!isWithinSchedule(block, new Date())) return null;
-
-  const content = renderContent(block, username, products);
-  if (!content) return null;
-
-  const unlockCondition = (block.config as { unlock_condition?: UnlockCondition })
-    .unlock_condition;
-  const gated = unlockCondition ? (
-    <FollowUnlockGate condition={unlockCondition} blockId={block.id} username={username}>
-      {content}
-    </FollowUnlockGate>
-  ) : (
-    content
-  );
+  // Decided by type alone, so it holds for a stub too.
+  if (!renderContent(block, username, products)) return null;
 
   if (block.is_password_protected) {
-    return <PasswordGate blockId={block.id}>{gated}</PasswordGate>;
+    return (
+      <PasswordGate blockId={block.id} username={username}>
+        {(unlocked) => (
+          <FollowGated
+            block={unlocked.block}
+            username={username}
+            products={unlocked.products}
+            revealed
+          />
+        )}
+      </PasswordGate>
+    );
   }
 
-  return gated;
+  return <FollowGated block={block} username={username} products={products} revealed={false} />;
+}
+
+// `revealed`: the block's full config is already here (a password gate
+// fetched it), rather than the follow gate's stub.
+function FollowGated({
+  block,
+  username,
+  products,
+  revealed,
+}: {
+  block: Block;
+  username: string;
+  products: Product[];
+  revealed: boolean;
+}) {
+  const unlockCondition = (block.config as { unlock_condition?: UnlockCondition })
+    .unlock_condition;
+  if (!unlockCondition) return renderContent(block, username, products);
+
+  return (
+    <FollowUnlockGate condition={unlockCondition} blockId={block.id} username={username}>
+      {revealed
+        ? renderContent(block, username, products)
+        : (unlocked: UnlockedBlock) => renderContent(unlocked.block, username, unlocked.products)}
+    </FollowUnlockGate>
+  );
 }
