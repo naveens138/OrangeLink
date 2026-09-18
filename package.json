@@ -15,8 +15,6 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@dodopayments/core": "^0.3.15",
     "@dodopayments/nextjs": "^0.3.9",
-    "@paddle/paddle-js": "^1.6.5",
-    "@paddle/paddle-node-sdk": "^3.10.0",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
     "clsx": "^2.1.1",
