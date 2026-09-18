@@ -210,3 +210,79 @@ export async function attachProductFile(
   revalidatePath("/dashboard/products");
   return { ok: true, fileName: file.name };
 }
+
+export interface OrderBumpRow {
+  offerProductId: string;
+  discountPercent: number | null;
+}
+
+/**
+ * The order bumps attached to one product. RLS keeps this to the creator's
+ * own products (migrations/0020), so an id belonging to someone else simply
+ * returns nothing.
+ */
+export async function getOrderBumps(productId: string): Promise<OrderBumpRow[]> {
+  const { supabase } = await requireUser();
+
+  const { data } = await supabase
+    .from("product_offers")
+    .select("offer_product_id, discount_percent, position")
+    .eq("primary_product_id", productId)
+    .eq("offer_type", "order_bump")
+    .order("position", { ascending: true });
+
+  return (data ?? []).map((row) => ({
+    offerProductId: row.offer_product_id as string,
+    discountPercent: row.discount_percent === null ? null : Number(row.discount_percent),
+  }));
+}
+
+/**
+ * Replaces the whole bump list for a product in one go — simpler than
+ * diffing, and the list is never more than a handful of rows. The insert is
+ * still checked by RLS, so a bump product the creator doesn't own is
+ * rejected by the database rather than only by this function.
+ */
+export async function setOrderBumps(
+  productId: string,
+  bumps: OrderBumpRow[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { supabase } = await requireUser();
+
+  if (bumps.length > 5) {
+    return { ok: false, error: "Five order bumps is the most a checkout can carry." };
+  }
+  if (bumps.some((bump) => bump.offerProductId === productId)) {
+    return { ok: false, error: "A product can't be its own order bump." };
+  }
+  for (const bump of bumps) {
+    if (bump.discountPercent !== null) {
+      if (!Number.isFinite(bump.discountPercent) || bump.discountPercent < 0 || bump.discountPercent > 100) {
+        return { ok: false, error: "A bump discount has to be between 0 and 100 percent." };
+      }
+    }
+  }
+
+  const { error: clearError } = await supabase
+    .from("product_offers")
+    .delete()
+    .eq("primary_product_id", productId)
+    .eq("offer_type", "order_bump");
+  if (clearError) return { ok: false, error: clearError.message };
+
+  if (bumps.length > 0) {
+    const { error } = await supabase.from("product_offers").insert(
+      bumps.map((bump, index) => ({
+        primary_product_id: productId,
+        offer_product_id: bump.offerProductId,
+        offer_type: "order_bump",
+        discount_percent: bump.discountPercent,
+        position: index,
+      })),
+    );
+    if (error) return { ok: false, error: error.message };
+  }
+
+  revalidatePath("/dashboard/products");
+  return { ok: true };
+}

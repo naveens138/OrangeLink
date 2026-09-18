@@ -4,6 +4,7 @@ import {
   createRazorpayClientFor,
   getCreatorPaymentCredentials,
 } from "@/lib/razorpay/client";
+import { COUPON_MESSAGES, quoteCheckout } from "@/lib/payments/pricing";
 import type { INormalizeError } from "razorpay/dist/types/api";
 
 /**
@@ -15,7 +16,14 @@ import type { INormalizeError } from "razorpay/dist/types/api";
  * checkout.js needs it in the browser — the secret never leaves the server.
  */
 export async function POST(request: NextRequest) {
-  let body: { productId?: string; email?: string; name?: string; visitorId?: string };
+  let body: {
+    productId?: string;
+    email?: string;
+    name?: string;
+    visitorId?: string;
+    bumpProductIds?: string[];
+    couponCode?: string | null;
+  };
   try {
     body = await request.json();
   } catch {
@@ -41,6 +49,29 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "This product isn't available." }, { status: 404 });
   }
 
+  // What the buyer pays is priced here, from the database, and the browser's
+  // numbers are never consulted — a tampered bump list or code changes which
+  // rows are looked up, not what they cost.
+  const quoted = await quoteCheckout({
+    productId: product.id,
+    bumpProductIds: Array.isArray(body.bumpProductIds) ? body.bumpProductIds : [],
+    couponCode: typeof body.couponCode === "string" ? body.couponCode : null,
+  });
+  if (!quoted.ok) {
+    return NextResponse.json({ error: quoted.error }, { status: 404 });
+  }
+  const quote = quoted.quote;
+
+  // The code stopped being valid between the buyer seeing the total and
+  // paying it. Charging full price silently would be a surprise on the
+  // card statement, so the modal re-quotes and shows the new total instead.
+  if (quote.couponRejected) {
+    return NextResponse.json(
+      { error: COUPON_MESSAGES[quote.couponRejected], couponRejected: quote.couponRejected },
+      { status: 409 },
+    );
+  }
+
   // Each creator sells through their own account, so a creator who hasn't
   // connected one yet simply cannot take payments — there is no platform
   // account to fall back to, by design.
@@ -55,7 +86,7 @@ export async function POST(request: NextRequest) {
   // Razorpay's stated minimum is 100 in the currency's smallest unit (₹1 for
   // INR); enforced here so a misconfigured ₹0.50 product fails with a clear
   // message instead of a cryptic Razorpay API error.
-  if (product.price_cents < 100) {
+  if (quote.totalCents < 100) {
     return NextResponse.json(
       { error: "This product's price is below the minimum payable amount." },
       { status: 400 },
@@ -65,8 +96,8 @@ export async function POST(request: NextRequest) {
   try {
     const razorpay = createRazorpayClientFor(credentials);
     const order = await razorpay.orders.create({
-      amount: product.price_cents,
-      currency: product.currency,
+      amount: quote.totalCents,
+      currency: quote.currency,
       // Razorpay caps receipt at 40 characters and requires uniqueness.
       receipt: `ol_${productId.slice(0, 8)}_${Date.now()}`,
       // Canonical record of what was actually purchased and by whom — read
@@ -76,6 +107,13 @@ export async function POST(request: NextRequest) {
         orangelink_product_id: product.id,
         orangelink_creator_id: product.creator_id,
         orangelink_visitor_id: visitorId ?? "",
+        // Which bumps and which code, not what they were worth: verification
+        // re-prices them from the database rather than trusting these.
+        orangelink_bump_ids: quote.lines
+          .filter((line) => line.isOrderBump)
+          .map((line) => line.productId)
+          .join(","),
+        orangelink_coupon_code: quote.coupon?.code ?? "",
         email,
         name: name || email,
       },
