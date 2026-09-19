@@ -4,8 +4,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 // Pages that need more than the reading width: the Links editor sits beside
-// its live phone preview, and the Schedule calendar needs a full week.
-const WIDE = ["/dashboard/links", "/dashboard/schedule"];
+// its live phone preview.
+const WIDE = ["/dashboard/links"];
 
 /** The dashboard's content column: landing-page width, wider where a page needs it. */
 export function DashboardMain({ children }: { children: React.ReactNode }) {

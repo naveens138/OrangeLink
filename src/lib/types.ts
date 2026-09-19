@@ -91,6 +91,12 @@ export interface Page {
   blocks: Block[];
 }
 
+/** A locked block's real content, fetched once its gate opens. */
+export interface UnlockedBlock {
+  block: Block;
+  products: Product[];
+}
+
 export type UnlockConditionType = "follow_instagram" | "follow_tiktok";
 
 export interface UnlockCondition {

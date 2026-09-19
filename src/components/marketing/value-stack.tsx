@@ -6,6 +6,7 @@ import {
   ShoppingBag,
   type LucideIcon,
 } from "lucide-react";
+import { annualFreeMonths, PLANS } from "@/lib/billing/plans";
 
 interface StackRow {
   icon: LucideIcon;
@@ -56,11 +57,18 @@ const rows: StackRow[] = [
 
 const otherwiseTotal = rows.reduce((sum, row) => sum + row.value, 0);
 
-// PLACEHOLDER — OrangeLink's monthly price is not finalised. This is
-// intentionally not a real number; replace it once pricing is decided.
-// It is the platform's only charge: sales settle into the creator's own
+// Read from the plan itself rather than typed here, so the landing page
+// can't quote a price the checkout doesn't charge. Whole dollars to match
+// the rows above; the decimals only appear if a price ever has them.
+//
+// This is the platform's only charge: sales settle into the creator's own
 // Razorpay account, so there is no per-sale cut to add to it.
-const ORANGELINK_PRICE = "TBD";
+const ORANGELINK_PRICE = formatPlanPrice(PLANS.monthly.amountCents);
+const ANNUAL_PRICE = formatPlanPrice(PLANS.annual.amountCents);
+
+function formatPlanPrice(cents: number): string {
+  return cents % 100 === 0 ? `$${cents / 100}` : `$${(cents / 100).toFixed(2)}`;
+}
 
 export function ValueStack() {
   return (
@@ -104,14 +112,15 @@ export function ValueStack() {
       </div>
 
       <div className="flex items-center justify-between gap-4 px-5 py-5 sm:px-6">
-        <span className="t-heading">OrangeLink</span>
+        <div>
+          <span className="t-heading">OrangeLink</span>
+          <p className="t-small mt-0.5 text-text-secondary">
+            Or {ANNUAL_PRICE} a year, with {annualFreeMonths()} months free.
+          </p>
+        </div>
         <span className="t-title shrink-0 tabular-nums">
           {ORANGELINK_PRICE}
-          {/* No "/mo" while the price is a placeholder: "TBD/mo" reads as a
-              broken value rather than an undecided one. */}
-          {ORANGELINK_PRICE !== "TBD" && (
-            <span className="t-body font-normal text-text-secondary">/mo</span>
-          )}
+          <span className="t-body font-normal text-text-secondary">/mo</span>
         </span>
       </div>
     </div>

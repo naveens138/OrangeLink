@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/format";
 import Link from "next/link";
 import { getApprovedCount, PROGRAM_CAP } from "@/lib/creator-program";
+import { getEntitlement } from "@/lib/billing/entitlement";
 import { updateProfile } from "./actions";
 
 export default async function SettingsPage() {
@@ -26,6 +27,43 @@ export default async function SettingsPage() {
     getApprovedCount(),
   ]);
   const spotsLeft = Math.max(PROGRAM_CAP - approvedCount, 0);
+
+  // What's actually covering this creator right now, said plainly. A paid
+  // subscription and a Creator Program year are different things and the
+  // copy never blurs them — see lib/billing/entitlement.ts.
+  const entitlement = await getEntitlement(creator.id);
+  const billing: { body: string; cta?: string } = entitlement.hasAccess
+    ? entitlement.source === "subscription"
+      ? {
+          body:
+            `You're on the ${entitlement.interval === "annual" ? "annual" : "monthly"} plan` +
+            (entitlement.until ? `, renewing ${formatDate(entitlement.until.toISOString())}.` : ".") +
+            (entitlement.subscriptionStatus === "cancelled"
+              ? " It won't renew after that."
+              : ""),
+          cta: entitlement.subscriptionStatus === "cancelled" ? "See plans" : undefined,
+        }
+      : {
+          body:
+            (entitlement.source === "trial"
+              ? `Your free trial runs until ${formatDate(entitlement.grantEndsAt!.toISOString())}. `
+              : `Your Creator Program year covers you until ${formatDate(entitlement.grantEndsAt!.toISOString())}. `) +
+            (entitlement.needsBilling
+              ? "Add billing now and it starts the day the free period ends."
+              : "Nothing to pay until then."),
+          cta: entitlement.needsBilling ? "Add billing" : undefined,
+        }
+    : entitlement.subscriptionStatus === "past_due"
+      ? { body: "Your last payment didn't go through, so your plan is paused.", cta: "Fix billing" }
+      : entitlement.grantEndsAt
+        ? {
+            body:
+              entitlement.grantReason === "trial"
+                ? `Your free trial ended on ${formatDate(entitlement.grantEndsAt.toISOString())}.`
+                : `Your Creator Program year ended on ${formatDate(entitlement.grantEndsAt.toISOString())}.`,
+            cta: "See plans",
+          }
+        : { body: "You're on the free plan.", cta: "See plans" };
   const program: { body: string; cta?: string } = override
     ? { body: `You're in. Your free year runs until ${formatDate(override.free_until)}.` }
     : submission?.status === "pending"
@@ -83,6 +121,19 @@ export default async function SettingsPage() {
             Save changes
           </Button>
         </form>
+      </Card>
+
+      <Card className="max-w-xl">
+        <h2 className="text-h3">Plan</h2>
+        <p className="mt-1 text-body text-text-secondary">{billing.body}</p>
+        {billing.cta && (
+          <Link
+            href="/pricing"
+            className="mt-4 inline-flex h-9 items-center rounded-md bg-text-primary px-3.5 text-small font-medium text-white transition-[opacity,transform] duration-100 hover:opacity-90 active:scale-[0.97]"
+          >
+            {billing.cta}
+          </Link>
+        )}
       </Card>
 
       <Card className="max-w-xl">

@@ -6,6 +6,7 @@ import {
 } from "@/lib/razorpay/client";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import { fulfillOrder } from "@/lib/payments/fulfill-order";
+import { quoteCheckout } from "@/lib/payments/pricing";
 
 /**
  * Verifies a Razorpay Standard Checkout payment and fulfills the order.
@@ -84,6 +85,8 @@ export async function POST(request: NextRequest) {
   let name: string;
   let amountCents: number;
   let currency: string;
+  let bumpProductIds: string[];
+  let couponCode: string | null;
 
   try {
     const razorpay = createRazorpayClientFor(credentials);
@@ -97,6 +100,11 @@ export async function POST(request: NextRequest) {
     name = String(notes?.name ?? email);
     amountCents = Number(order.amount);
     currency = order.currency;
+    bumpProductIds = String(notes?.orangelink_bump_ids ?? "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    couponCode = String(notes?.orangelink_coupon_code ?? "") || null;
   } catch (error) {
     console.error("[razorpay verify] order fetch failed:", error);
     return NextResponse.json({ error: "Couldn't confirm this order." }, { status: 500 });
@@ -117,6 +125,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
   }
 
+  // Re-priced from the ids in the notes rather than read out of them, so the
+  // order rows record what these products and this code are actually worth.
+  // The buyer paid what Razorpay says they paid, so that stays the total;
+  // a mismatch means the pricing moved between checkout and payment and is
+  // worth knowing about, but it never blocks a sale that already happened.
+  const quoted = await quoteCheckout({
+    productId: notedProductId,
+    bumpProductIds,
+    couponCode,
+  });
+  const quote = quoted.ok ? quoted.quote : null;
+  if (quote && quote.totalCents !== amountCents) {
+    console.warn(
+      `[razorpay verify] order ${razorpay_order_id} charged ${amountCents} but re-quotes at ${quote.totalCents}`,
+    );
+  }
+
   const result = await fulfillOrder({
     productId: notedProductId,
     creatorId,
@@ -128,6 +153,14 @@ export async function POST(request: NextRequest) {
     provider: "razorpay",
     providerPaymentId: razorpay_payment_id,
     providerCheckoutSessionId: razorpay_order_id,
+    items: quote?.lines.map((line) => ({
+      productId: line.productId,
+      unitPriceCents: line.unitPriceCents,
+      isOrderBump: line.isOrderBump,
+    })),
+    subtotalCents: quote?.subtotalCents,
+    discountCents: quote?.discountCents,
+    couponId: quote?.coupon?.id ?? null,
   });
 
   if (!result.ok) {
@@ -138,5 +171,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return NextResponse.json({ ok: true, downloadUrl: result.downloadUrl });
+  return NextResponse.json({
+    ok: true,
+    downloadUrl: result.downloadUrl,
+    downloads: result.downloads,
+  });
 }

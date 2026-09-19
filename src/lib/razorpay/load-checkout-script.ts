@@ -5,17 +5,23 @@
 
 export interface RazorpayCheckoutOptions {
   key: string;
-  amount: number | string;
-  currency: string;
+  /** Set for a one-off order; a subscription takes its amount from the plan. */
+  amount?: number | string;
+  currency?: string;
   name: string;
   description?: string;
-  order_id: string;
+  /** A storefront purchase: the creator's own order. */
+  order_id?: string;
+  /** A platform plan subscription. Mutually exclusive with order_id. */
+  subscription_id?: string;
   prefill?: { name?: string; email?: string };
   theme?: { color?: string };
   handler: (response: {
-    razorpay_order_id: string;
+    razorpay_order_id?: string;
     razorpay_payment_id: string;
     razorpay_signature: string;
+    /** Returned in place of the order id when checkout was opened for a subscription. */
+    razorpay_subscription_id?: string;
   }) => void;
   modal?: { ondismiss?: () => void };
 }

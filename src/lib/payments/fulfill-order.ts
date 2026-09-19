@@ -3,7 +3,14 @@ import { createServiceRoleClient } from "@/lib/supabase/server";
 import { createSignedDownloadUrl } from "@/lib/storage/product-files";
 import { recordEvent } from "@/lib/analytics/record-event";
 
+export interface FulfillOrderItem {
+  productId: string;
+  unitPriceCents: number;
+  isOrderBump: boolean;
+}
+
 export interface FulfillOrderInput {
+  /** The product the buyer came for. Also the one a single-item sale delivers. */
   productId: string;
   creatorId: string;
   /** From the analytics visitor id threaded through checkout (Razorpay notes / Dodo metadata) — absent if JS was blocked or this predates Milestone 6. */
@@ -15,10 +22,32 @@ export interface FulfillOrderInput {
   provider: string;
   providerPaymentId: string;
   providerCheckoutSessionId?: string | null;
+  /**
+   * Every line that was paid for, main product and order bumps together.
+   * Omitted for a plain one-product sale, which is treated as the single
+   * line `productId` at `amountCents`.
+   */
+  items?: FulfillOrderItem[];
+  /** Before any coupon. Defaults to amountCents when nothing was discounted. */
+  subtotalCents?: number;
+  discountCents?: number;
+  couponId?: string | null;
+}
+
+export interface FulfilledDownload {
+  productName: string;
+  url: string;
 }
 
 export type FulfillOrderResult =
-  | { ok: true; alreadyProcessed: boolean; downloadUrl: string | null }
+  | {
+      ok: true;
+      alreadyProcessed: boolean;
+      /** The main product's link, kept for callers that only ever sell one thing. */
+      downloadUrl: string | null;
+      /** One per digital item on the order, bumps included. */
+      downloads: FulfilledDownload[];
+    }
   | { ok: false; error: string };
 
 /**
@@ -37,11 +66,21 @@ export async function fulfillOrder(
 ): Promise<FulfillOrderResult> {
   const supabase = createServiceRoleClient();
 
-  const { data: product } = await supabase
+  const items: FulfillOrderItem[] =
+    input.items && input.items.length > 0
+      ? input.items
+      : [{ productId: input.productId, unitPriceCents: input.amountCents, isOrderBump: false }];
+
+  const { data: products } = await supabase
     .from("products")
-    .select("id, type, file_url")
-    .eq("id", input.productId)
-    .maybeSingle();
+    .select("id, name, type, file_url")
+    .in(
+      "id",
+      items.map((item) => item.productId),
+    );
+
+  const productById = new Map((products ?? []).map((p) => [p.id, p]));
+  const product = productById.get(input.productId);
   if (!product) {
     return { ok: false, error: `Product ${input.productId} not found.` };
   }
@@ -91,11 +130,12 @@ export async function fulfillOrder(
       creator_id: input.creatorId,
       customer_id: customer.id,
       status: "paid",
-      subtotal_cents: input.amountCents,
-      discount_cents: 0,
+      subtotal_cents: input.subtotalCents ?? input.amountCents,
+      discount_cents: input.discountCents ?? 0,
       platform_fee_cents: platformFeeCents,
       total_cents: input.amountCents,
       currency: input.currency,
+      coupon_id: input.couponId ?? null,
       payment_provider: input.provider,
       provider_payment_id: input.providerPaymentId,
       provider_checkout_session_id: input.providerCheckoutSessionId ?? null,
@@ -112,39 +152,68 @@ export async function fulfillOrder(
         supabase,
         input.providerPaymentId,
       );
-      return { ok: true, alreadyProcessed: true, downloadUrl: existingUrl };
+      return {
+        ok: true,
+        alreadyProcessed: true,
+        downloadUrl: existingUrl,
+        downloads: existingUrl ? [{ productName: product.name, url: existingUrl }] : [],
+      };
     }
     return { ok: false, error: orderError.message };
   }
 
-  const { data: orderItem, error: itemError } = await supabase
-    .from("order_items")
-    .insert({
-      order_id: order.id,
-      product_id: product.id,
-      unit_price_cents: input.amountCents,
-      quantity: 1,
-    })
-    .select("id")
-    .single();
+  // Claimed only once the order exists, so an abandoned or failed payment
+  // never burns a redemption. If the last one went to someone else in the
+  // meantime this returns false, and the buyer keeps the discount they were
+  // quoted — the alternative is failing a sale that has already been paid.
+  if (input.couponId) {
+    const { error: redeemError } = await supabase.rpc("redeem_coupon", {
+      coupon_id: input.couponId,
+    });
+    if (redeemError) {
+      console.warn(`[fulfill] coupon ${input.couponId} not redeemed:`, redeemError.message);
+    }
+  }
 
-  if (itemError || !orderItem) {
+  const { data: orderItems, error: itemError } = await supabase
+    .from("order_items")
+    .insert(
+      items.map((item) => ({
+        order_id: order.id,
+        product_id: item.productId,
+        unit_price_cents: item.unitPriceCents,
+        is_order_bump: item.isOrderBump,
+        quantity: 1,
+      })),
+    )
+    .select("id, product_id");
+
+  if (itemError || !orderItems || orderItems.length === 0) {
     return { ok: false, error: itemError?.message ?? "order_item insert failed." };
   }
 
+  // Every digital item on the order gets its own signed link, so a buyer who
+  // took the bump doesn't have to come back for the second file.
+  const downloads: FulfilledDownload[] = [];
   let downloadUrl: string | null = null;
-  if (product.type === "digital_file" && product.file_url) {
-    const signed = await createSignedDownloadUrl(product.file_url);
-    if (signed) {
-      await supabase.from("deliveries").insert({
-        order_item_id: orderItem.id,
-        delivery_method: "download_link",
-        signed_url: signed.url,
-        signed_url_expires_at: signed.expiresAt,
-        delivered_at: new Date().toISOString(),
-      });
-      downloadUrl = signed.url;
-    }
+
+  for (const orderItem of orderItems) {
+    const itemProduct = productById.get(orderItem.product_id);
+    if (!itemProduct || itemProduct.type !== "digital_file" || !itemProduct.file_url) continue;
+
+    const signed = await createSignedDownloadUrl(itemProduct.file_url);
+    if (!signed) continue;
+
+    await supabase.from("deliveries").insert({
+      order_item_id: orderItem.id,
+      delivery_method: "download_link",
+      signed_url: signed.url,
+      signed_url_expires_at: signed.expiresAt,
+      delivered_at: new Date().toISOString(),
+    });
+
+    downloads.push({ productName: itemProduct.name, url: signed.url });
+    if (orderItem.product_id === input.productId) downloadUrl = signed.url;
   }
 
   // Best-effort, same reasoning as email capture's ESP sync: the sale
@@ -161,7 +230,7 @@ export async function fulfillOrder(
     });
   }
 
-  return { ok: true, alreadyProcessed: false, downloadUrl };
+  return { ok: true, alreadyProcessed: false, downloadUrl, downloads };
 }
 
 async function getVisitorAttribution(

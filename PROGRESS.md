@@ -4,6 +4,235 @@ Running log of where things stand between sessions. Newest entry first.
 
 ---
 
+## 2026-09-18 (latest) — Signup is a two step wizard, and every new creator gets 14 days free
+
+Modelled on the Stan onboarding the user shared: a progress bar, the link
+chosen first, then a screen that greets you by it. Only the wizard itself was
+wanted from that flow, not the socials step, the in-wizard plan and card
+screens, or the value stack comparison.
+
+- **Step one is the username**, because it's the part a creator actually
+  wants to do, and it lets step two open with "Hey @name". Nothing is created
+  until step two submits, so abandoning at step one leaves nothing behind.
+  `components/auth/username-field.tsx` is shared with the claim screen so the
+  two can't drift.
+- **The trial is 14 days, no card**, written as a `billing_overrides` row
+  with `reason = 'trial'` (**migration 0022** widens the reason constraint).
+  It's deliberately the same mechanism as the Creator Program year: same
+  shape, told apart by reason, so entitlement handles both without a second
+  code path. The prompt window scales to the grant (7 days for a trial, 30
+  for a program year) rather than nagging from day one.
+- Someone who adds billing mid-trial gets a subscription dated to start when
+  the trial ends, the same handling the program year already had.
+
+### A real bug this uncovered: email signup never worked
+
+This Supabase project has **email confirmation switched on**, so
+`auth.signUp()` returns a user but no session. The old flow redirected
+straight to `/claim-username`, which bounces anyone without a session, so an
+email signup could not complete at all. Google was presumably the only path
+anyone had used.
+
+`createAccount` now checks for a session rather than a user id, and when
+there isn't one it shows a "check your inbox" screen instead of creating a
+creator for an unconfirmed address (which would also hold a username hostage
+to an address nobody may ever confirm). The name they picked is kept in
+`localStorage` and prefills the claim screen when they come back signed in.
+
+**Verified end to end** on the real UI with throwaway accounts, since
+deleted: taken vs available username checks, the step transition, the greet
+by name, account plus page plus trial created together, the stashed name
+surviving a confirmation round trip and prefilling, and the trial reading
+correctly in Settings and /pricing at 14 days left, 4 days left (prompt
+appears) and expired. Two caveats worth recording: the **"check your inbox"
+screen itself was never rendered in a browser**, because Supabase's email
+rate limit kicked in after the test signups and blocked further ones, and
+`AnimatePresence mode="wait"` broke the step transition in dev exactly as
+username-field.tsx's own comment warns, so the wizard renders one step at a
+time without it.
+
+---
+
+## 2026-09-18 — Platform billing rebuilt on Razorpay Subscriptions; /pricing is back
+
+Paddle was dropped and `/pricing` has been sitting disabled as `_pricing`
+ever since. Platform billing now runs on Razorpay Subscriptions instead, and
+**the Paddle code is gone** (see the note at the end of this entry).
+
+**One tier, two intervals:** $19/month or $180/year, framed as two months
+free (derived from the two numbers and floored, since $180 against $19 a
+month is really 2.5 months — claiming three would overstate it).
+
+- **Migration 0021** adds `platform_subscriptions` (Razorpay's own status
+  vocabulary, stored as it comes), `platform_billing_events` for webhook
+  idempotency, and three cached columns on `creators`
+  (`subscription_status`, `subscription_interval`, `paid_until`).
+- **`lib/billing/entitlement.ts`** is the one place that answers "is this
+  creator paid up, and on what basis". A paid subscription and a Creator
+  Program free year are deliberately separate: the program lives in
+  `billing_overrides` (migrations/0018) and a program member has no
+  subscription row at all, so "who is paying" and "who is on the free year"
+  can never blur. Nothing is gated yet — this is the source of truth, ready
+  for gates to be turned on one at a time.
+- **Creator Program handoff:** a member who adds billing during their free
+  year gets a subscription dated (`start_at`) to begin the day the year ends,
+  so they're never charged for time they already have free, and the prompt at
+  the end of the year is a button rather than a surprise. Settings and
+  /pricing both say which of the two is covering them and when it runs out.
+- **Security discipline matches the storefront webhook:** signature over the
+  raw body, constant-time compare, and every event re-fetches the
+  subscription from Razorpay rather than believing the payload. The browser
+  callback (`/api/billing/verify`) checks Razorpay's
+  `payment_id|subscription_id` signature — note the reversed order versus the
+  one-off payment signature — and still re-reads the subscription before
+  writing anything.
+- **The event id is recorded only after an event applies**, not before. The
+  first cut claimed it up front, which meant a transient failure returned 500
+  and Razorpay's retry then hit the "already seen" branch and dropped the
+  event for good. Re-syncing is idempotent anyway (it re-reads and writes
+  what Razorpay says rather than incrementing), so a racing double delivery
+  is harmless.
+
+**Still needed before this can take money** (none of it is code):
+1. `RAZORPAY_PLATFORM_KEY_ID` / `_SECRET` in `.env.local` and Vercel —
+   OrangeLink's own account, the one creators pay into.
+2. `node scripts/create-subscription-plans.mjs --create`, then put the two
+   printed plan ids in `RAZORPAY_PLAN_ID_MONTHLY` / `_ANNUAL`.
+3. Register `/api/webhooks/razorpay/platform` in the Razorpay dashboard for
+   `subscription.charged`, `subscription.cancelled`, `subscription.halted`
+   (and `activated`/`pending`/`completed` if you want them), and put its
+   secret in `RAZORPAY_PLATFORM_WEBHOOK_SECRET`.
+4. Worth confirming the account can issue **USD** subscriptions; Razorpay
+   gates international subscriptions per account, and the plan-creation
+   script will say so if not.
+
+**Verified without keys** (which is most of it): the pricing page in both
+toggle states, the signed-out CTA, the 401 on subscribing signed out, the
+honest 501 when billing isn't configured, webhook rejection of unsigned,
+forged and tampered bodies, dedupe of a repeated event id, retry of a failed
+one, and every entitlement state — free, program year running, program year
+within the prompt window, program year expired, and an active paid
+subscription overriding an expired program year — driven through the real UI
+as a throwaway creator that was deleted afterwards. The live charge path
+itself is unexercised until the keys exist.
+
+### Paddle removed
+
+Deleted on the user's say-so, once the Razorpay path above was working:
+`src/lib/paddle/`, `/api/webhooks/paddle`, the disabled `_pricing` route, the
+two `paddle*` helpers in `lib/env-client.ts`, the four `PADDLE_*` entries in
+`.env.local.example`, and the `@paddle/paddle-js` / `@paddle/paddle-node-sdk`
+dependencies. The lockfile was updated with `npm install
+--package-lock-only`, which also re-expanded some
+`@tailwindcss/oxide-wasm32-wasi` optional entries — normalization, no version
+changes.
+
+**The `paddle_customers` and `paddle_subscriptions` tables (migration 0008)
+were left in place**, along with the migration itself, which is history and
+shouldn't be rewritten. Both were verified empty (0 rows) before the code
+went, so nothing was lost and nothing references them; a later migration can
+drop them whenever it's convenient.
+
+---
+
+## 2026-09-18 (later) — Milestone 4's last gaps closed: order bumps and coupon codes; Milestone 8 dropped
+
+### Order bumps and coupons (the `product_offers` / `coupons` tables finally have code)
+
+Both tables had sat in `schema.sql` since the start with nothing behind them
+— and, it turned out, no RLS policies either, since `schema.sql` enables RLS
+table by table and never listed these two. **Migration 0020 fixes that**
+along with adding what the feature needs. Applied to production already.
+
+**One place prices a checkout:** `src/lib/payments/pricing.ts`. The browser
+says which product, which bumps and which code; every amount comes from the
+database. `create-order`, the free-claim route, the quote the modal shows and
+Razorpay verification all go through it, so the number on screen, the number
+charged and the number recorded can't drift. A bump id that isn't genuinely
+offered is ignored rather than refused (verified: passing the main product's
+own id as a bump changes nothing).
+
+- **Creator side:** Products → ⊕ on a card picks bumps and their discount;
+  Dashboard → Discount codes (new nav entry under Sell) manages coupons.
+  Codes are stored uppercase so buyers can type them however they like.
+- **Buyer side:** bumps are tick boxes in the checkout modal, with a code
+  field beside them. Totals re-quote on the server on every change, dimmed
+  and with paying held back while in flight.
+- **Coupons** are percent or fixed, all products or one, with an optional
+  limit and expiry. A product-scoped code discounts only its own line
+  (verified: 20% off a $20 guide bought with a $6 bump takes $4, not $5.20).
+  Redemptions are claimed in one statement by `redeem_coupon` so two buyers
+  can't both take the last one, and only once an order exists, so an
+  abandoned payment doesn't burn one.
+- **Orders** now record `subtotal_cents`, `discount_cents`, `coupon_id` and
+  one `order_items` row per line with `is_order_bump` set; every digital item
+  gets its own signed download link.
+- **"Free" now means the total is zero**, not just a zero-priced product — a
+  full-value code routes to the free-claim path, which re-prices before
+  agreeing it's free.
+
+**Verified against the live database**, including a throwaway creator driven
+through the real dashboard UI. The paid path was proven by creating two
+genuine Razorpay orders on the connected account (`order_TdOf8YqZo0LdMS` at
+$20, `order_TdOfAB4Uwpbtnt` at $18.75 for a bump plus a 25% code) and reading
+them back through the API: both `status: created`, `amount_paid: 0`, **no
+money moved**, and the notes carried the bump id and code that verification
+re-prices from. Those two stray unpaid orders are the only trace left; all
+test products, coupons, orders and the test creator were deleted.
+
+### Milestone 8 (Media Kit) dropped
+
+Never built, and now formally out of scope for the same reason as 7 and 10:
+the stats need IG/YouTube/TikTok OAuth and platform review we don't have, and
+a media kit filled in by hand isn't worth shipping. `/dashboard/media-kit`
+stays a redirect stub; `media_kits`, `connected_accounts` and
+`platform_stats_snapshots` stay in the schema, unused.
+
+---
+
+## 2026-09-18 — Milestone 10's social scheduling dropped; hidden and locked blocks no longer leak
+
+Two unrelated pieces of work, both on `claude/competent-gould-5f2409`.
+
+### Social scheduling removed from active scope (user decision)
+
+Same wall Milestone 7 hit: posting to Instagram needs Meta app review, and
+X's API costs more than this stage can justify. Rather than keep a planner
+that can't post, the feature is out of scope until the platform economics
+change. Where scheduling comes up (FAQ, onboarding, support), recommend
+**Buffer or Later** — don't promise a native feature.
+
+**What was removed:** `/dashboard/schedule` is now a redirect stub with the
+reason in a comment (the same treatment Automations got when Milestone 7
+was dropped), the sidebar entry is gone, and
+`components/schedule/*`, `lib/schedule/platforms.ts` and the schedule
+server actions are deleted. `/dashboard/media-kit` used to redirect to
+Schedule, so it now points at the dashboard instead.
+
+**What was kept:** the `scheduled_posts` and `social_accounts` tables, plus
+migrations 0016/0017. Both are empty (verified: 0 rows, 0 creators), so
+there's no orphaned creator data, and dropping them would only add
+migration churn for tables nothing reads.
+
+### Hidden and locked blocks no longer ship to the browser
+
+The public page handed every block to a client component, so hidden,
+scheduled and password-protected blocks were serialised into the HTML
+whether or not they rendered. Confirmed against production: 15 hidden
+links on `/nsy`, and a locked block's protected URL sitting in the payload
+behind its own gate.
+
+`getPublicPage` now filters on the server and reduces locked blocks to
+stubs; content comes back from a new `unlockBlock` server action that
+re-checks the block is live and, for a password, waits on
+`verify_block_password`. Wrong guesses are rate limited per visitor
+(10 per block, 60 overall, 15-minute window) through the new
+`block_unlock_attempts` table — migration **0019, already applied to
+production**. Visitors are keyed by an HMAC of the request IP, never the
+address. See commit `1993832` for the full reasoning.
+
+---
+
 ## 2026-09-05 (later) — Razorpay switched to live mode; international payments now accepted for real
 
 Razorpay approved the international payments application (user confirmed

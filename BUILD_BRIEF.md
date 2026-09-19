@@ -22,7 +22,7 @@ This brief translates those into a concrete technical scaffold and build sequenc
 - **Framework:** Next.js (App Router)
 - **Styling:** Tailwind CSS
 - **Backend/DB/Auth/Storage:** Supabase (Postgres, Auth, Storage, RLS)
-- **Payments:** Stripe (Checkout + Payment Intents; Apple Pay/Google Pay via Stripe's built-in support)
+- **Payments:** Razorpay, in two separate directions. A creator's buyers pay *the creator* through that creator's own Razorpay account (credentials in `creator_payment_accounts`, migrations/0011). Creators pay *OrangeLink* for a plan through OrangeLink's own account via Razorpay Subscriptions (`RAZORPAY_PLATFORM_*`, migrations/0021). The two must never share credentials. Stripe was never used; Paddle has been removed entirely; Dodo is paused but still wired
 - **Transactional email:** Resend
 - **Deployment:** Vercel
 - **Drag-and-drop:** dnd-kit
@@ -107,8 +107,9 @@ This brief translates those into a concrete technical scaffold and build sequenc
 - Product block type renders on public page
 - Stripe Checkout Session creation (`/api/checkout`) — no-redirect embedded flow, Apple Pay/Google Pay enabled
 - Stripe webhook → `orders`/`order_items` → `deliveries` (signed URL generation for digital files)
-- Order bump UI at checkout time (`product_offers` table)
-- Coupon code support
+- Order bump UI at checkout time (`product_offers` table) — **built.** Creators attach bumps per product (Products → the ⊕ on a card), optionally discounted; buyers tick them in the checkout modal
+- Coupon code support — **built.** Dashboard → Discount codes; percent or fixed, all products or one, with an optional limit and expiry. Redemptions are claimed atomically at fulfillment (`redeem_coupon`, migrations/0020)
+- Both are priced in one place, `lib/payments/pricing.ts`: the browser sends which product, which bumps and which code, never what they cost
 - Design reference: `DESIGN_SYSTEM.md` Screen 05 (Product Setup) — editor + live preview split on desktop; Screen 06 (In-page Checkout) — checkout must feel native to the page, never a redirect, hierarchy is Product → Price → Email → Payment → Total → CTA → Confirmation
 
 **Milestone 5 — Email Capture**
@@ -130,16 +131,16 @@ This brief translates those into a concrete technical scaffold and build sequenc
 - Webhook handler (`/api/webhooks/meta`) → keyword match → send DM via Graph API → log to `automation_events`
 - TikTok/YouTube: implement as "public auto-reply" only, clearly labeled as different from DM
 
-**Milestone 8 — Media Kit**
-- OAuth connect flow for IG/YouTube/TikTok stat pulls → `connected_accounts`
-- Scheduled job (cron) to snapshot stats → `platform_stats_snapshots`
-- Public media kit page (`media_kits.public_slug`) rendering current stats + trend
+**Milestone 8 — Media Kit** — **out of active scope, never built.**
+- Dropped for the same reason as Milestones 7 and 10: the stat pulls depend on IG/YouTube/TikTok OAuth and platform review we don't have, so the honest version of this page is a form a creator fills in by hand, which isn't worth shipping.
+- `/dashboard/media-kit` is a redirect stub. The `media_kits`, `connected_accounts` and `platform_stats_snapshots` tables stay in the schema, unused.
+- Revisit only if the platform access changes.
 
 **Milestone 9 — Calendly Embed**
 - `booking` block type → embeds Calendly widget or deep-links to creator's Calendly URL
 
 **Milestone 10 — Polish / Later**
-- Buffer-style scheduling (likely deferred to integration, not native build — revisit based on demand)
+- ~~Buffer-style scheduling~~ — **out of active scope.** Blocked the same way Milestone 7 was: posting to Instagram needs Meta app review, and X's API is priced past what this stage can justify. A planner was built and has been removed rather than left as placeholder UI for something we can't deliver. Where scheduling comes up (FAQ, onboarding, support), recommend Buffer or Later instead of promising a native feature. Revisit only if the platform economics change.
 - Zapier/Make webhook integration
 - One-time-payment pricing tier (business decision, not blocking engineering)
 
@@ -165,7 +166,7 @@ Per the Vision doc — explicitly out of scope until there's real user demand:
 - Full course/LMS platform (quizzes, certificates, drip content)
 - Native calendar/booking system (embed Calendly instead)
 - Membership/subscription billing (Patreon-style)
-- Native social scheduling (Buffer-style) — integrate or defer
+- Native social scheduling (Buffer-style) — **decided: not building it.** Recommend Buffer or Later; see Milestone 10
 
 ---
 

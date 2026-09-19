@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Package, Plus, Pencil, Trash2 } from "lucide-react";
+import { AlertCircle, Package, Plus, PlusCircle, Pencil, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductFormModal } from "./product-form-modal";
+import { OrderBumpsModal } from "./order-bumps-modal";
 import { deleteProduct } from "@/app/(dashboard)/dashboard/products/actions";
 import { formatProductPrice } from "@/lib/format";
 import type { Product } from "@/lib/types";
@@ -22,6 +23,7 @@ export function ProductsManager({
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Product | undefined>(undefined);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [bumpsFor, setBumpsFor] = useState<Product | null>(null);
 
   function openCreate() {
     setEditing(undefined);
@@ -101,6 +103,15 @@ export function ProductsManager({
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
+                    onClick={() => setBumpsFor(product)}
+                    aria-label="Order bumps"
+                    title="Order bumps"
+                    className="flex h-8 w-8 items-center justify-center rounded-sm text-text-muted transition-colors hover:bg-surface-2 hover:text-text-primary"
+                  >
+                    <PlusCircle className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => openEdit(product)}
                     aria-label="Edit product"
                     className="flex h-8 w-8 items-center justify-center rounded-sm text-text-muted transition-colors hover:bg-surface-2 hover:text-text-primary"
@@ -130,6 +141,15 @@ export function ProductsManager({
         paymentsConnected={paymentsConnected}
         onSaved={onSaved}
       />
+
+      {bumpsFor && (
+        <OrderBumpsModal
+          open
+          onClose={() => setBumpsFor(null)}
+          product={bumpsFor}
+          products={products}
+        />
+      )}
     </div>
   );
 }
